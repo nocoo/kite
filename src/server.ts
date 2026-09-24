@@ -19,6 +19,7 @@ export async function serve(directory: string) {
   const path = join(directory, "events.sqlite");
   privateFile(path);
   const store = new EventStore(path);
+  let timer: ReturnType<typeof setInterval> | undefined;
   const send = (res: ServerResponse, status: number, body: unknown) => {
     res.writeHead(status, { "content-type": "application/json" });
     res.end(JSON.stringify(body));
@@ -31,13 +32,28 @@ export async function serve(directory: string) {
         return;
       }
       if (req.method === "GET" && url.pathname === "/v1/events") {
+        const before = url.searchParams.get("before");
         const events = store.query({
           after: Number(url.searchParams.get("after") ?? 0),
+          ...(before === null ? {} : { before: Number(before) }),
           limit: Number(url.searchParams.get("limit") ?? 100),
           source: url.searchParams.get("source") ?? undefined,
           sessionId: url.searchParams.get("sessionId") ?? undefined,
+          producerId: url.searchParams.get("producerId") ?? undefined,
         });
         send(res, 200, { events });
+        return;
+      }
+      if (req.method === "GET" && url.pathname === "/v1/sessions") {
+        const before = url.searchParams.get("before");
+        send(
+          res,
+          200,
+          store.sessions({
+            limit: Number(url.searchParams.get("limit") ?? 100),
+            ...(before === null ? {} : { before: Number(before) }),
+          }),
+        );
         return;
       }
       if (req.method !== "POST" || url.pathname !== "/v1/events") {
@@ -74,12 +90,25 @@ export async function serve(directory: string) {
     }
   });
   try {
+    store.prune();
+    timer = setInterval(
+      () => {
+        try {
+          store.prune();
+        } catch {
+          // A failed scheduled prune must leave the collector accepting events.
+        }
+      },
+      60 * 60 * 1000,
+    );
+    timer.unref();
     await new Promise<void>((resolve, reject) => {
       server.once("error", reject);
       server.listen(socket, resolve);
     });
     chmodSync(socket, 0o600);
   } catch (error) {
+    if (timer) clearInterval(timer);
     server.close();
     store.close();
     throw error;
@@ -90,6 +119,7 @@ export async function serve(directory: string) {
     store,
     close: () => {
       closed ??= new Promise<void>((resolve) => {
+        if (timer) clearInterval(timer);
         server.close(() => {
           store.close();
           resolve();

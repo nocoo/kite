@@ -1,9 +1,10 @@
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { createServer, request } from "node:http";
+import { createServer, IncomingMessage, request } from "node:http";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MAX_BATCH_BYTES } from "../src/schema.ts";
 import { serve } from "../src/server.ts";
+import { EventStore } from "../src/store.ts";
 import { defaultDirectory, localRequest, socketPath } from "../src/transport.ts";
 import { event } from "./fixtures.ts";
 
@@ -51,6 +52,13 @@ describe("private Unix collector", () => {
     server = await serve(dir);
     closing.push(server.close);
     expect(server.store.query()).toHaveLength(1);
+    const listed = await localRequest(server.socket, "/v1/sessions?limit=1");
+    expect(listed.status).toBe(200);
+    expect(listed.body).toMatchObject({
+      retentionDays: 7,
+      nextBefore: null,
+      sessions: [{ producerId: "producer", sessionId: "s", eventCount: 1, cwd: null }],
+    });
   });
   it("rejects malformed, oversized and conflicting batches without partial insertion", async () => {
     const server = await serve(directory());
@@ -71,6 +79,9 @@ describe("private Unix collector", () => {
     ).toBe(409);
     expect(server.store.query()).toEqual([]);
     expect((await localRequest(server.socket, "/v1/events?limit=-1")).status).toBe(400);
+    expect((await localRequest(server.socket, "/v1/events?before=nope")).status).toBe(400);
+    expect((await localRequest(server.socket, "/v1/sessions?limit=201")).status).toBe(400);
+    expect((await localRequest(server.socket, "/v1/sessions?before=-1")).status).toBe(400);
     expect((await localRequest(server.socket, "/missing")).status).toBe(404);
     expect((await localRequest(server.socket, "/missing", "{}")).status).toBe(404);
     const status = await new Promise<number | undefined>((resolve, reject) => {
@@ -101,6 +112,62 @@ describe("private Unix collector", () => {
     chmodSync(db, 0o600);
     writeFileSync(join(dir, "collector.sock"), "owned elsewhere");
     await expect(serve(dir)).rejects.toThrow("already exists");
+  });
+  it("prunes expired history on startup and cancels the hourly prune", async () => {
+    const dir = directory();
+    mkdirSync(dir, { mode: 0o700 });
+    const db = join(dir, "events.sqlite");
+    const clock = vi.spyOn(Date, "now").mockReturnValue(Date.now() - 8 * 24 * 60 * 60 * 1000);
+    const seeded = new EventStore(db);
+    seeded.append([event()]);
+    seeded.close();
+    chmodSync(db, 0o600);
+    clock.mockRestore();
+    const intervals = vi.spyOn(global, "setInterval");
+    const server = await serve(dir);
+    closing.push(server.close);
+    expect(server.store.query()).toEqual([]);
+    expect(intervals).toHaveBeenCalledWith(expect.any(Function), 60 * 60 * 1000);
+    const prune = vi.spyOn(server.store, "prune").mockImplementation(() => {
+      throw new Error("disk");
+    });
+    const scheduled = intervals.mock.calls[0]?.[0] as () => void;
+    expect(() => scheduled()).not.toThrow();
+    expect(prune).toHaveBeenCalled();
+    const cleared = vi.spyOn(global, "clearInterval");
+    await server.close();
+    expect(cleared).toHaveBeenCalled();
+  });
+  it("closes storage when startup prune fails", async () => {
+    vi.spyOn(EventStore.prototype, "prune").mockImplementationOnce(() => {
+      throw new Error("prune failed");
+    });
+    await expect(serve(directory())).rejects.toThrow("prune failed");
+  });
+  it("destroys an event upload when the request deadline fires", async () => {
+    const server = await serve(directory());
+    closing.push(server.close);
+    vi.spyOn(IncomingMessage.prototype, "setTimeout").mockImplementation(function (
+      this: IncomingMessage,
+      _delay,
+      callback,
+    ) {
+      callback?.();
+      return this;
+    });
+    await expect(localRequest(server.socket, "/v1/events", JSON.stringify([event()]))).rejects.toThrow();
+  });
+  it("filters the replay snapshot by producer and inclusive cursor", async () => {
+    const server = await serve(directory());
+    closing.push(server.close);
+    await localRequest(
+      server.socket,
+      "/v1/events",
+      JSON.stringify([event(), { ...event(2), producerId: "other" }, { ...event(3), name: "later" }]),
+    );
+    const body = (await localRequest(server.socket, "/v1/events?producerId=producer&after=0&before=1"))
+      .body as { events: { seq: number }[] };
+    expect(body.events.map((item) => item.seq)).toEqual([1]);
   });
   it("cleans up when the Unix socket path is too long", async () => {
     const dir = join(directory(), "x".repeat(100));
