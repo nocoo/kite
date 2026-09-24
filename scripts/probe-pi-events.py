@@ -150,6 +150,7 @@ def run_probe():
                 server.server_close()
         extension = [json.loads(line) for line in log_path.read_text().splitlines()]
         types = [event["type"] for event in records]
+        assert "extension_error" not in types, [e for e in records if e["type"] == "extension_error"]
         assert request_count == 3, request_count
         assert types.count("agent_end") == 2 and types.count("agent_settled") == 1, types
         assert "auto_retry_start" in types and "auto_retry_end" in types
