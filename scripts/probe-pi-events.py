@@ -112,6 +112,8 @@ def run_probe():
         command = ["pi", "--mode", "rpc", "--no-session", "--no-extensions", "--no-skills",
                    "--no-prompt-templates", "--no-themes", "--extension", str(extension_path),
                    "--provider", "kite-probe", "--model", "offline", "--tools", "probe"]
+        if observer := os.environ.get("KITE_PROBE_EXTENSION"):
+            command.extend(["--extension", str(Path(observer).resolve())])
         records = []
         incoming = queue.Queue()
         with (directory / "stderr.log").open("wb") as diagnostics:
