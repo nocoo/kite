@@ -1,0 +1,686 @@
+{
+  "pi_version": "0.87.1",
+  "http_requests": 3,
+  "checks": "passed",
+  "provider_stream_event_observed": false,
+  "extension": [
+    {
+      "channel": "extension",
+      "type": "session_start"
+    },
+    {
+      "channel": "extension",
+      "type": "input"
+    },
+    {
+      "channel": "extension",
+      "type": "before_agent_start"
+    },
+    {
+      "channel": "extension",
+      "type": "agent_start"
+    },
+    {
+      "channel": "extension",
+      "type": "turn_start",
+      "turnIndex": 0
+    },
+    {
+      "channel": "extension",
+      "type": "message_start",
+      "role": "system"
+    },
+    {
+      "channel": "extension",
+      "type": "message_end",
+      "role": "system"
+    },
+    {
+      "channel": "extension",
+      "type": "message_start",
+      "role": "user"
+    },
+    {
+      "channel": "extension",
+      "type": "message_end",
+      "role": "user"
+    },
+    {
+      "channel": "extension",
+      "type": "context"
+    },
+    {
+      "channel": "extension",
+      "type": "context_with_system"
+    },
+    {
+      "channel": "extension",
+      "type": "before_provider_headers"
+    },
+    {
+      "channel": "extension",
+      "type": "before_provider_request"
+    },
+    {
+      "channel": "extension",
+      "type": "message_start",
+      "role": "assistant"
+    },
+    {
+      "channel": "extension",
+      "type": "message_end",
+      "role": "assistant"
+    },
+    {
+      "channel": "extension",
+      "type": "turn_end",
+      "role": "assistant",
+      "turnIndex": 0,
+      "outcome": "error"
+    },
+    {
+      "channel": "extension",
+      "type": "agent_end"
+    },
+    {
+      "channel": "extension",
+      "type": "agent_start"
+    },
+    {
+      "channel": "extension",
+      "type": "turn_start",
+      "turnIndex": 0
+    },
+    {
+      "channel": "extension",
+      "type": "context"
+    },
+    {
+      "channel": "extension",
+      "type": "context_with_system"
+    },
+    {
+      "channel": "extension",
+      "type": "before_provider_headers"
+    },
+    {
+      "channel": "extension",
+      "type": "before_provider_request"
+    },
+    {
+      "channel": "extension",
+      "type": "after_provider_response"
+    },
+    {
+      "channel": "extension",
+      "type": "message_start",
+      "role": "assistant"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "toolcall_start"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "toolcall_delta"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "toolcall_start"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "toolcall_delta"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "toolcall_start"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "toolcall_delta"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "toolcall_start"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "toolcall_delta"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "toolcall_end"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "toolcall_end"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "toolcall_end"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "toolcall_end"
+    },
+    {
+      "channel": "extension",
+      "type": "message_end",
+      "role": "assistant"
+    },
+    {
+      "channel": "extension",
+      "type": "tool_execution_start",
+      "toolCallId": "call_slow"
+    },
+    {
+      "channel": "extension",
+      "type": "tool_call",
+      "toolCallId": "call_slow"
+    },
+    {
+      "channel": "extension",
+      "type": "tool_execution_start",
+      "toolCallId": "call_fast"
+    },
+    {
+      "channel": "extension",
+      "type": "tool_call",
+      "toolCallId": "call_fast"
+    },
+    {
+      "channel": "extension",
+      "type": "tool_execution_start",
+      "toolCallId": "call_blocked"
+    },
+    {
+      "channel": "extension",
+      "type": "tool_call",
+      "toolCallId": "call_blocked"
+    },
+    {
+      "channel": "extension",
+      "type": "ui_prompt_start"
+    },
+    {
+      "channel": "extension",
+      "type": "ui_prompt_end"
+    },
+    {
+      "channel": "extension",
+      "type": "tool_execution_end",
+      "toolCallId": "call_blocked",
+      "isError": true
+    },
+    {
+      "channel": "extension",
+      "type": "tool_execution_start",
+      "toolCallId": "call_invalid"
+    },
+    {
+      "channel": "extension",
+      "type": "tool_execution_end",
+      "toolCallId": "call_invalid",
+      "isError": true
+    },
+    {
+      "channel": "extension",
+      "type": "probe_execute_enter",
+      "toolCallId": "call_slow"
+    },
+    {
+      "channel": "extension",
+      "type": "probe_execute_enter",
+      "toolCallId": "call_fast"
+    },
+    {
+      "channel": "extension",
+      "type": "tool_execution_update",
+      "toolCallId": "call_fast"
+    },
+    {
+      "channel": "extension",
+      "type": "probe_execute_exit",
+      "toolCallId": "call_fast"
+    },
+    {
+      "channel": "extension",
+      "type": "tool_result",
+      "toolCallId": "call_fast",
+      "isError": false
+    },
+    {
+      "channel": "extension",
+      "type": "tool_execution_end",
+      "toolCallId": "call_fast",
+      "isError": false
+    },
+    {
+      "channel": "extension",
+      "type": "tool_execution_update",
+      "toolCallId": "call_slow"
+    },
+    {
+      "channel": "extension",
+      "type": "probe_execute_exit",
+      "toolCallId": "call_slow"
+    },
+    {
+      "channel": "extension",
+      "type": "tool_result",
+      "toolCallId": "call_slow",
+      "isError": false
+    },
+    {
+      "channel": "extension",
+      "type": "tool_execution_end",
+      "toolCallId": "call_slow",
+      "isError": false
+    },
+    {
+      "channel": "extension",
+      "type": "message_start",
+      "role": "toolResult"
+    },
+    {
+      "channel": "extension",
+      "type": "message_end",
+      "role": "toolResult"
+    },
+    {
+      "channel": "extension",
+      "type": "message_start",
+      "role": "toolResult"
+    },
+    {
+      "channel": "extension",
+      "type": "message_end",
+      "role": "toolResult"
+    },
+    {
+      "channel": "extension",
+      "type": "message_start",
+      "role": "toolResult"
+    },
+    {
+      "channel": "extension",
+      "type": "message_end",
+      "role": "toolResult"
+    },
+    {
+      "channel": "extension",
+      "type": "message_start",
+      "role": "toolResult"
+    },
+    {
+      "channel": "extension",
+      "type": "message_end",
+      "role": "toolResult"
+    },
+    {
+      "channel": "extension",
+      "type": "turn_end",
+      "role": "assistant",
+      "turnIndex": 0,
+      "outcome": "completed"
+    },
+    {
+      "channel": "extension",
+      "type": "turn_start",
+      "turnIndex": 1
+    },
+    {
+      "channel": "extension",
+      "type": "context"
+    },
+    {
+      "channel": "extension",
+      "type": "context_with_system"
+    },
+    {
+      "channel": "extension",
+      "type": "before_provider_headers"
+    },
+    {
+      "channel": "extension",
+      "type": "before_provider_request"
+    },
+    {
+      "channel": "extension",
+      "type": "after_provider_response"
+    },
+    {
+      "channel": "extension",
+      "type": "message_start",
+      "role": "assistant"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "text_start"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "text_delta"
+    },
+    {
+      "channel": "extension",
+      "type": "message_update",
+      "role": "assistant",
+      "deltaType": "text_end"
+    },
+    {
+      "channel": "extension",
+      "type": "message_end",
+      "role": "assistant"
+    },
+    {
+      "channel": "extension",
+      "type": "turn_end",
+      "role": "assistant",
+      "turnIndex": 1,
+      "outcome": "completed"
+    },
+    {
+      "channel": "extension",
+      "type": "agent_end"
+    },
+    {
+      "channel": "extension",
+      "type": "agent_before_settle",
+      "outcome": "completed"
+    },
+    {
+      "channel": "extension",
+      "type": "agent_settled"
+    },
+    {
+      "channel": "extension",
+      "type": "session_shutdown"
+    }
+  ],
+  "rpc": [
+    {
+      "channel": "rpc",
+      "type": "response"
+    },
+    {
+      "channel": "rpc",
+      "type": "agent_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "turn_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_end"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_end"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_end"
+    },
+    {
+      "channel": "rpc",
+      "type": "turn_end"
+    },
+    {
+      "channel": "rpc",
+      "type": "agent_end",
+      "willRetry": true
+    },
+    {
+      "channel": "rpc",
+      "type": "auto_retry_start",
+      "attempt": 1
+    },
+    {
+      "channel": "rpc",
+      "type": "entry_appended"
+    },
+    {
+      "channel": "rpc",
+      "type": "agent_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "turn_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_end"
+    },
+    {
+      "channel": "rpc",
+      "type": "auto_retry_end",
+      "attempt": 1
+    },
+    {
+      "channel": "rpc",
+      "type": "tool_execution_start",
+      "toolCallId": "call_slow"
+    },
+    {
+      "channel": "rpc",
+      "type": "tool_execution_start",
+      "toolCallId": "call_fast"
+    },
+    {
+      "channel": "rpc",
+      "type": "tool_execution_start",
+      "toolCallId": "call_blocked"
+    },
+    {
+      "channel": "rpc",
+      "type": "extension_ui_request"
+    },
+    {
+      "channel": "rpc",
+      "type": "tool_execution_end",
+      "toolCallId": "call_blocked",
+      "isError": true
+    },
+    {
+      "channel": "rpc",
+      "type": "tool_execution_start",
+      "toolCallId": "call_invalid"
+    },
+    {
+      "channel": "rpc",
+      "type": "tool_execution_end",
+      "toolCallId": "call_invalid",
+      "isError": true
+    },
+    {
+      "channel": "rpc",
+      "type": "tool_execution_update",
+      "toolCallId": "call_fast"
+    },
+    {
+      "channel": "rpc",
+      "type": "tool_execution_end",
+      "toolCallId": "call_fast",
+      "isError": false
+    },
+    {
+      "channel": "rpc",
+      "type": "tool_execution_update",
+      "toolCallId": "call_slow"
+    },
+    {
+      "channel": "rpc",
+      "type": "tool_execution_end",
+      "toolCallId": "call_slow",
+      "isError": false
+    },
+    {
+      "channel": "rpc",
+      "type": "message_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_end"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_end"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_end"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_end"
+    },
+    {
+      "channel": "rpc",
+      "type": "turn_end"
+    },
+    {
+      "channel": "rpc",
+      "type": "turn_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_start"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_update"
+    },
+    {
+      "channel": "rpc",
+      "type": "message_end"
+    },
+    {
+      "channel": "rpc",
+      "type": "turn_end"
+    },
+    {
+      "channel": "rpc",
+      "type": "agent_end",
+      "willRetry": false
+    },
+    {
+      "channel": "rpc",
+      "type": "agent_settled"
+    }
+  ]
+}
