@@ -128,13 +128,15 @@ export function attach(pi: ObserverHost, makeExporter = () => new Exporter(socke
           reportedLoss = dropped;
         }
         let payload = eventPayload(event);
+        if (isRecord(payload) && typeof payload.toolCallId === "string")
+          extra.toolCallId = payload.toolCallId;
         if (name === "session_start")
           payload = snapshot({
             event,
             cwd: context.cwd,
             sessionFile: context.sessionManager?.getSessionFile(),
             leafId: context.sessionManager?.getLeafId(),
-            integration: { piVersion: "0.87.1", schemaVersion: 1, hooks: PI_EVENTS },
+            integration: { testedPiVersion: "0.87.1", schemaVersion: 1, hooks: PI_EVENTS },
           });
         emit(name, payload, extra);
         if (name === "message_end") delete correlation.messageId;

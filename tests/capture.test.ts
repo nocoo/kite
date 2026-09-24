@@ -11,6 +11,8 @@ describe("bounded immutable capture", () => {
   it("redacts field credentials and headers, omits binary and images", () => {
     const captured = snapshot({
       apiKey: "private",
+      token: "private",
+      private_key: "private",
       authorization: "Bearer secret",
       headers: { x: "secret" },
       access_token: "secret",
@@ -22,7 +24,7 @@ describe("bounded immutable capture", () => {
       input: { type: "input_image" },
       harmless: "visible",
     });
-    expect(JSON.stringify(captured)).not.toMatch(/private|Bearer|base64/);
+    expect(JSON.stringify(captured)).not.toMatch(/"private"|Bearer|base64/);
     expect(captured).toMatchObject({ harmless: "visible", data: { _kiteOmitted: "binary" } });
   });
   it("handles special and unsupported values explicitly", () => {

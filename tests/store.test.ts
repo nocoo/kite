@@ -62,6 +62,16 @@ describe("neutral validation", () => {
 });
 
 describe("transactional event store", () => {
+  it("paginates large records by bytes without skipping the next cursor", () => {
+    const store = new EventStore(":memory:");
+    store.append(Array.from({ length: 80 }, (_, i) => ({ ...event(i + 1), payload: "x".repeat(64000) })));
+    const first = store.query({ limit: 1000 });
+    expect(first.length).toBeLessThan(80);
+    expect(Buffer.byteLength(JSON.stringify(first))).toBeLessThan(4 * 1024 * 1024);
+    const next = store.query({ after: first.at(-1)?.cursor, limit: 1000 });
+    expect([...first, ...next].map((item) => item.seq)).toEqual(Array.from({ length: 80 }, (_, i) => i + 1));
+    store.close();
+  });
   it("commits, deduplicates, paginates and survives restart", () => {
     const dir = mkdtempSync(join(tmpdir(), "kite-store-"));
     directories.push(dir);

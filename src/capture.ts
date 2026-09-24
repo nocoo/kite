@@ -1,7 +1,7 @@
 import { isRecord, type Json } from "./schema.ts";
 
 const privateKey =
-  /^(?:.*(?:api[-_]?key|authorization|password|secret|credential|access[-_]?token|refresh[-_]?token)|cookie|set-cookie|headers)$/i;
+  /^(?:.*(?:api[-_]?key|private[-_]?key|authorization|password|secret|credentials?|access[-_]?token|refresh[-_]?token)|token|cookie|set-cookie|headers)$/i;
 const marker = (reason: string): Json => ({ _kiteOmitted: reason });
 
 export function snapshot(value: unknown, maxBytes = 192 * 1024): Json {

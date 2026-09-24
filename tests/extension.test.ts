@@ -60,7 +60,11 @@ describe("passive released Pi integration", () => {
     o.fire("message_start", { message: { role: "assistant" } });
     o.fire("message_update", {
       message: { content: "cumulative" },
-      assistantMessageEvent: { contentIndex: 2, delta: "a", partial: {} },
+      assistantMessageEvent: {
+        contentIndex: 2,
+        delta: "a",
+        partial: { content: [null, null, { type: "toolCall", id: "t", name: "read" }] },
+      },
     });
     o.fire("message_end", { message: { role: "assistant", text: "final" } });
     o.fire("tool_execution_start", { toolCallId: "t", toolName: "read" });
@@ -75,6 +79,7 @@ describe("passive released Pi integration", () => {
     const messages = trace.filter((e) => e.name.startsWith("message_"));
     expect(new Set(messages.map((e) => e.correlation?.messageId)).size).toBe(1);
     expect(messages[1]?.correlation?.contentIndex).toBe(2);
+    expect(messages[1]?.correlation?.toolCallId).toBe("t");
     expect(trace.find((e) => e.name === "tool_execution_start")?.correlation).toMatchObject({
       toolCallId: "t",
       toolName: "read",

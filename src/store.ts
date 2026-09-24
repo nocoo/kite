@@ -81,16 +81,23 @@ export class EventStore {
       params.push(source);
     }
     params.push(limit);
-    return this.db
+    const rows = this.db
       .prepare(
         `SELECT cursor,received,body FROM events WHERE ${conditions.join(" AND ")} ORDER BY cursor LIMIT ?`,
       )
-      .all(...params)
-      .map((row) => ({
+      .iterate(...params);
+    const result: StoredEvent[] = [];
+    let bytes = 0;
+    for (const row of rows) {
+      bytes += Buffer.byteLength(String(row.body)) + 128;
+      if (bytes > 4 * 1024 * 1024) break;
+      result.push({
         ...JSON.parse(String(row.body)),
         cursor: Number(row.cursor),
         receivedAt: Number(row.received),
-      }));
+      });
+    }
+    return result;
   }
 
   close(): void {
