@@ -63,6 +63,7 @@ npm run dev
 默认数据目录是 `~/.local/state/kite`，数据库为 `events.sqlite`，通信 socket 为 `collector.sock`。
 
 ```sh
+node dist/cli.js --version
 node dist/cli.js events --limit 100
 node dist/cli.js events --after 100 --session SESSION_ID
 node dist/cli.js export > trace.jsonl
@@ -147,6 +148,8 @@ node scripts/browser-check.mjs
 
 ## 文档
 
+- [版本管理与发布流程](docs/releases.md)
+- [版本更新记录](CHANGELOG.md)
 - [采集协议、边界与交付保证](docs/collector.md)
 - [界面架构、MVVM 与重放设计](docs/interface.md)
 - [Pi 扩展钩子调研与源码依据](docs/research/pi-execution-visualization.md)

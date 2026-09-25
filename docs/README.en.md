@@ -63,6 +63,7 @@ Each history segment contains at most 500 events and 4 MiB. Replay traverses seg
 The default data directory is `~/.local/state/kite`, containing the `events.sqlite` database and `collector.sock` communication socket.
 
 ```sh
+node dist/cli.js --version
 node dist/cli.js events --limit 100
 node dist/cli.js events --after 100 --session SESSION_ID
 node dist/cli.js export > trace.jsonl
@@ -147,6 +148,8 @@ Run observation first: it starts two real Pi processes through global extension 
 
 ## Documentation
 
+- [Versioning and releases](releases.md)
+- [Changelog](../CHANGELOG.md)
 - [Capture protocol, boundaries, and delivery guarantees](collector.md)
 - [Interface architecture, MVVM, and replay design](interface.md)
 - [Pi extension hook research and source evidence](research/pi-execution-visualization.md)
