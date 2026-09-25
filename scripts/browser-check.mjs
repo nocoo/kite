@@ -167,6 +167,7 @@ try {
     .click();
   await expect(mobile.getByRole("dialog")).toHaveCount(0);
   await expect(mobile.locator("#observatory-content h1")).toHaveText("kite");
+  await expect(mobile.locator("#main-content")).toBeFocused();
   await mobile.getByRole("link", { name: "Observatory", exact: true }).click();
   await mobile
     .getByRole("button", { name: /^Inspect kite / })
@@ -207,6 +208,7 @@ try {
   await mobile.getByRole("dialog").waitFor();
   await mobile.setViewportSize({ width: 1024, height: 844 });
   await expect(mobile.getByRole("dialog")).toHaveCount(0);
+  await expect(mobile.locator("#main-content")).toBeFocused();
   assert.equal(await mobile.locator("aside").count(), 1);
   const empty = await browser.newPage();
   let release;

@@ -31,7 +31,7 @@ import {
   TriangleAlert,
   X,
 } from "lucide-react";
-import { type ReactNode, useCallback, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import packageInfo from "../package.json" with { type: "json" };
 import type { SessionSummary } from "../src/store.ts";
 import { IconButton } from "./controls.tsx";
@@ -190,6 +190,8 @@ export function AppFrame({
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [wall, setWall] = useState(false);
+  const menuTrigger = useRef<HTMLButtonElement>(null);
+  const focusContentOnClose = useRef(false);
   useEffect(() => {
     const query = matchMedia("(max-width: 767px)");
     const change = () => {
@@ -201,10 +203,11 @@ export function AppFrame({
   }, []);
   const choose = useCallback(
     (session: SessionSummary | null) => {
+      if (mobileOpen) focusContentOnClose.current = true;
       onSelect(session);
       setMobileOpen(false);
     },
-    [onSelect],
+    [onSelect, mobileOpen],
   );
   const OverviewLink = useCallback<LinkComponent>(
     ({ href, ...props }) => (
@@ -240,7 +243,17 @@ export function AppFrame({
             />
           )}
           {compact && (
-            <SheetContent side="left" className="kite-shell kite-navigation-sheet">
+            <SheetContent
+              side="left"
+              className="kite-shell kite-navigation-sheet"
+              onCloseAutoFocus={(event) => {
+                if (focusContentOnClose.current || !menuTrigger.current?.isConnected) {
+                  event.preventDefault();
+                  document.getElementById("main-content")?.focus({ preventScroll: true });
+                }
+                focusContentOnClose.current = false;
+              }}
+            >
               <SheetTitle className="sr-only">Kite navigation</SheetTitle>
               <SheetDescription className="sr-only">Choose the overview or a Pi recording.</SheetDescription>
               <AppSidebar
@@ -257,7 +270,7 @@ export function AppFrame({
               leading={
                 compact ? (
                   <SheetTrigger asChild>
-                    <IconButton className="header-action" label="Open navigation">
+                    <IconButton ref={menuTrigger} className="header-action" label="Open navigation">
                       <Menu />
                     </IconButton>
                   </SheetTrigger>

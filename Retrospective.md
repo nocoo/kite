@@ -67,3 +67,9 @@ standard Button directly for the visible close control. Browser verification
 now sends one Escape, waits for the dialog to unmount, and checks focus returns
 to the menu trigger and the body scroll lock is released. A screenshot or an
 unasserted keypress does not establish working dismissal.
+
+Independent review also reproduced focus returning to the menu after selecting
+a recording, overriding the view's content focus, and falling to the body when a
+viewport change removed that trigger. The Sheet close-autofocus handler now
+distinguishes navigation from dismissal and uses the main landmark when the
+trigger has unmounted. Both transitions have browser focus assertions.
