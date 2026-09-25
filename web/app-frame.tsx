@@ -39,7 +39,7 @@ import { directoryName, sessionKey, sessionStatus } from "./model.ts";
 import type { ObservatoryState } from "./view-model.ts";
 import "./frame.css";
 
-function BrandMark() {
+function BrandMark({ alt = "" }: { alt?: string }) {
   return (
     <img
       className="brand-mark"
@@ -47,7 +47,7 @@ function BrandMark() {
       srcSet="/logo-48.png 2x"
       width={24}
       height={24}
-      alt="Kite"
+      alt={alt}
     />
   );
 }
@@ -69,7 +69,7 @@ function AppSidebar({
     <Sidebar collapsed={collapsed} className="kite-sidebar">
       <SidebarHeader className={collapsed ? "brand-collapsed" : undefined}>
         {collapsed ? (
-          <BrandMark />
+          <BrandMark alt="Kite" />
         ) : (
           <div className="brand-row">
             <div className="brand-identity">

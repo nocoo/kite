@@ -73,3 +73,8 @@ a recording, overriding the view's content focus, and falling to the body when a
 viewport change removed that trigger. The Sheet close-autofocus handler now
 distinguishes navigation from dismissal and uses the main landmark when the
 trigger has unmounted. Both transitions have browser focus assertions.
+
+The expanded brand initially exposed both the image's "Kite" alternative and
+the adjacent wordmark. Independent accessibility inspection caught the duplicate
+name. Use empty alternative text beside the wordmark and retain the image name
+in the collapsed rail; browser assertions now verify both accessible trees.

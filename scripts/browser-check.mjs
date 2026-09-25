@@ -31,6 +31,7 @@ try {
   const logo = await page.locator(".brand-mark").boundingBox();
   assert.equal(logo.width, 24);
   assert.equal(logo.x, 24);
+  await expect(page.getByRole("img", { name: "Kite", exact: true })).toHaveCount(0);
   assert.equal(await page.locator(".brand-mark").evaluate((el) => el.complete && el.naturalWidth > 0), true);
   assert.deepEqual(
     await page
@@ -57,6 +58,7 @@ try {
   await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
   await expect.poll(async () => (await page.locator("aside").boundingBox()).width).toBe(68);
   assert.deepEqual(await page.locator(".brand-mark").boundingBox(), logo);
+  await expect(page.getByRole("img", { name: "Kite", exact: true })).toHaveCount(1);
   await page.screenshot({ path: `${output}sidebar-collapsed-dark.png` });
   await page.getByRole("button", { name: "Expand sidebar", exact: true }).click();
   await expect.poll(async () => (await page.locator("aside").boundingBox()).width).toBe(260);
@@ -151,6 +153,7 @@ try {
   await mobile.getByRole("dialog").waitFor();
   assert.equal((await mobile.getByRole("dialog").boundingBox()).width, 260);
   assert.equal(await mobile.locator("aside").count(), 1);
+  await expect(mobile.getByRole("img", { name: "Kite", exact: true })).toHaveCount(0);
   assert.equal(await mobile.locator("body").getAttribute("data-scroll-locked"), "1");
   await mobile.keyboard.press("Shift+Tab");
   assert.ok(await mobile.getByRole("dialog").evaluate((el) => el.contains(document.activeElement)));
