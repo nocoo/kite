@@ -109,6 +109,43 @@ describe("transactional event store", () => {
     expect(store.query()).toEqual([]);
     store.close();
   });
+  it("tails one producer across cursor gaps and keeps the newest byte-bounded page", () => {
+    const store = new EventStore(":memory:");
+    store.append([
+      { ...event(1), producerId: "mine" },
+      { ...event(2), producerId: "mine" },
+    ]);
+    for (let offset = 0; offset < 997; offset += 128) {
+      store.append(
+        Array.from({ length: Math.min(128, 997 - offset) }, (_, i) => ({
+          ...event(offset + i + 1),
+          producerId: "other",
+          source: "gap",
+        })),
+      );
+    }
+    store.append([{ ...event(3), producerId: "mine" }]);
+    expect(store.query({ producerId: "mine", tail: true }).map((item) => item.cursor)).toEqual([1, 2, 1000]);
+    expect(store.query({ producerId: "mine", tail: true, limit: 2 }).map((item) => item.cursor)).toEqual([
+      2, 1000,
+    ]);
+    expect(store.query({ producerId: "mine", after: 2, tail: true }).map((item) => item.cursor)).toEqual([
+      1000,
+    ]);
+    expect(store.query({ producerId: "mine", before: 2, tail: true }).map((item) => item.cursor)).toEqual([
+      1, 2,
+    ]);
+    expect(store.query({ producerId: "mine", limit: 2 }).map((item) => item.cursor)).toEqual([1, 2]);
+    const wide = new EventStore(":memory:");
+    wide.append(Array.from({ length: 80 }, (_, i) => ({ ...event(i + 1), payload: "x".repeat(64000) })));
+    const newest = wide.query({ tail: true, limit: 1000 });
+    expect(newest.at(-1)?.seq).toBe(80);
+    expect(newest[0]?.seq).toBeGreaterThan(1);
+    expect(Buffer.byteLength(JSON.stringify(newest))).toBeLessThan(4 * 1024 * 1024);
+    expect(wide.query({ limit: 1 })[0]?.seq).toBe(1);
+    wide.close();
+    store.close();
+  });
   it.each([
     { after: -1 },
     { after: 0.1 },

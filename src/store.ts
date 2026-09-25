@@ -24,6 +24,7 @@ export interface Query {
   sessionId?: string;
   source?: string;
   producerId?: string;
+  tail?: boolean;
 }
 export interface SessionSummary {
   source: string;
@@ -145,14 +146,23 @@ export class EventStore {
     }
   }
 
-  query({ after = 0, before, limit = 100, sessionId, source, producerId }: Query = {}): StoredEvent[] {
+  query({
+    after = 0,
+    before,
+    limit = 100,
+    sessionId,
+    source,
+    producerId,
+    tail = false,
+  }: Query = {}): StoredEvent[] {
     if (
       !Number.isSafeInteger(after) ||
       after < 0 ||
       (before !== undefined && (!Number.isSafeInteger(before) || before < 0)) ||
       !Number.isSafeInteger(limit) ||
       limit < 1 ||
-      limit > 1000
+      limit > 1000 ||
+      typeof tail !== "boolean"
     ) {
       throw new InputError("Invalid cursor or limit");
     }
@@ -177,7 +187,7 @@ export class EventStore {
     params.push(limit);
     const rows = this.db
       .prepare(
-        `SELECT cursor,received,body FROM events WHERE ${conditions.join(" AND ")} ORDER BY cursor LIMIT ?`,
+        `SELECT cursor,received,body FROM events WHERE ${conditions.join(" AND ")} ORDER BY cursor ${tail ? "DESC" : "ASC"} LIMIT ?`,
       )
       .iterate(...params);
     const result: StoredEvent[] = [];
@@ -191,6 +201,7 @@ export class EventStore {
         receivedAt: Number(row.received),
       });
     }
+    if (tail) result.reverse();
     return result;
   }
 

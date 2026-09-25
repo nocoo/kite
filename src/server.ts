@@ -33,6 +33,8 @@ export async function serve(directory: string) {
       }
       if (req.method === "GET" && url.pathname === "/v1/events") {
         const before = url.searchParams.get("before");
+        const tail = url.searchParams.get("tail");
+        if (tail !== null && tail !== "0" && tail !== "1") throw new InputError("Invalid tail");
         const events = store.query({
           after: Number(url.searchParams.get("after") ?? 0),
           ...(before === null ? {} : { before: Number(before) }),
@@ -40,6 +42,7 @@ export async function serve(directory: string) {
           source: url.searchParams.get("source") ?? undefined,
           sessionId: url.searchParams.get("sessionId") ?? undefined,
           producerId: url.searchParams.get("producerId") ?? undefined,
+          ...(tail === null ? {} : { tail: tail === "1" }),
         });
         send(res, 200, { events });
         return;

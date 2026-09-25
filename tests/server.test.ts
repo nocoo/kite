@@ -80,6 +80,9 @@ describe("private Unix collector", () => {
     expect(server.store.query()).toEqual([]);
     expect((await localRequest(server.socket, "/v1/events?limit=-1")).status).toBe(400);
     expect((await localRequest(server.socket, "/v1/events?before=nope")).status).toBe(400);
+    expect((await localRequest(server.socket, "/v1/events?tail=2")).status).toBe(400);
+    expect((await localRequest(server.socket, "/v1/events?tail=true")).status).toBe(400);
+    expect((await localRequest(server.socket, "/v1/events?tail=")).status).toBe(400);
     expect((await localRequest(server.socket, "/v1/sessions?limit=201")).status).toBe(400);
     expect((await localRequest(server.socket, "/v1/sessions?before=-1")).status).toBe(400);
     expect((await localRequest(server.socket, "/missing")).status).toBe(404);
@@ -168,6 +171,16 @@ describe("private Unix collector", () => {
     const body = (await localRequest(server.socket, "/v1/events?producerId=producer&after=0&before=1"))
       .body as { events: { seq: number }[] };
     expect(body.events.map((item) => item.seq)).toEqual([1]);
+    const tailed = (await localRequest(server.socket, "/v1/events?producerId=producer&tail=1&limit=1"))
+      .body as {
+      events: { seq: number }[];
+    };
+    expect(tailed.events.map((item) => item.seq)).toEqual([3]);
+    const oldest = (await localRequest(server.socket, "/v1/events?producerId=producer&tail=0&limit=1"))
+      .body as {
+      events: { seq: number }[];
+    };
+    expect(oldest.events.map((item) => item.seq)).toEqual([1]);
   });
   it("cleans up when the Unix socket path is too long", async () => {
     const dir = join(directory(), "x".repeat(100));
