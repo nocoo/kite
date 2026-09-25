@@ -1,5 +1,5 @@
 import type { SessionSummary, StoredEvent } from "../src/store.ts";
-import { type ModuleId, replayIndex, replayTimes, sessionKey } from "./model.ts";
+import { type ModuleId, replayIndex, replayTimes, sessionKey, stableSessions } from "./model.ts";
 
 export interface ObservatoryState {
   sessions: SessionSummary[];
@@ -114,7 +114,7 @@ export class Observatory {
       const selected = this.state.selected;
       const updated = selected ? sessions.get(sessionKey(selected)) : undefined;
       this.patch({
-        sessions: [...sessions.values()].sort((a, b) => b.lastCursor - a.lastCursor),
+        sessions: stableSessions(this.state.sessions, [...sessions.values()]),
         connected: true,
         loading: false,
         error: "",

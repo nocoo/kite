@@ -8,6 +8,7 @@ import {
   eventCatalog,
   eventInfo,
   filteredEvents,
+  fleetSummary,
   type ModuleId,
   modules,
   project,
@@ -16,7 +17,10 @@ import {
   replayTimes,
   sessionKey,
   sessionStatus,
+  stableSessions,
+  type ToolAttempt,
   textValue,
+  toolWindow,
 } from "../web/model.ts";
 
 const hookModule: Record<string, ModuleId> = {
@@ -509,5 +513,60 @@ describe("replay and filters", () => {
     expect(filteredEvents(events, "all", "web/model.ts").map((event) => event.seq)).toEqual([2]);
     expect(filteredEvents(events, "response", "text delta")).toEqual([]);
     expect(filteredEvents(events, "response", "text_delta").map((event) => event.seq)).toEqual([3]);
+  });
+});
+
+describe("execution bridge projections", () => {
+  it("keeps session positions across updates and appends new recordings", () => {
+    const a = session({ producerId: "a", lastCursor: 10 });
+    const b = session({ producerId: "b", lastCursor: 20 });
+    const newerA = { ...a, lastCursor: 100 };
+    const c = session({ producerId: "c", lastCursor: 90 });
+    const d = session({ producerId: "d", lastCursor: 120 });
+    expect(stableSessions([], [a, b])).toEqual([b, a]);
+    expect(stableSessions([b, a], [c, newerA, d, b])).toEqual([b, newerA, d, c]);
+    expect(stableSessions([b, a], [newerA])).toEqual([newerA]);
+    expect(stableSessions([a], [])).toEqual([]);
+    expect(a.lastCursor).toBe(10);
+  });
+
+  it("summarizes actual latest phases without treating old activity as live", () => {
+    const base = { eventCount: 10, toolCount: 2, errorCount: 1 };
+    const result = fleetSummary(
+      [
+        session({ ...base, lastLifecycle: "agent_start", lastActivity: "tool_call", lastSeen: 50_000 }),
+        session({ ...base, lastActivity: null, lastEvent: "session_shutdown", lastSeen: 0 }),
+        session({ ...base, lastLifecycle: "agent_start", lastActivity: "context", lastSeen: 0 }),
+      ],
+      50_000,
+    );
+    expect(result).toMatchObject({ running: 1, observations: 30, tools: 6, errors: 3 });
+    expect(result.phases).toMatchObject({ tools: 1, session: 1, context: 1, provider: 0 });
+    expect(fleetSummary([], 0).observations).toBe(0);
+  });
+
+  it("exposes latest module evidence and only the tool stages actually observed", () => {
+    const trace = [
+      stored("tool_call", { seq: 1, cursor: 1, correlation: { toolCallId: "a" } }),
+      stored("tool_execution_update", { seq: 2, cursor: 2, correlation: { toolCallId: "a" } }),
+      stored("tool_execution_update", { seq: 3, cursor: 3, correlation: { toolCallId: "a" } }),
+      stored("context", { seq: 4, cursor: 4 }),
+    ];
+    const projection = project(trace);
+    expect(projection.latest.tools).toBe(trace[2]);
+    expect(projection.latest.context).toBe(trace[3]);
+    expect(projection.latest.provider).toBeUndefined();
+    expect(projection.tools[0]?.hooks).toEqual(["tool_call", "tool_execution_update"]);
+    expect(project(trace, 0).tools[0]?.hooks).toEqual(["tool_call"]);
+    const tools = Array.from({ length: 7 }, (_, i) => ({
+      ...(projection.tools[0] as ToolAttempt),
+      id: String(i),
+    }));
+    expect(toolWindow(tools, null)).toEqual({ tools: tools.slice(6), page: 2, pages: 3 });
+    expect(toolWindow(tools, 0).tools).toEqual(tools.slice(0, 3));
+    expect(toolWindow(tools, 1).tools).toEqual(tools.slice(3, 6));
+    expect(toolWindow(tools, 99).page).toBe(2);
+    expect(toolWindow(tools, -2).page).toBe(0);
+    expect(toolWindow([], null)).toEqual({ tools: [], page: 0, pages: 1 });
   });
 });

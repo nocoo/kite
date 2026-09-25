@@ -127,9 +127,11 @@ export interface ToolAttempt {
   status: "attempt" | "checked" | "running" | "result" | "completed" | "error";
   cursor: number;
   detail: string;
+  hooks: string[];
 }
 export interface Projection {
   hits: Record<ModuleId, number>;
+  latest: Partial<Record<ModuleId, StoredEvent>>;
   active: ModuleId | null;
   status: string;
   tools: ToolAttempt[];
@@ -147,6 +149,7 @@ export interface Projection {
 export function emptyProjection(): Projection {
   return {
     hits: { session: 0, input: 0, context: 0, provider: 0, response: 0, tools: 0, settle: 0, compaction: 0 },
+    latest: {},
     active: null,
     status: "Observing",
     tools: [],
@@ -183,6 +186,7 @@ export function applyEvent(state: Projection, event: StoredEvent): void {
   const payload = record(event.payload);
   const module = eventInfo(event).module;
   state.hits[module]++;
+  state.latest[module] = event;
   state.active = module;
   if (state.lastProducer === event.producerId) state.gaps += Math.max(0, event.seq - state.lastSeq - 1);
   state.lastProducer = event.producerId;
@@ -239,6 +243,7 @@ export function applyEvent(state: Projection, event: StoredEvent): void {
       status: "attempt",
       cursor: event.cursor,
       detail: "",
+      hooks: [],
     };
     state.tools.push(tool);
   }
@@ -250,6 +255,7 @@ export function applyEvent(state: Projection, event: StoredEvent): void {
     tool.status = payload.isError === true ? "error" : "completed";
   }
   tool.cursor = event.cursor;
+  if (!tool.hooks.includes(event.name)) tool.hooks.push(event.name);
   tool.detail = JSON.stringify(payload).slice(0, 4096);
 }
 
@@ -288,4 +294,41 @@ export function filteredEvents(
       (module === "all" || eventInfo(event).module === module) &&
       (!needle || `${event.name} ${JSON.stringify(event.payload)}`.toLowerCase().includes(needle)),
   );
+}
+
+export function stableSessions(
+  previous: readonly SessionSummary[],
+  incoming: SessionSummary[],
+): SessionSummary[] {
+  const remaining = new Map(incoming.map((session) => [sessionKey(session), session]));
+  const retained: SessionSummary[] = [];
+  for (const session of previous) {
+    const key = sessionKey(session);
+    const updated = remaining.get(key);
+    if (updated) retained.push(updated);
+    remaining.delete(key);
+  }
+  return [...retained, ...[...remaining.values()].sort((a, b) => b.lastCursor - a.lastCursor)];
+}
+
+export function fleetSummary(sessions: readonly SessionSummary[], now: number) {
+  const phases = emptyProjection().hits;
+  let running = 0,
+    observations = 0,
+    tools = 0,
+    errors = 0;
+  for (const session of sessions) {
+    phases[eventInfo({ name: session.lastActivity || session.lastEvent, payload: null }).module]++;
+    if (sessionStatus(session, now) === "Running") running++;
+    observations += session.eventCount;
+    tools += session.toolCount;
+    errors += session.errorCount;
+  }
+  return { phases, running, observations, tools, errors };
+}
+
+export function toolWindow(tools: readonly ToolAttempt[], page: number | null) {
+  const pages = Math.max(1, Math.ceil(tools.length / 3));
+  const index = page === null ? pages - 1 : Math.max(0, Math.min(page, pages - 1));
+  return { tools: tools.slice(index * 3, index * 3 + 3), page: index, pages };
 }
