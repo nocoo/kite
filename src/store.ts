@@ -1,6 +1,14 @@
 import { DatabaseSync, type StatementSync } from "node:sqlite";
 import { ConflictError, InputError, type TraceEvent, validateBatch } from "./schema.ts";
-import { applyRecording, RECORDINGS_DDL, type RecordingUpdate, sessionsSql } from "./session-summary.ts";
+import {
+  applyRecording,
+  boundedText,
+  MAX_CWD_CHARS,
+  MAX_LABEL_CHARS,
+  RECORDINGS_DDL,
+  type RecordingUpdate,
+  sessionsSql,
+} from "./session-summary.ts";
 
 export const RETENTION_DAYS = 7;
 const RETENTION_MS = RETENTION_DAYS * 24 * 60 * 60 * 1000;
@@ -328,7 +336,6 @@ export class EventStore {
   }
 
   private summary(row: Record<string, unknown>): SessionSummary {
-    const text = (key: string) => (typeof row[key] === "string" ? row[key] : null);
     return {
       source: String(row.source),
       sessionId: String(row.sessionId),
@@ -338,12 +345,12 @@ export class EventStore {
       firstSeen: Number(row.firstSeen),
       lastSeen: Number(row.lastSeen),
       eventCount: Number(row.eventCount),
-      cwd: text("cwd"),
-      model: text("model"),
-      provider: text("provider"),
-      lastEvent: String(row.lastEvent),
-      lastLifecycle: text("lastLifecycle"),
-      lastActivity: text("lastActivity"),
+      cwd: boundedText(row.cwd, MAX_CWD_CHARS),
+      model: boundedText(row.model, MAX_LABEL_CHARS),
+      provider: boundedText(row.provider, MAX_LABEL_CHARS),
+      lastEvent: String(row.lastEvent).slice(0, 256),
+      lastLifecycle: boundedText(row.lastLifecycle, 256),
+      lastActivity: boundedText(row.lastActivity, 256),
       toolCount: Number(row.toolCount),
       errorCount: Number(row.errorCount),
       lossCount: Number(row.lossCount),

@@ -50,7 +50,14 @@ export interface RecordingUpdate {
   activityCursor: number;
 }
 
-const text = (value: unknown) => (typeof value === "string" ? value : null);
+export const MAX_CWD_CHARS = 4096;
+export const MAX_LABEL_CHARS = 1024;
+
+export function boundedText(value: unknown, max: number): string | null {
+  return typeof value === "string" ? value.slice(0, max) : null;
+}
+
+const text = (value: unknown, max: number) => boundedText(value, max);
 const keep = (cursor: number, next: string | null, priorCursor: number, prior: string | null) =>
   next === null || cursor < priorCursor ? prior : next;
 const keptCursor = (cursor: number, next: string | null, priorCursor: number) =>
@@ -65,9 +72,9 @@ export function applyRecording(
 ): RecordingUpdate {
   if (current && cursor <= current.lastCursor) return current;
   const payload = isRecord(event.payload) ? event.payload : {};
-  const cwd = text(payload.cwd);
-  const model = text(event.correlation?.model);
-  const provider = text(event.correlation?.provider);
+  const cwd = text(payload.cwd, MAX_CWD_CHARS);
+  const model = text(event.correlation?.model, MAX_LABEL_CHARS);
+  const provider = text(event.correlation?.provider, MAX_LABEL_CHARS);
   const lifecycle = LIFECYCLE.has(event.name) ? event.name : null;
   const activity = ACTIVITY.has(event.name) ? event.name : null;
   const base = {

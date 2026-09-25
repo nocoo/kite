@@ -1,6 +1,12 @@
 import { DatabaseSync } from "node:sqlite";
 import { describe, expect, it } from "vitest";
-import { applyRecording, RECORDINGS_DDL, sessionsSql } from "../src/session-summary.ts";
+import {
+  applyRecording,
+  MAX_CWD_CHARS,
+  MAX_LABEL_CHARS,
+  RECORDINGS_DDL,
+  sessionsSql,
+} from "../src/session-summary.ts";
 import { event } from "./fixtures.ts";
 
 describe("recording summary fold", () => {
@@ -52,6 +58,19 @@ describe("recording summary fold", () => {
     );
     expect(started.toolCount).toBe(1);
     expect(started.cwd).toBeNull();
+    const wide = applyRecording(
+      undefined,
+      {
+        ...event(),
+        payload: { cwd: "c".repeat(MAX_CWD_CHARS + 50) },
+        correlation: { sessionId: "s", model: "m".repeat(MAX_LABEL_CHARS + 20), provider: "p".repeat(3000) },
+      },
+      2,
+      2,
+    );
+    expect(wide.cwd).toHaveLength(MAX_CWD_CHARS);
+    expect(wide.model).toHaveLength(MAX_LABEL_CHARS);
+    expect(wide.provider).toHaveLength(MAX_LABEL_CHARS);
   });
 
   it("polls recordings by cursor index without reading event bodies", () => {

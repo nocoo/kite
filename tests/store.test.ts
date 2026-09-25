@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { InputError, MAX_EVENT_BYTES, validateBatch, validateEvent } from "../src/schema.ts";
+import { MAX_CWD_CHARS } from "../src/session-summary.ts";
 import { EventStore } from "../src/store.ts";
 
 import { event } from "./fixtures.ts";
@@ -285,6 +286,31 @@ describe("transactional event store", () => {
       lastActivity: "message_update",
       lastLifecycle: null,
     });
+    store.close();
+  });
+  it("stores a bounded cwd and keeps a full session page under 8MiB", () => {
+    const store = new EventStore(":memory:");
+    store.append([
+      {
+        ...event(),
+        payload: { cwd: "c".repeat(8000), blob: "x".repeat(60_000) },
+        correlation: { sessionId: "s", model: "m".repeat(1024), provider: "p".repeat(1024) },
+      },
+    ]);
+    expect(store.sessions().sessions[0]?.cwd).toHaveLength(MAX_CWD_CHARS);
+    for (let i = 0; i < 199; i++) {
+      store.append([
+        {
+          ...event(i + 2),
+          producerId: `p${i}`,
+          payload: { cwd: "c".repeat(8000) },
+          correlation: { sessionId: "s", model: "m".repeat(1024), provider: "p".repeat(1024) },
+        },
+      ]);
+    }
+    const page = store.sessions({ limit: 200 });
+    expect(page.sessions).toHaveLength(200);
+    expect(Buffer.byteLength(JSON.stringify(page))).toBeLessThan(8 * 1024 * 1024);
     store.close();
   });
   it("builds summaries once for a pre-existing event table and then polls without bodies", () => {
