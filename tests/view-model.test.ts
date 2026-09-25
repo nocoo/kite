@@ -205,6 +205,21 @@ describe("observation ViewModel", () => {
     await vm.refresh();
     expect(vm.getSnapshot().mode).toBe("replay");
   });
+  it("bounds reconnect catch-up to the newest page and sorts summary activity", async () => {
+    const { vm, update, request } = service();
+    await vm.select(session());
+    update(
+      [session({ lastCursor: 9000 }), session({ producerId: "other", lastCursor: 10000 })],
+      events(9000),
+    );
+    const before = request.mock.calls.length;
+    await vm.refresh();
+    expect(request.mock.calls.length - before).toBe(2);
+    expect(vm.getSnapshot().events).toHaveLength(500);
+    expect(vm.getSnapshot().events[0]?.cursor).toBe(8501);
+    expect(vm.getSnapshot().events.at(-1)?.cursor).toBe(9000);
+    expect(vm.getSnapshot().sessions[0]?.producerId).toBe("other");
+  });
   it("freezes the replay upper cursor while the session keeps receiving events", async () => {
     const { vm, update } = service();
     const original = session({ lastCursor: 501 });
@@ -218,6 +233,50 @@ describe("observation ViewModel", () => {
     expect(vm.getSnapshot().hasNext).toBe(false);
     await vm.live();
     expect(vm.getSnapshot().events.at(-1)?.cursor).toBe(700);
+  });
+  it("preserves the recorded gap across pages, supports pause and cancels buffered pages", async () => {
+    const { vm, update } = service();
+    const trace = events(501).map((event, index) => ({ ...event, monotonicMs: index < 500 ? index : 60000 }));
+    const summary = session({ lastCursor: 501 });
+    update([summary], trace);
+    await vm.select(summary);
+    await vm.replay();
+    vm.setPace("recorded");
+    vm.seek(499);
+    vm.play();
+    vm.tick(1);
+    await vi.waitFor(() => expect(vm.getSnapshot().detailLoading).toBe(false));
+    expect(vm.getSnapshot()).toMatchObject({ page: 0, index: 499, time: 500 });
+    vm.play();
+    vm.tick(10000);
+    expect(vm.getSnapshot().time).toBe(500);
+    vm.play();
+    vm.tick(59499);
+    expect(vm.getSnapshot()).toMatchObject({ page: 0, index: 499, time: 59999 });
+    vm.tick(1);
+    expect(vm.getSnapshot()).toMatchObject({ page: 1, index: 0, time: 60000, playing: false });
+    await vm.replay();
+    vm.seek(499);
+    vm.play();
+    vm.tick(1);
+    await vi.waitFor(() => expect(vm.getSnapshot().detailLoading).toBe(false));
+    vm.setPace("steps");
+    expect(vm.getSnapshot().page).toBe(1);
+    await vm.replay();
+    vm.setPace("recorded");
+    vm.seek(499);
+    vm.play();
+    vm.tick(1);
+    await vi.waitFor(() => expect(vm.getSnapshot().detailLoading).toBe(false));
+    vm.seek(0);
+    vm.tick(60000);
+    expect(vm.getSnapshot()).toMatchObject({ page: 0, index: 0, playing: false });
+    await vm.replay();
+    vm.seek(499);
+    vm.play();
+    vm.tick(100000);
+    await vi.waitFor(() => expect(vm.getSnapshot().page).toBe(1));
+    expect(vm.getSnapshot().playing).toBe(false);
   });
   it("retains error states, retries and handles empty or nonadvancing event pages", async () => {
     const { vm, request } = service();

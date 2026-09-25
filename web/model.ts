@@ -259,9 +259,8 @@ export function project(events: readonly StoredEvent[], index = events.length - 
   return result;
 }
 
-export function replayTimes(events: readonly StoredEvent[]): number[] {
+export function replayTimes(events: readonly StoredEvent[], first = events[0]?.monotonicMs ?? 0): number[] {
   let time = 0;
-  const first = events[0]?.monotonicMs ?? 0;
   return events.map((event) => {
     time = Math.max(time, event.monotonicMs - first);
     return time;

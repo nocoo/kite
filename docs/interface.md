@@ -32,3 +32,15 @@ semantic surface/color tokens and reduced-motion support. Archy's shell and
 relationship diagrams and reference/pi-agent-observability's swimlanes informed
 the composition. Kite's new logo is still under separate owner review, so this
 application uses its name and a standard icon until accepted artwork is available.
+
+## Bounded live and replay clocks
+
+Live refresh requests the newest bounded page inside the recording filter, also
+when reconnecting after a backlog. A gap in that visible window remains explicit;
+full retained history is still accessible through From start. The browser does
+not fetch a discarded backlog just to reach its end.
+
+Replay fixes its upper cursor when opened. Recorded-time playback keeps a single
+clock across pages and buffers the next page without exposing its first event
+until its recorded time arrives. Step pacing deliberately advances observations
+every 400ms at 1×. Seeking cancels both requests and buffered future pages.

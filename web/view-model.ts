@@ -65,6 +65,8 @@ export class Observatory {
   private times: number[] = [];
   private playElapsed = 0;
   private replayEnd = 0;
+  private replayOrigin = 0;
+  private pendingPage?: { at: number; apply: () => void };
 
   constructor(private readonly request: Request = api) {}
   getSnapshot = (): ObservatoryState => this.state;
@@ -88,6 +90,7 @@ export class Observatory {
     clearInterval(this.playTimer);
     this.overviewRequest?.abort();
     this.detailRequest?.abort();
+    this.pendingPage = undefined;
   }
   async refresh(): Promise<void> {
     clearTimeout(this.pollTimer);
@@ -111,7 +114,7 @@ export class Observatory {
       const selected = this.state.selected;
       const updated = selected ? sessions.get(sessionKey(selected)) : undefined;
       this.patch({
-        sessions: [...sessions.values()],
+        sessions: [...sessions.values()].sort((a, b) => b.lastCursor - a.lastCursor),
         connected: true,
         loading: false,
         error: "",
@@ -120,6 +123,7 @@ export class Observatory {
       });
       if (selected && !updated) {
         this.detailRequest?.abort();
+        this.pendingPage = undefined;
         this.patch({
           events: [],
           index: -1,
@@ -153,6 +157,7 @@ export class Observatory {
   }
   async select(session: SessionSummary | null): Promise<void> {
     this.detailRequest?.abort();
+    this.pendingPage = undefined;
     this.pages = [0];
     this.replayEnd = 0;
     this.patch({
@@ -176,6 +181,7 @@ export class Observatory {
     const upper = this.replayEnd || session?.lastCursor || 0;
     if (!session || after === undefined || page < 0) return;
     this.detailRequest?.abort();
+    this.pendingPage = undefined;
     const controller = new AbortController();
     this.detailRequest = controller;
     this.patch({ detailLoading: true, detailError: "" });
@@ -190,18 +196,24 @@ export class Observatory {
       });
       const { events } = await this.request<{ events: StoredEvent[] }>(`events?${params}`, controller.signal);
       if (controller.signal.aborted) return;
-      this.times = replayTimes(events);
+      if (page === 0) this.replayOrigin = events[0]?.monotonicMs ?? 0;
+      const times = replayTimes(events, this.replayOrigin);
+      const following = page === this.state.page + 1 && this.state.playing && this.state.pace === "recorded";
       const last = events.at(-1)?.cursor ?? after;
       const hasNext = events.length > 0 && last < upper;
       this.pages[page + 1] = last;
-      this.patch({
-        events,
-        index: events.length ? 0 : -1,
-        page,
-        hasNext,
-        detailLoading: false,
-        time: 0,
-      });
+      const apply = () => {
+        this.pendingPage = undefined;
+        this.times = times;
+        const time = following ? Math.max(this.state.time, times[0] ?? 0) : (times[0] ?? 0);
+        const index = events.length ? (following ? replayIndex(times, time) : 0) : -1;
+        this.patch({ events, index, page, hasNext, detailLoading: false, time });
+        if (following && !hasNext && index === events.length - 1) this.patch({ playing: false });
+      };
+      if (following && (times[0] ?? 0) > this.state.time) {
+        this.pendingPage = { at: times[0] as number, apply };
+        this.patch({ detailLoading: false });
+      } else apply();
     } catch (error) {
       if (!controller.signal.aborted)
         this.patch({
@@ -215,6 +227,7 @@ export class Observatory {
     const session = this.state.selected;
     if (!session) return;
     this.detailRequest?.abort();
+    this.pendingPage = undefined;
     const controller = new AbortController();
     this.detailRequest = controller;
     this.patch({ detailLoading: true, detailError: "" });
@@ -226,7 +239,7 @@ export class Observatory {
           source: session.source,
           sessionId: session.sessionId,
           producerId: session.producerId,
-          tail: after === 0 ? "1" : "0",
+          tail: "1",
           after: String(after),
           before: String(session.lastCursor),
           limit: "500",
@@ -266,6 +279,7 @@ export class Observatory {
     if (this.state.mode === "live") this.replayEnd = this.state.selected?.lastCursor ?? 0;
     const next = Math.max(0, Math.min(this.state.events.length - 1, Math.floor(index)));
     this.detailRequest?.abort();
+    this.pendingPage = undefined;
     this.playElapsed = 0;
     this.patch({
       detailLoading: false,
@@ -301,6 +315,7 @@ export class Observatory {
   }
   setPace(pace: "steps" | "recorded"): void {
     this.patch({ pace });
+    if (pace === "steps") this.pendingPage?.apply();
   }
   setFilter(filter: ModuleId | "all"): void {
     this.patch({ filter });
@@ -316,6 +331,11 @@ export class Observatory {
     const state = this.state;
     this.playElapsed += elapsed * state.speed;
     const time = state.time + elapsed * state.speed;
+    if (this.pendingPage) {
+      this.patch({ time });
+      if (time >= this.pendingPage.at) this.pendingPage.apply();
+      return;
+    }
     const index =
       state.pace === "recorded"
         ? replayIndex(this.times, time)

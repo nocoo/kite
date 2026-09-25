@@ -35,3 +35,12 @@ A second review finding showed an in-flight live response could overwrite a step
 selected for replay. Seeking now aborts the pending detail request before changing
 mode and clears its loading state. The regression resolves the obsolete request
 after selection and verifies that the chosen event and replay mode remain intact.
+
+The same review exercised true page boundaries. Rebased page clocks skipped long
+waits, so recorded replay now holds the previous frame while a bounded next page
+waits for its original time. A 59.501-second boundary gap is tested explicitly.
+Summary pagination now uses the immutable first cursor rather than activity order;
+otherwise a recording updated between pages could vanish and be falsely marked
+expired. Live reconnects fetch a bounded tail rather than traversing data that the
+UI would immediately discard. Truncated capture objects and absent tool starts
+also have explicit rendering contracts and regression tests.
