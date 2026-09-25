@@ -250,7 +250,7 @@ describe("transactional event store", () => {
     const page = store.sessions({ limit: 2 });
     expect(page.retentionDays).toBe(7);
     expect(page.sessions.map((item) => item.producerId)).toEqual(["blank", "other"]);
-    expect(page.nextBefore).toBe(page.sessions[1]?.lastCursor);
+    expect(page.nextBefore).toBe(page.sessions[1]?.firstCursor);
     const next = store.sessions({ limit: 2, before: page.nextBefore ?? 0 });
     expect(next.sessions.map((item) => item.producerId)).toEqual(["resume"]);
     expect(next.nextBefore).toBeNull();
@@ -323,6 +323,48 @@ describe("transactional event store", () => {
       lastActivity: "message_update",
       lastLifecycle: null,
     });
+    store.close();
+  });
+  it("pages by stable firstCursor when an older recording is updated", () => {
+    const store = new EventStore(":memory:");
+    store.append([{ ...event(1), producerId: "older" }]);
+    store.append([{ ...event(1), producerId: "newer" }]);
+    const first = store.sessions({ limit: 1 });
+    expect(first.sessions.map((item) => item.producerId)).toEqual(["newer"]);
+    const olderCursor = store.sessions().sessions.find((item) => item.producerId === "older")?.firstCursor;
+    store.append([{ ...event(2), producerId: "older", name: "agent_end" }]);
+    const updated = store.sessions().sessions.find((item) => item.producerId === "older");
+    expect(updated?.firstCursor).toBe(olderCursor);
+    expect(updated?.lastCursor).toBeGreaterThan(first.sessions[0]?.lastCursor ?? 0);
+    const next = store.sessions({ limit: 1, before: first.nextBefore ?? 0 });
+    expect(next.sessions.map((item) => item.producerId)).toEqual(["older"]);
+    expect(next.nextBefore).toBeNull();
+    store.close();
+  });
+  it("keeps firstCursor after a partial prune and drops a wholly expired recording", () => {
+    const day = 24 * 60 * 60 * 1000;
+    const start = 1_800_000_000_000;
+    const now = vi.spyOn(Date, "now");
+    const store = new EventStore(":memory:");
+    now.mockReturnValue(start);
+    store.append([
+      { ...event(1), producerId: "partial", name: "session_start" },
+      { ...event(1), producerId: "gone" },
+    ]);
+    const original = store.sessions().sessions.find((item) => item.producerId === "partial")?.firstCursor;
+    now.mockReturnValue(start + 10);
+    store.append([{ ...event(2), producerId: "partial", name: "message_update" }]);
+    now.mockReturnValue(start + 7 * day + 1);
+    expect(store.prune()).toBe(2);
+    const kept = store.sessions().sessions.find((item) => item.producerId === "partial");
+    expect(kept).toMatchObject({
+      firstCursor: original,
+      eventCount: 1,
+      lastActivity: "message_update",
+    });
+    expect(kept?.firstSeen).toBe(start + 10);
+    expect(store.sessions().sessions.map((item) => item.producerId)).not.toContain("gone");
+    expect(store.query({ producerId: "gone" })).toEqual([]);
     store.close();
   });
   it("stores a bounded cwd and keeps a full session page under 8MiB", () => {

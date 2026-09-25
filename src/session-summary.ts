@@ -141,6 +141,7 @@ export const RECORDINGS_DDL = `CREATE TABLE IF NOT EXISTS recordings (
   lifecycle_cursor INTEGER NOT NULL, activity_cursor INTEGER NOT NULL,
   PRIMARY KEY (source, session, producer));
 CREATE INDEX IF NOT EXISTS recordings_last_cursor ON recordings(last_cursor DESC);
+CREATE INDEX IF NOT EXISTS recordings_first_cursor ON recordings(first_cursor DESC);
 CREATE TABLE IF NOT EXISTS summary_meta (id INTEGER PRIMARY KEY, built INTEGER NOT NULL);`;
 
 export const sessionsSql = (bounded: boolean) =>
@@ -150,5 +151,5 @@ export const sessionsSql = (bounded: boolean) =>
     cwd, model, provider, last_event AS lastEvent, last_lifecycle AS lastLifecycle,
     last_activity AS lastActivity, tool_count AS toolCount, error_count AS errorCount,
     loss_count AS lossCount
-  FROM recordings WHERE last_seen >= ? ${bounded ? "AND last_cursor < ?" : ""}
-  ORDER BY last_cursor DESC LIMIT ?`;
+  FROM recordings WHERE last_seen >= ? ${bounded ? "AND first_cursor < ?" : ""}
+  ORDER BY first_cursor DESC LIMIT ?`;

@@ -221,7 +221,7 @@ export class EventStore {
     const sessions = rows.slice(0, limit).map((row) => this.summary(row));
     return {
       sessions,
-      nextBefore: rows.length > limit ? (sessions.at(-1)?.lastCursor ?? null) : null,
+      nextBefore: rows.length > limit ? (sessions.at(-1)?.firstCursor ?? null) : null,
       retentionDays: RETENTION_DAYS,
     };
   }
@@ -309,13 +309,17 @@ export class EventStore {
   }
 
   private rebuildRecording(source: string, sessionId: string, producerId: string, cutoff: number): void {
+    const prior = this.loadRecording.get(source, sessionId, producerId);
+    const firstCursor = prior ? Number(prior.firstCursor) : undefined;
     this.deleteRecording.run(source, sessionId, producerId);
     let recording: RecordingUpdate | undefined;
     for (const row of this.recordingEvents.iterate(source, sessionId, producerId, cutoff)) {
       const event = JSON.parse(String(row.body)) as TraceEvent;
       recording = applyRecording(recording, event, Number(row.cursor), Number(row.received), sessionId);
     }
-    if (recording) this.writeRecording(recording);
+    if (!recording) return;
+    if (firstCursor !== undefined) recording.firstCursor = firstCursor;
+    this.writeRecording(recording);
   }
 
   private recording(row: Record<string, unknown>): RecordingUpdate {
