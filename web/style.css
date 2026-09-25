@@ -1177,7 +1177,7 @@ svg {
   .kite-shell :where(.replay-options button[aria-label="Playback speed"]) {
     width: 54px;
   }
-  .kite-shell :where(.replay-options button > svg:not(:last-child)) {
+  .kite-shell :where(.replay-options button:not([role="combobox"]) > svg) {
     display: none;
   }
   .kite-shell :where(.fleet-readout) {

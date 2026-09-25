@@ -106,9 +106,19 @@ async function inspect(page, label) {
           : [];
       });
     const island = document.querySelector("#observatory-content");
+    const controlOverflow = [...document.querySelectorAll(".replay-options button")]
+      .filter(visible)
+      .flatMap((element) => {
+        const row = element.closest(".replay-options").getBoundingClientRect();
+        const rect = element.getBoundingClientRect();
+        return rect.left < row.left - 1 || rect.right > row.right + 1
+          ? [element.getAttribute("aria-label") || element.textContent.trim()]
+          : [];
+      });
     return {
       measurements,
       clipping,
+      controlOverflow,
       bounded:
         island.scrollWidth <= island.clientWidth + 1 &&
         (innerWidth < 1280 || island.scrollHeight <= island.clientHeight + 1),
@@ -118,6 +128,7 @@ async function inspect(page, label) {
   const failures = result.measurements.filter((item) => item.ratio < item.minimum);
   assert.deepEqual(failures, [], `${label}: contrast`);
   assert.deepEqual(result.clipping, [], `${label}: card content clipped`);
+  assert.deepEqual(result.controlOverflow, [], `${label}: replay control clipped`);
   assert.ok(result.bounded, `${label}: viewport overflow`);
 }
 
@@ -166,6 +177,11 @@ try {
       await page.setViewportSize({ width, height });
       await page.waitForTimeout(350);
       await inspect(page, `${theme}-${width}`);
+      if (width === 320) {
+        await page.getByRole("button", { name: "From start", exact: true }).click();
+        await inspect(page, `${theme}-${width}-replay`);
+        await page.getByRole("button", { name: "Live", exact: true }).click();
+      }
     }
     await page.setViewportSize({ width: 1512, height: 982 });
     await page.waitForTimeout(350);

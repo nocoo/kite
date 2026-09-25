@@ -165,3 +165,10 @@ Verify visible child bounds as well as card bounds. Also verify CSS token names
 against the installed package: `--basalt-radius-button` does not exist; the icon
 tiles use the supported widget radius. Pseudo-elements belong outside `:where()`
 so accent-strip and reduced-motion rules actually apply.
+
+Independent review reproduced an older 320px replay-toolbar overflow: its Live
+button extended past the clipped card despite the island itself not scrolling.
+The intended icon-hiding selector used `:last-child`, which ignores text nodes;
+an icon followed only by button text still matched the last element child.
+Target non-combobox action icons explicitly, preserving Select chevrons. Check
+each replay control against its row bounds in both live and replay modes.
