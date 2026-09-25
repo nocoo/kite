@@ -30,8 +30,9 @@ read: `5dda9f82eb3c768a6b0d8723496ffd2ad5ce6af7`. Use published declarations and
 the standalone CSS contract, React 19, public controls, a single ContentIsland,
 semantic surface/color tokens and reduced-motion support. Archy's shell and
 relationship diagrams and reference/pi-agent-observability's swimlanes informed
-the composition. Kite's new logo is still under separate owner review, so this
-application uses its name and a standard icon until accepted artwork is available.
+the composition. The initial application uses its name and a standard icon.
+The subsequently adopted artwork and its provenance are recorded in the
+[brand assets](../assets/brand/README.md).
 
 ## Bounded live and replay clocks
 

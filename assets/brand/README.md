@@ -18,5 +18,5 @@ in Hexly; no original source image existed. Preserve the species, faceted colors
 and off-center framing. Artwork rights follow the project owner's generated
 identity; support documentation follows the repository license.
 
-This commit publishes identity assets only. Application implementation and
-distribution remain on the separate source development branch.
+The identity adoption commit published these assets only. Application
+implementation was developed separately and later merged into the main branch.
