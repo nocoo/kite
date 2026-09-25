@@ -140,6 +140,10 @@ try {
   await page.getByRole("button", { name: "Play replay", exact: true }).click();
   await page.waitForTimeout(1800);
   await expect(page.locator(".execution-map")).toHaveClass(/is-animating/);
+  await expect(page.getByRole("img", { name: "Replay playing", exact: true })).toHaveClass(
+    "status-dot replaying",
+  );
+  await expect(page.locator(".stage-heading")).toContainText("Replay ·");
   assert.ok((await page.locator(".energized .signal").count()) > 0);
   assert.equal(
     await page
@@ -164,6 +168,7 @@ try {
   await page.getByRole("option", { name: "Recorded timing", exact: true }).click();
   await page.getByRole("button", { name: "Live", exact: true }).click();
   await expect(page.getByText("LIVE EDGE", { exact: true })).toBeVisible();
+  await expect(page.locator(".stage-identity .status-dot")).not.toHaveClass(/running|replaying/);
   for (const size of [
     { width: 1366, height: 768 },
     { width: 1920, height: 1080 },

@@ -1377,6 +1377,21 @@ svg {
     min-height: 570px;
   }
 }
+.kite-shell :where(.status-dot.replaying, .status-dot.replay-paused) {
+  background: var(--kite-pink);
+}
+.kite-shell :where(.status-dot.replaying) {
+  animation: beacon 2.4s ease-in-out infinite;
+}
+.kite-shell :where(.stage-identity) {
+  flex: 1;
+}
+.kite-shell :where(.stage-identity strong) {
+  flex-shrink: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 @keyframes signal-flow {
   to {
     stroke-dashoffset: -90;

@@ -104,3 +104,12 @@ separate view: anchor it on the latest observed tool event so updates from an
 earlier long-running attempt are not hidden by newer, already-finished calls.
 Tests now check uniqueness across manual pages, pinned groups on append and
 follow movement when an earlier attempt emits a new event.
+
+
+## Replay animation is not live process status
+
+Independent review found the stage status dot reused the diagram's animation
+flag. Playing a closed recording therefore produced a green running beacon next
+to a fleet with zero running sessions. Keep live lifecycle state separate from
+playback: use a labeled replay badge and a distinct replay indicator, while the
+map continues animating captured events. Browser checks assert both indicators.

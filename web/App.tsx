@@ -103,6 +103,10 @@ function Bridge({
       )
     : fleet.signals;
   const animate = state.playing || (state.mode === "live" && state.connected && signals.length > 0);
+  const liveRunning =
+    state.mode === "live" && state.connected && (session ? status === "Running" : fleet.running > 0);
+  const signalState =
+    state.mode === "replay" ? (state.playing ? "replaying" : "replay-paused") : liveRunning ? "running" : "";
   return (
     <div className="execution-bridge">
       <PageHeader
@@ -166,14 +170,22 @@ function Bridge({
       <LayerCard padding="none" className="bridge-stage">
         <div className="stage-heading">
           <div className="stage-identity">
-            <span className={`status-dot ${animate ? "running" : ""}`} />
+            <span
+              role="img"
+              aria-label={
+                state.mode === "replay" ? (state.playing ? "Replay playing" : "Replay paused") : status
+              }
+              className={`status-dot ${signalState}`}
+            />
             <strong>{session ? directoryName(session.cwd) : "All systems"}</strong>
             <span className="mono stage-path" title={session?.cwd || ""}>
               {session ? session.cwd || "Directory not observed" : "Session constellation"}
             </span>
           </div>
           <div className="row">
-            <Badge variant={state.mode === "replay" ? "purple" : "secondary"}>{status}</Badge>
+            <Badge variant={state.mode === "replay" ? "purple" : "secondary"}>
+              {state.mode === "replay" ? `Replay · ${status}` : status}
+            </Badge>
             {session && (
               <Button variant="ghost" size="sm" onClick={() => onChoose(null)}>
                 <Network />
