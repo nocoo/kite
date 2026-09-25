@@ -7,22 +7,26 @@
   --kite-space-6: 24px;
   --kite-space-8: 32px;
   --kite-ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --kite-blue: hsl(var(--basalt-chart-blue));
-  --kite-pink: hsl(var(--basalt-chart-pink));
-  --kite-green: hsl(var(--basalt-chart-green));
-  --kite-yellow: hsl(var(--basalt-chart-yellow));
-  --kite-error: hsl(var(--basalt-destructive));
+  --kite-capture: oklch(from hsl(var(--basalt-chart-blue)) 79% 0.11 h);
+  --kite-inference: oklch(from hsl(var(--basalt-accent-10)) 80% 0.12 h);
+  --kite-response: oklch(from hsl(var(--basalt-accent-3)) 80% 0.1 h);
+  --kite-tools: oklch(from hsl(var(--basalt-accent-7)) 82% 0.12 h);
+  --kite-error: color-mix(in oklch, hsl(var(--basalt-danger)) 80%, hsl(var(--basalt-foreground)));
   --kite-fg: hsl(var(--basalt-foreground));
   --kite-muted: hsl(var(--basalt-muted-foreground));
-  --kite-line: hsl(var(--basalt-border));
+  --kite-line: color-mix(in srgb, var(--kite-muted) 96%, hsl(var(--basalt-bright)));
+  --kite-wash: 18%;
+  --kite-on-phase: hsl(var(--basalt-background));
 }
 :root[data-mode="light"] {
-  --kite-blue: oklch(from hsl(var(--basalt-chart-blue)) 47% c h);
-  --kite-pink: oklch(from hsl(var(--basalt-chart-pink)) 47% c h);
-  --kite-green: oklch(from hsl(var(--basalt-chart-green)) 47% c h);
-  --kite-yellow: oklch(from hsl(var(--basalt-chart-yellow)) 47% c h);
+  --kite-capture: oklch(from hsl(var(--basalt-chart-blue)) 43% 0.17 h);
+  --kite-inference: oklch(from hsl(var(--basalt-accent-10)) 44% 0.16 h);
+  --kite-response: oklch(from hsl(var(--basalt-accent-3)) 40% 0.08 h);
+  --kite-tools: oklch(from hsl(var(--basalt-accent-7)) 44% 0.11 h);
   --kite-error: hsl(var(--basalt-danger));
-  --kite-line: color-mix(in srgb, var(--kite-muted) 80%, hsl(var(--basalt-bright)));
+  --kite-line: color-mix(in srgb, var(--kite-muted) 92%, hsl(var(--basalt-bright)));
+  --kite-wash: 18%;
+  --kite-on-phase: hsl(var(--basalt-bright));
 }
 * {
   box-sizing: border-box;
@@ -70,29 +74,29 @@ svg {
   background: var(--kite-muted);
 }
 .kite-shell :where(.connected .status-dot, .status-dot.running) {
-  background: var(--kite-green);
+  background: var(--kite-response);
 }
 .kite-shell :where(.status-dot.running) {
   animation: beacon 2.4s ease-in-out infinite;
 }
 .kite-shell :where(.disconnected .status-dot, .status-dot.awaiting-input) {
-  background: var(--kite-yellow);
+  background: var(--kite-tools);
+}
+.kite-shell :where(.phase-provider) {
+  --phase: var(--kite-inference);
 }
 .kite-shell :where(.phase-session),
-.kite-shell :where(.phase-provider) {
-  --phase: var(--kite-pink);
-}
 .kite-shell :where(.phase-input),
 .kite-shell :where(.phase-context) {
-  --phase: var(--kite-blue);
+  --phase: var(--kite-capture);
 }
 .kite-shell :where(.phase-response),
 .kite-shell :where(.phase-settle) {
-  --phase: var(--kite-green);
+  --phase: var(--kite-response);
 }
 .kite-shell :where(.phase-tools),
 .kite-shell :where(.phase-compaction) {
-  --phase: var(--kite-yellow);
+  --phase: var(--kite-tools);
 }
 .kite-shell :where(.bridge-island) {
   display: flex;
@@ -140,16 +144,16 @@ svg {
   font-variant-numeric: tabular-nums;
 }
 .kite-shell :where(.bridge-telemetry > span:nth-child(1) svg) {
-  color: var(--kite-green);
+  color: var(--kite-response);
 }
 .kite-shell :where(.bridge-telemetry > span:nth-child(2) svg) {
-  color: var(--kite-blue);
+  color: var(--kite-capture);
 }
 .kite-shell :where(.bridge-telemetry > span:nth-child(3) svg) {
-  color: var(--kite-pink);
+  color: var(--kite-inference);
 }
 .kite-shell :where(.bridge-telemetry > span:nth-child(4) svg) {
-  color: var(--kite-yellow);
+  color: var(--kite-tools);
 }
 .kite-shell :where(.telemetry-scope) {
   margin-left: auto;
@@ -218,50 +222,38 @@ svg {
   min-height: 0;
   position: relative;
   isolation: isolate;
-  background-image: radial-gradient(circle, hsl(var(--basalt-foreground) / 0.1) 0.65px, transparent 0.8px);
-  background-size: 20px 20px;
-}
-.kite-shell :where(.execution-map::before),
-.kite-shell :where(.execution-map::after) {
-  content: "";
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-color: var(--kite-line);
-  pointer-events: none;
-}
-.kite-shell :where(.execution-map::before) {
-  left: 10px;
-  top: 10px;
-  border-left: 1px solid;
-  border-top: 1px solid;
-  opacity: 0.25;
-}
-.kite-shell :where(.execution-map::after) {
-  right: 10px;
-  bottom: 10px;
-  border-right: 1px solid;
-  border-bottom: 1px solid;
-  opacity: 0.25;
+  background-image: radial-gradient(circle, hsl(var(--basalt-foreground) / 0.12) 0.7px, transparent 0.9px);
+  background-size: 24px 24px;
 }
 .kite-shell :where(.map-coordinate) {
   position: absolute;
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-2);
   font-size: 11px;
-  letter-spacing: 0.09em;
+  font-weight: 550;
+  letter-spacing: 0.1em;
   color: var(--kite-muted);
   pointer-events: none;
 }
+.kite-shell :where(.map-coordinate b) {
+  color: var(--kite-fg);
+  font-family: var(--basalt-font-mono);
+  font-weight: 500;
+}
 .kite-shell :where(.coord-top) {
   top: 2%;
-  left: 5%;
+  left: 3.5%;
 }
 .kite-shell :where(.coord-cycle) {
-  top: 34%;
-  left: 30%;
+  top: 2%;
+  left: 32%;
 }
 .kite-shell :where(.coord-tools) {
-  top: 62%;
-  left: 5%;
+  top: 69%;
+  left: 3.5%;
+  background: hsl(var(--basalt-secondary));
+  padding-right: var(--kite-space-3);
 }
 .kite-shell :where(.map-wires) {
   position: absolute;
@@ -275,119 +267,148 @@ svg {
   fill: none;
   vector-effect: non-scaling-stroke;
   stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.kite-shell :where(.map-wires .wire-arrow) {
+  fill: context-stroke;
 }
 .kite-shell :where(.wire) {
-  stroke: var(--phase, var(--kite-blue));
-  opacity: 0.22;
-  stroke-width: 1;
+  stroke: var(--kite-line);
+  stroke-width: 1.4;
 }
 .kite-shell :where(.signal) {
   stroke: var(--phase);
-  stroke-width: 1.7;
-  stroke-dasharray: 4 11;
+  stroke-width: 2.5;
+  stroke-dasharray: 3 13;
   opacity: 0;
 }
 .kite-shell :where(.energized .wire) {
-  opacity: 0.65;
+  stroke: var(--phase);
 }
 .kite-shell :where(.energized .signal) {
-  opacity: 0.8;
+  opacity: 1;
 }
 .kite-shell :where(.is-animating .energized .signal) {
   animation: signal-flow 2.5s linear infinite;
 }
-.kite-shell :where(.module-node),
-.kite-shell :where(.tool-node) {
+.kite-shell :where(.module-node, .tool-node, .fleet-instrument) {
+  --node-fill: color-mix(in oklch, var(--phase) var(--kite-wash), hsl(var(--basalt-bright)));
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 18%;
+  width: 22%;
   height: 18%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  gap: 5px;
-  padding: var(--kite-space-3);
+  gap: var(--kite-space-1);
+  padding: var(--kite-space-3) var(--kite-space-4);
   border-radius: var(--basalt-radius-widget);
   text-align: left;
   white-space: normal;
   color: var(--kite-fg);
   font-weight: 400;
-  background: hsl(var(--basalt-bright));
-  border: 1px solid color-mix(in srgb, var(--phase) 25%, transparent);
-  transition:
-    border-color 250ms ease,
-    background-color 250ms ease;
+  background: var(--node-fill);
+  border: 0;
+  transition: background-color 200ms ease;
 }
-.kite-shell :where(.module-node::before),
-.kite-shell :where(.tool-node::before) {
+.kite-shell :where(.module-node, .tool-node, .fleet-instrument)::before {
   content: "";
   position: absolute;
-  top: 20%;
-  bottom: 20%;
-  left: -1px;
-  width: 2px;
+  top: var(--kite-space-3);
+  bottom: var(--kite-space-3);
+  left: 0;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
   background: var(--phase);
-  opacity: 0.55;
 }
-.kite-shell :where(.module-node:hover),
-.kite-shell :where(.tool-node:hover) {
-  border-color: var(--phase);
-  background: color-mix(in srgb, var(--phase) 8%, hsl(var(--basalt-bright)));
+.kite-shell :where(.module-node.phase-session, .module-node.phase-input, .module-node.phase-context) {
+  width: 21%;
 }
-.kite-shell :where(.node-active),
-.kite-shell :where(.node-selected) {
-  border-color: var(--phase);
-  background: color-mix(in srgb, var(--phase) 9%, hsl(var(--basalt-bright)));
+.kite-shell :where(.module-node.phase-provider, .module-node.phase-response) {
+  height: 24%;
 }
-.kite-shell :where(.node-active::before) {
-  opacity: 1;
+.kite-shell :where(.module-node.phase-settle) {
+  width: 16%;
 }
-.kite-shell :where(.is-animating .node-active::before) {
+.kite-shell :where(.module-node.unseen) {
+  --node-fill: color-mix(in oklch, var(--phase) 5%, hsl(var(--basalt-bright)));
+}
+.kite-shell :where(.module-node.unseen)::before {
+  background: var(--kite-line);
+}
+.kite-shell :where(.module-node:hover, .tool-node:hover) {
+  background: color-mix(in oklch, var(--phase) 24%, hsl(var(--basalt-bright)));
+}
+.kite-shell :where(.node-active, .node-selected) {
+  outline: 2px solid var(--phase);
+  outline-offset: 0;
+}
+.kite-shell :where(.module-node, .tool-node):focus-visible {
+  outline: 3px solid var(--phase);
+  outline-offset: 3px;
+}
+.kite-shell :where(.is-animating .node-active, .is-animating .node-recent)::before {
   animation: beacon 1.8s ease-in-out infinite;
 }
-.kite-shell :where(.module-top) {
+.kite-shell :where(.module-top, .tool-node-top) {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--kite-space-2);
   min-width: 0;
   color: var(--phase);
 }
+.kite-shell :where(.module-icon) {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  background: var(--phase);
+  color: var(--kite-on-phase);
+  border-radius: var(--basalt-radius-widget);
+}
 .kite-shell :where(.module-number) {
   font-size: 11px;
-  opacity: 0.7;
+  font-family: var(--basalt-font-mono);
   font-variant-numeric: tabular-nums;
 }
 .kite-shell :where(.module-count) {
   display: flex;
   align-items: baseline;
   margin-left: auto;
-  gap: 4px;
+  gap: var(--kite-space-1);
   font-family: var(--basalt-font-mono);
-  font-size: 15px;
+  font-size: 19px;
+  font-weight: 550;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 .kite-shell :where(.module-count small) {
-  color: var(--kite-muted);
+  color: var(--kite-fg);
   font-size: 11px;
+  font-weight: 400;
   font-family: var(--basalt-font-sans);
 }
-.kite-shell :where(.module-node strong),
-.kite-shell :where(.tool-node strong) {
-  font-size: 14px;
-  font-weight: 550;
+.kite-shell :where(.module-node strong, .tool-node strong) {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.kite-shell :where(.module-node.phase-provider strong, .module-node.phase-response strong) {
+  font-size: 19px;
+}
 .kite-shell :where(.module-caption) {
   font-size: 11px;
   line-height: 1.35;
-  color: var(--kite-muted);
+  color: var(--kite-fg);
   overflow: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
 }
 .kite-shell :where(.module-trace) {
   display: flex;
@@ -396,20 +417,36 @@ svg {
 }
 .kite-shell :where(.module-trace i) {
   flex: 1;
-  height: 2px;
+  height: 3px;
   background: var(--kite-line);
+  border-radius: 1px;
 }
 .kite-shell :where(.module-trace .lit) {
   background: var(--phase);
-  opacity: 0.65;
+}
+.kite-shell :where(.module-state) {
+  display: none;
+  position: absolute;
+  top: -9px;
+  right: var(--kite-space-2);
+  padding: 2px 6px;
+  border-radius: var(--basalt-radius-widget);
+  background: var(--phase);
+  color: var(--kite-on-phase);
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 550;
+}
+.kite-shell :where(.node-active .module-state) {
+  display: block;
 }
 .kite-shell :where(.cycle-core) {
   position: absolute;
-  width: 18%;
+  width: 16%;
   aspect-ratio: 1;
   max-height: 24%;
-  left: 14%;
-  top: 47%;
+  left: 90%;
+  top: 23%;
   transform: translate(-50%, -50%);
   display: grid;
   place-items: center;
@@ -428,17 +465,16 @@ svg {
   stroke-width: 0.8;
 }
 .kite-shell :where(.core-segment) {
-  stroke: var(--phase);
+  stroke: var(--kite-line);
   fill: none;
-  stroke-width: 3;
-  opacity: 0.16;
+  stroke-width: 4;
 }
 .kite-shell :where(.core-segment.seen) {
-  opacity: 0.6;
+  stroke: var(--phase);
 }
 .kite-shell :where(.core-segment.core-current) {
-  opacity: 1;
-  stroke-width: 4;
+  stroke: var(--phase);
+  stroke-width: 6;
 }
 .kite-shell :where(.core-active .core-current) {
   animation: beacon 1.8s ease-in-out infinite;
@@ -448,7 +484,7 @@ svg {
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--kite-space-1);
   font-size: 11px;
   color: var(--kite-muted);
 }
@@ -457,44 +493,56 @@ svg {
   letter-spacing: 0.04em;
 }
 .kite-shell :where(.cycle-core strong) {
-  font-size: clamp(22px, 2.3cqw, 38px);
-  font-weight: 400;
+  font-size: clamp(22px, 2.5cqw, 42px);
+  font-weight: 500;
   color: var(--kite-fg);
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 .kite-shell :where(.tool-node) {
-  height: 23%;
+  width: 27%;
+  height: 20%;
+  gap: var(--kite-space-2);
 }
 .kite-shell :where(.tool-node-top) {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
-  color: var(--phase);
-  gap: 4px;
+}
+.kite-shell :where(.tool-node-top strong) {
+  flex: 1;
+  min-width: 0;
+  color: var(--kite-fg);
+}
+.kite-shell :where(.tool-facts) {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--kite-space-2);
+  min-width: 0;
 }
 .kite-shell :where(.tool-status) {
   font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 .kite-shell :where(.tool-id) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 11px;
-  color: var(--kite-muted);
+  color: var(--kite-fg);
+  flex: 1;
 }
 .kite-shell :where(.tool-stages) {
   display: flex;
-  gap: 3px;
+  gap: var(--kite-space-1);
   width: 100%;
-  margin: 4px 0;
+  margin-top: var(--kite-space-1);
 }
 .kite-shell :where(.tool-stages > span) {
   flex: 1;
   text-align: center;
   font-size: 11px;
-  color: var(--kite-muted);
+  color: var(--kite-fg);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -502,15 +550,17 @@ svg {
 .kite-shell :where(.tool-stages i) {
   display: block;
   width: 100%;
-  height: 3px;
+  height: 4px;
+  border-radius: 1px;
   background: var(--kite-line);
 }
 .kite-shell :where(.tool-stages .observed i) {
   background: var(--phase);
 }
 .kite-shell :where(.tool-duration) {
+  flex-shrink: 0;
   font-size: 11px;
-  color: var(--kite-muted);
+  color: var(--kite-fg);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -519,57 +569,55 @@ svg {
   --phase: var(--kite-error);
 }
 .kite-shell :where(.tool-completed) {
-  --phase: var(--kite-green);
+  --phase: var(--kite-response);
 }
-.kite-shell :where(.tool-vacant),
-.kite-shell :where(.fleet-instrument) {
+.kite-shell :where(.tool-vacant) {
   position: absolute;
-  width: 18%;
-  height: 23%;
+  width: 27%;
+  height: 20%;
   transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--kite-space-2);
   text-align: center;
   color: var(--kite-muted);
+  background: hsl(var(--basalt-bright));
   font-size: 11px;
-}
-.kite-shell :where(.tool-vacant) {
-  opacity: 0.6;
-  border: 1px dashed var(--kite-line);
   border-radius: var(--basalt-radius-widget);
 }
 .kite-shell :where(.tool-vacant small) {
   font-size: 11px;
 }
 .kite-shell :where(.fleet-instrument) {
-  align-items: flex-start;
-  text-align: left;
-  padding-left: 10px;
-  border-left: 1px solid var(--kite-line);
+  width: 27%;
+  height: 20%;
+  gap: var(--kite-space-1);
+  font-size: 11px;
 }
 .kite-shell :where(.fleet-instrument strong) {
-  font-size: clamp(22px, 3cqw, 40px);
-  font-weight: 350;
+  font-size: clamp(22px, 3cqw, 34px);
+  font-weight: 500;
   line-height: 1;
-  color: var(--kite-fg);
+  color: var(--phase);
   font-variant-numeric: tabular-nums;
 }
-.kite-shell :where(.fleet-instrument:nth-last-of-type(4) strong) {
-  color: var(--kite-pink);
+.kite-shell :where(.fleet-instrument .eyebrow) {
+  color: var(--kite-fg);
 }
 .kite-shell :where(.fleet-instrument button) {
+  flex-shrink: 0;
   padding: 0;
+  justify-content: flex-start;
   font-size: 11px;
   height: 24px;
 }
 .kite-shell :where(.map-bottom) {
   position: absolute;
-  left: 5%;
-  right: 5%;
-  bottom: 1.5%;
+  left: 3.5%;
+  right: 3.5%;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -590,7 +638,7 @@ svg {
   padding: 0 5px;
 }
 .kite-shell :where(.tool-pagination button[aria-pressed="true"]) {
-  color: var(--kite-yellow);
+  color: var(--kite-tools);
 }
 .kite-shell :where(.map-legend) {
   display: flex;
@@ -615,20 +663,17 @@ svg {
   background: var(--kite-line);
 }
 .kite-shell :where(.map-legend .legend-current) {
-  background: var(--kite-blue);
+  background: var(--kite-capture);
 }
 .kite-shell :where(.map-legend .legend-seen) {
-  background: var(--kite-green);
-  opacity: 0.7;
-}
-.kite-shell :where(.conceptual-note) {
-  opacity: 0.8;
+  background: var(--kite-response);
 }
 .kite-shell :where(.signal-inspector) {
   display: none;
   width: 228px;
   flex-shrink: 0;
   padding: var(--kite-space-4);
+  margin: var(--kite-space-2) var(--kite-space-3) var(--kite-space-3) 0;
   overflow: hidden;
   font-size: 12px;
 }
@@ -772,7 +817,7 @@ svg {
   white-space: nowrap;
 }
 .kite-shell :where(.replay-readout strong) {
-  color: var(--kite-blue);
+  color: var(--kite-capture);
   font-weight: 500;
   letter-spacing: 0.05em;
 }
@@ -839,7 +884,7 @@ svg {
   font-weight: 500;
 }
 .kite-shell :where(.fleet-readout svg) {
-  color: var(--kite-green);
+  color: var(--kite-response);
 }
 .kite-shell.evidence-sheet {
   width: min(540px, 100vw);
@@ -943,7 +988,7 @@ svg {
     display: none;
   }
   .kite-shell :where(.module-count) {
-    font-size: 13px;
+    font-size: 17px;
   }
   .kite-shell :where(.module-node),
   .kite-shell :where(.tool-node) {
@@ -1001,8 +1046,7 @@ svg {
     width: 12px;
   }
   .kite-shell :where(.stage-path),
-  .kite-shell :where(.tool-duration),
-  .kite-shell :where(.coord-cycle),
+  .kite-shell :where(.tool-facts),
   .kite-shell :where(.fleet-readout > .mono) {
     display: none;
   }
@@ -1040,19 +1084,14 @@ svg {
     font-size: 11px;
     letter-spacing: 0;
   }
-  .kite-shell :where(.coord-tools) {
-    top: 61%;
-  }
-  .kite-shell :where(.module-node),
-  .kite-shell :where(.tool-node) {
-    width: 21%;
-    padding: 6px;
+  .kite-shell :where(.module-node, .tool-node) {
+    padding: 5px;
     gap: 4px;
   }
   .kite-shell :where(.module-count),
   .kite-shell :where(.module-trace),
   .kite-shell :where(.module-caption),
-  .kite-shell :where(.tool-id),
+  .kite-shell :where(.tool-facts),
   .kite-shell :where(.tool-status),
   .kite-shell :where(.fleet-instrument button),
   .kite-shell :where(.fleet-instrument > span:last-of-type) {
@@ -1061,12 +1100,26 @@ svg {
   .kite-shell :where(.module-top) {
     gap: 0;
   }
-  .kite-shell :where(.module-node strong),
-  .kite-shell :where(.tool-node strong) {
+  .kite-shell :where(.module-icon) {
+    width: 22px;
+    height: 22px;
+  }
+  .kite-shell :where(.module-state) {
+    font-size: 11px;
+    right: 0;
+    padding-inline: 3px;
+  }
+  .kite-shell
+    :where(
+      .module-node strong,
+      .tool-node strong,
+      .module-node.phase-provider strong,
+      .module-node.phase-response strong
+    ) {
     font-size: 11px;
   }
   .kite-shell :where(.tool-vacant) {
-    width: 21%;
+    width: 27%;
     font-size: 11px;
     gap: 4px;
   }
@@ -1074,8 +1127,8 @@ svg {
     display: none;
   }
   .kite-shell :where(.fleet-instrument) {
-    width: 21%;
-    padding-left: 6px;
+    width: 27%;
+    padding-left: 8px;
     gap: 8px;
   }
   .kite-shell :where(.fleet-instrument .eyebrow) {
@@ -1140,6 +1193,9 @@ svg {
   }
 }
 @media (max-height: 850px) and (min-width: 768px) {
+  .kite-shell :where(.fleet-instrument > span:last-of-type, .fleet-instrument button) {
+    display: none;
+  }
   .kite-shell :where(.execution-bridge) {
     gap: 8px;
   }
@@ -1156,7 +1212,7 @@ svg {
   .kite-shell :where(.tool-node) {
     gap: 4px;
   }
-  .kite-shell :where(.tool-id) {
+  .kite-shell :where(.tool-facts) {
     display: none;
   }
   .kite-shell :where(.tool-stages) {
@@ -1172,7 +1228,7 @@ svg {
   }
 }
 .kite-shell :where(.status-dot.replaying, .status-dot.replay-paused) {
-  background: var(--kite-pink);
+  background: var(--kite-inference);
 }
 .kite-shell :where(.status-dot.replaying) {
   animation: beacon 2.4s ease-in-out infinite;
@@ -1191,35 +1247,6 @@ svg {
     stroke-dashoffset: -90;
   }
 }
-:root[data-mode="light"]
-  .kite-shell
-  :where(
-    .module-node:not(:hover, .node-active, .node-selected, .node-recent),
-    .tool-node:not(:hover, .node-active, .node-selected, .node-recent)
-  ) {
-  border-color: color-mix(in srgb, var(--phase) 70%, hsl(var(--basalt-bright)));
-}
-:root[data-mode="light"] .kite-shell :where(.wire) {
-  opacity: 0.7;
-}
-:root[data-mode="light"] .kite-shell :where(.energized .wire) {
-  opacity: 0.95;
-}
-:root[data-mode="light"] .kite-shell :where(.energized .signal) {
-  opacity: 1;
-}
-:root[data-mode="light"]
-  .kite-shell
-  :where(
-    .module-number,
-    .module-trace .lit,
-    .core-segment.seen,
-    .map-legend .legend-seen,
-    .conceptual-note,
-    .tool-vacant
-  ) {
-  opacity: 1;
-}
 @keyframes beacon {
   0%,
   100% {
@@ -1231,8 +1258,8 @@ svg {
 }
 @media (prefers-reduced-motion: reduce) {
   .kite-shell :where(*),
-  .kite-shell :where(*::before),
-  .kite-shell :where(*::after) {
+  .kite-shell :where(*)::before,
+  .kite-shell :where(*)::after {
     animation: none;
     transition: none;
     scroll-behavior: auto;
@@ -1247,19 +1274,6 @@ svg {
 }
 .kite-shell :where(.is-animating .energized .signal) {
   filter: drop-shadow(0 0 3px var(--phase));
-}
-
-.kite-shell :where(.node-recent) {
-  border-color: var(--phase);
-}
-.kite-shell :where(.is-animating .node-recent::before) {
-  animation: beacon 1.4s ease-in-out infinite;
-  opacity: 1;
-}
-@media (prefers-reduced-motion: reduce) {
-  .kite-shell :where(.is-animating .node-recent::before) {
-    animation: none;
-  }
 }
 
 .kite-shell :where(.module-node > span, .module-node > strong, .tool-node > span, .tool-node > strong) {
@@ -1302,7 +1316,7 @@ svg {
   font-weight: 400;
 }
 .kite-shell :where(.running-filter svg) {
-  color: var(--kite-green);
+  color: var(--kite-response);
 }
 .kite-shell :where(.running-filter[aria-pressed="true"]) {
   background: hsl(var(--basalt-accent));

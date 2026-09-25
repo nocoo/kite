@@ -147,3 +147,21 @@ Independent review also found that expanding the rail through Find sessions
 removed its trigger without moving focus to the revealed search field. Remember
 that explicit search action and focus the mounted Input after expansion; an
 ordinary sidebar expansion must not unexpectedly focus search.
+
+
+## Contrast metrics do not establish visual hierarchy
+
+The light diagram passed sampled contrast checks but still used almost identical
+card backgrounds and thin colored outlines. The user correctly rejected another
+incremental contrast patch. Treat numerical contrast as an accessibility floor,
+then inspect perceived grouping, figure/background separation and the main
+reading path. The redesign uses semantic card fills, solid icon tiles and a
+context-to-inference-to-tools layout while keeping Basalt's shared surfaces.
+
+During the redesign, compact tool cards clipped their title because a grid
+compressed implicit rows into a percentage height. Move the tool name into the
+header and use a simple flex stack, hiding secondary facts on short screens.
+Verify visible child bounds as well as card bounds. Also verify CSS token names
+against the installed package: `--basalt-radius-button` does not exist; the icon
+tiles use the supported widget radius. Pseudo-elements belong outside `:where()`
+so accent-strip and reduced-motion rules actually apply.

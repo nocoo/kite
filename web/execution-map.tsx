@@ -11,7 +11,7 @@ import {
   Terminal,
   Workflow,
 } from "lucide-react";
-import { type CSSProperties, useState } from "react";
+import { type CSSProperties, useId, useState } from "react";
 import type { SessionSummary } from "../src/store.ts";
 import { IconButton } from "./controls.tsx";
 import {
@@ -36,29 +36,29 @@ export const moduleIcons = {
   compaction: Database,
 };
 const locations: Record<ModuleId, [number, number]> = {
-  session: [14, 18],
-  input: [38, 18],
-  context: [62, 18],
-  compaction: [86, 18],
-  provider: [38, 47],
-  response: [62, 47],
-  settle: [86, 47],
-  tools: [14, 79],
+  session: [14, 17],
+  input: [14, 38],
+  context: [14, 59],
+  provider: [43, 23],
+  response: [69, 23],
+  compaction: [43, 53],
+  tools: [69, 53],
+  settle: [90, 53],
 };
 const connections: [ModuleId, ModuleId, string][] = [
-  ["session", "input", "M230 180H290"],
-  ["input", "context", "M470 180H530"],
-  ["context", "provider", "M620 270V315Q620 335 600 335H400Q380 335 380 355V380"],
-  ["context", "compaction", "M710 180H770"],
-  ["provider", "response", "M470 470H530"],
-  ["response", "settle", "M710 470H770"],
-  ["response", "tools", "M620 560V600Q620 620 600 620H160Q140 620 140 640V680"],
+  ["session", "input", "M140 260V290"],
+  ["input", "context", "M140 470V500"],
+  ["context", "provider", "M245 590H260Q275 590 275 575V250Q275 230 295 230H320"],
+  ["context", "compaction", "M245 590H285Q300 590 300 575V550Q300 530 320 530"],
+  ["provider", "response", "M540 230H580"],
+  ["response", "settle", "M800 230H805Q820 230 820 245V395Q820 415 840 415H885Q900 415 900 430V440"],
+  ["response", "tools", "M690 350V440"],
   [
     "tools",
     "context",
-    "M140 680V595Q140 575 160 575H250Q270 575 270 555V335Q270 315 290 315H540Q560 315 560 295V270",
+    "M580 530H575Q555 530 555 550V655Q555 670 535 670H265Q250 670 250 650V605Q250 590 245 590",
   ],
-  ["compaction", "context", "M860 90V55Q860 35 840 35H640Q620 35 620 55V90"],
+  ["compaction", "context", "M430 620V675Q430 690 415 690H155Q140 690 140 680"],
 ];
 export const toolStages = [
   ["tool_execution_start", "Start"],
@@ -111,6 +111,7 @@ export function ExecutionMap({
   sessions: SessionSummary[];
 }) {
   const [manualPage, setManualPage] = useState<number | null>(null);
+  const arrowId = useId();
   const window = toolWindow(projection.tools, manualPage);
   const active = session ? projection.active : null;
   return (
@@ -119,33 +120,50 @@ export function ExecutionMap({
       aria-label={session ? "Pi execution map" : "Fleet phase map"}
     >
       <div className="map-coordinate coord-top">
-        {session ? "01 / RUNTIME CONTROL" : "01 / FLEET · LATEST OBSERVED MODULE"}
+        <b>01</b> CONTEXT
       </div>
-      <div className="map-coordinate coord-cycle">02 / INFERENCE CYCLE</div>
-      <div className="map-coordinate coord-tools">03 / TOOL DISPATCH</div>
+      <div className="map-coordinate coord-cycle">
+        <b>02</b> AGENT CYCLE
+      </div>
+      <div className="map-coordinate coord-tools">
+        <b>03</b> {session ? "TOOL ATTEMPTS" : "FLEET TOTALS"}
+      </div>
       <svg className="map-wires" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
-        <path className="wire fleet-uplink" d="M0 180H50" />
+        <defs>
+          <marker
+            id={arrowId}
+            viewBox="0 0 8 8"
+            refX="7"
+            refY="4"
+            markerWidth="5"
+            markerHeight="5"
+            orient="auto"
+          >
+            <path className="wire-arrow" d="M1 1L7 4L1 7Z" />
+          </marker>
+        </defs>
         {connections.map(([from, to, path]) => (
           <g
             key={`${from}-${to}`}
             className={`phase-${to} ${active === to || signals.includes(to) ? "energized" : ""}`}
           >
-            <path className="wire" d={path} />
+            <path className="wire" d={path} markerEnd={`url(#${arrowId})`} />
             <path className="signal" d={path} />
           </g>
         ))}
-        {[380, 620, 860].map((x) => (
+        {[200, 500, 800].map((x) => (
           <g
             key={x}
             className={`phase-tools ${active === "tools" || signals.includes("tools") ? "energized" : ""}`}
           >
             <path
               className="wire"
-              d={`M230 790H250Q260 790 260 780V665Q260 650 275 650H${x - 15}Q${x} 650 ${x} 665V680`}
+              d={`M690 620V690Q690 705 ${x < 690 ? 675 : 705} 705H${x < 690 ? x + 15 : x - 15}Q${x} 705 ${x} 720V730`}
+              markerEnd={`url(#${arrowId})`}
             />
             <path
               className="signal"
-              d={`M230 790H250Q260 790 260 780V665Q260 650 275 650H${x - 15}Q${x} 650 ${x} 665V680`}
+              d={`M690 620V690Q690 705 ${x < 690 ? 675 : 705} 705H${x < 690 ? x + 15 : x - 15}Q${x} 705 ${x} 720V730`}
             />
           </g>
         ))}
@@ -193,7 +211,9 @@ export function ExecutionMap({
             style={{ left: `${x}%`, top: `${y}%` } as CSSProperties}
           >
             <span className="module-top">
-              <Icon />
+              <span className="module-icon">
+                <Icon />
+              </span>
               <span className="module-number">{String(i + 1).padStart(2, "0")}</span>
               <span className="module-count">
                 {hits}
@@ -209,6 +229,9 @@ export function ExecutionMap({
                 <i key={n} className={n < Math.min(hits, 12) ? "lit" : ""} />
               ))}
             </span>
+            <span className="module-state">
+              {active === module.id ? "Current hook" : hits ? "Observed" : "No signal"}
+            </span>
           </Button>
         );
       })}
@@ -220,27 +243,31 @@ export function ExecutionMap({
                 key={slot}
                 variant="ghost"
                 className={`tool-node phase-tools tool-${tool.status} ${active === "tools" && projection.latest.tools?.cursor === tool.cursor ? "node-active" : ""}`}
-                style={{ left: `${38 + slot * 24}%`, top: "79%" }}
+                style={{ left: `${20 + slot * 30}%`, top: "83%" }}
                 onClick={() => onTool(tool)}
                 aria-label={`Inspect tool ${tool.name} ${tool.id}`}
               >
                 <span className="tool-node-top">
-                  <Terminal />
+                  <span className="module-icon">
+                    <Terminal />
+                  </span>
+                  <strong>{tool.name}</strong>
                   <span className="tool-status">{tool.status}</span>
                 </span>
-                <strong>{tool.name}</strong>
-                <span className="tool-id mono" title={tool.id}>
-                  {tool.id.split(":").at(-1)}
+                <span className="tool-facts">
+                  <span className="tool-id mono" title={tool.id}>
+                    {tool.id.split(":").at(-1)}
+                  </span>
+                  <span className="tool-duration mono">
+                    {tool.start === undefined || tool.end === undefined
+                      ? "Duration not observed"
+                      : duration(tool.end - tool.start)}
+                  </span>
                 </span>
                 <ToolStages tool={tool} />
-                <span className="tool-duration mono">
-                  {tool.start === undefined || tool.end === undefined
-                    ? "Duration not observed"
-                    : duration(tool.end - tool.start)}
-                </span>
               </Button>
             ) : (
-              <div key={slot} className="tool-vacant" style={{ left: `${38 + slot * 24}%`, top: "79%" }}>
+              <div key={slot} className="tool-vacant" style={{ left: `${20 + slot * 30}%`, top: "83%" }}>
                 <Terminal />
                 <span>No attempt observed</span>
                 <small>Tool calls appear here</small>
@@ -250,7 +277,11 @@ export function ExecutionMap({
         : [0, 1, 2].map((slot) => {
             const item = sessions[slot];
             return (
-              <div key={slot} className="fleet-instrument" style={{ left: `${38 + slot * 24}%`, top: "79%" }}>
+              <div
+                key={slot}
+                className={`fleet-instrument phase-${["provider", "tools", "session"][slot]}`}
+                style={{ left: `${20 + slot * 30}%`, top: "83%" }}
+              >
                 <span className="eyebrow">{["CAPTURED", "TOOL ATTEMPTS", "TOOL ERRORS"][slot]}</span>
                 <strong>{[fleet.observations, fleet.tools, fleet.errors][slot]?.toLocaleString()}</strong>
                 <span>{["observations / 7 days", "across all recordings", "observed end events"][slot]}</span>

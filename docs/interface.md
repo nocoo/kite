@@ -28,16 +28,29 @@ therefore occupies Session, and a settled notification occupies Settle.
 Selecting a recording loads its bounded event window into the same execution map.
 
 The map fixes eight module positions and draws conceptual Pi routes with SVG.
-Its nodes are Basalt Buttons; Basalt Flow is a linear step list and does not
+A vertical context spine feeds a central inference loop, with three wide tool
+cards below. Provider and Response occupy the largest module cards; the loop
+readout sits beside them. Its nodes are Basalt Buttons; Basalt Flow is a linear
+step list and does not
 represent branching, return paths or correlated tool attempts. This specialist
-visualization is the only custom diagram surface. It uses Basalt chart colors,
-stationary geometry, recent-signal highlights and dashed-path motion. Live
+visualization is the only custom diagram surface. Directional SVG routes,
+stationary geometry, recent-signal highlights and dashed-path motion show the
+conceptual relationships without moving the cards. Live
 highlights expire 2.5 seconds after actual observations; replay uses the recorded
 monotonic clock. Polling does not remount the map or restart an entrance animation.
 Reduced-motion mode removes animation while retaining state and color.
-Light mode derives diagram colors from the same Basalt chart hues at a lower
-OKLCH lightness, with stronger routes and state tracks.
-The diagram aliases leave Basalt surfaces, control accents and dark colors intact.
+The diagram owns four semantic inks: cobalt for session/input/context, violet
+for provider activity, teal for response/settling and copper for tools/compaction.
+These derive from Basalt's blue chart swatch and purple/teal/orange accents, with
+separate OKLCH lightness and chroma for each theme. Errors use Basalt danger.
+Module fills are data-bearing marks: a theme-aware mix of the module ink and
+Basalt bright, with solid icon tiles and an accent strip. Unobserved modules use
+a neutral-dominant fill. Text, observed tracks and directional routes retain
+measurable contrast. Current hooks have an explicit label and outline; recent
+activity animates only the strip and route. Theme changes do not alter geometry.
+The application aliases never replace shared Basalt surface or control tokens.
+The surrounding LayerCard and its inspector Well retain the package's surface
+stack; the specialist graph's colored marks are not general content wells.
 
 Three tool slots show a bounded group of attempts. Follow keeps the most recently
 observed tool in view, including updates from an earlier long-running attempt.
@@ -94,6 +107,12 @@ and reduced motion. Screenshots and measurements are stored in `.local/evidence/
 priority, focus across group changes, filtering, all-recording reachability,
 collapsed shortcuts, offline beacons and wall-view navigation without writing
 collector data.
+
+`node scripts/visual-check.mjs` checks both palettes against real recordings:
+overview, populated tool cards, hover and current-hook states, plus 320–1920px
+layouts. It measures rendered text (4.5:1) and graphic (3:1) contrast against
+composited backgrounds, checks visible card children for vertical clipping, and
+captures settled screenshots in `.local/evidence/palette-*`.
 
 ## Bounded live and replay clocks
 

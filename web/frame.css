@@ -105,7 +105,7 @@
 }
 .session-filters .live-filter[aria-pressed="true"] {
   background: hsl(var(--basalt-accent));
-  color: var(--kite-green);
+  color: var(--kite-response);
 }
 .session-filter-count {
   min-width: 0;
@@ -136,7 +136,7 @@
   margin: 0;
 }
 .group-live .session-section-heading {
-  color: var(--kite-green);
+  color: var(--kite-response);
 }
 .session-items {
   display: flex;
@@ -173,15 +173,15 @@
   background: var(--kite-muted);
 }
 .session-beacon.is-live {
-  background: var(--kite-green);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--kite-green) 45%, transparent);
+  background: var(--kite-response);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--kite-response) 45%, transparent);
 }
 .session-beacon.is-live::after {
   content: "";
   position: absolute;
   inset: -4px;
   border-radius: inherit;
-  border: 1px solid var(--kite-green);
+  border: 1px solid var(--kite-response);
   animation: session-halo 2.4s ease-out infinite;
 }
 .session-copy {
@@ -213,7 +213,7 @@
   color: var(--kite-muted);
 }
 .session-item[data-live="true"] .session-status {
-  color: var(--kite-green);
+  color: var(--kite-response);
 }
 .session-identity {
   overflow: hidden;

@@ -95,7 +95,7 @@ function Bridge({
     <div className="execution-bridge">
       <PageHeader
         title="Execution bridge"
-        description="Every signal. One field of view."
+        description="Context, inference and tools in one live map."
         actions={
           <>
             <Badge variant="outline">
@@ -152,7 +152,7 @@ function Bridge({
         />
       )}
       <LayerCard padding="none" className="bridge-stage">
-        <div className="stage-heading">
+        <LayerCard.Header className="stage-heading">
           <div className="stage-identity">
             <span
               role="img"
@@ -177,7 +177,7 @@ function Bridge({
               </Button>
             )}
           </div>
-        </div>
+        </LayerCard.Header>
         <div className="stage-workspace">
           <div className="map-column">
             <ExecutionMap
@@ -217,7 +217,7 @@ function Bridge({
             </div>
           </div>
           {session && (
-            <aside className="signal-inspector" aria-label="Signal inspector">
+            <LayerCard.Well className="signal-inspector" role="complementary" aria-label="Signal inspector">
               <div className="eyebrow">SIGNAL INSPECTOR</div>
               <h3>{current ? eventInfo(current).label : "Awaiting observation"}</h3>
               <span className="mono small muted signal-hook">{current?.name || "—"}</span>
@@ -250,7 +250,7 @@ function Bridge({
                 <br />
                 {session.provider || "Unknown provider"} / {session.model || "Unknown model"}
               </div>
-            </aside>
+            </LayerCard.Well>
           )}
         </div>
       </LayerCard>
