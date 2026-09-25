@@ -1176,6 +1176,7 @@ pre {
     gap: var(--kite-space-2);
   }
   .kite-shell :where(.replay-options) {
+    flex-basis: 100%;
     flex-wrap: wrap;
     justify-content: flex-start;
   }

@@ -44,3 +44,10 @@ otherwise a recording updated between pages could vanish and be falsely marked
 expired. Live reconnects fetch a bounded tail rather than traversing data that the
 UI would immediately discard. Truncated capture objects and absent tool starts
 also have explicit rendering contracts and regression tests.
+
+## Mobile replay control clipping
+
+Document-level overflow checks missed controls clipped by a local card. The mobile
+replay options flex item shrank to the remaining row width despite its children's
+minimum widths. Give the options their own wrapped row and verify each control's
+bounds and real interaction, in addition to the document scroll width.

@@ -100,6 +100,20 @@ try {
         (el) => el.getBoundingClientRect().top > 50 && el.getBoundingClientRect().bottom < innerHeight,
       ),
   );
+  assert.ok(
+    await mobile.locator(".replay-actions button").evaluateAll((buttons) =>
+      buttons.every((button) => {
+        const bounds = button.getBoundingClientRect();
+        return bounds.left >= 0 && bounds.right <= innerWidth;
+      }),
+    ),
+  );
+  await mobile.getByRole("combobox", { name: "Replay timing" }).click();
+  await mobile.getByRole("option", { name: "Recorded timing", exact: true }).click();
+  await mobile.getByRole("button", { name: "From start", exact: true }).click();
+  await mobile.waitForFunction(
+    () => document.querySelector(".event-row.selected small")?.textContent === "session_start",
+  );
   await mobile.screenshot({ path: `${output}mobile-recording.png` });
   const empty = await browser.newPage();
   let release;
