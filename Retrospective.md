@@ -51,3 +51,10 @@ Document-level overflow checks missed controls clipped by a local card. The mobi
 replay options flex item shrank to the remaining row width despite its children's
 minimum widths. Give the options their own wrapped row and verify each control's
 bounds and real interaction, in addition to the document scroll width.
+
+## Replay pacing transitions
+
+Recorded playback accumulated elapsed time in the step counter. Switching to step
+pacing then consumed the entire elapsed interval and skipped observations. Reset
+the step accumulator when changing pacing and test the transition after sustained
+playback, including the full first step interval and switching back.

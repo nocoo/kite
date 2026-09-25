@@ -314,6 +314,7 @@ export class Observatory {
     if ([0.5, 1, 2, 4, 8].includes(speed)) this.patch({ speed });
   }
   setPace(pace: "steps" | "recorded"): void {
+    this.playElapsed = 0;
     this.patch({ pace });
     if (pace === "steps") this.pendingPage?.apply();
   }

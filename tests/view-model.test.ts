@@ -180,6 +180,27 @@ describe("observation ViewModel", () => {
     await vm.live();
     await vm.retryDetail();
   });
+  it("starts a fresh step interval when changing from recorded pacing", async () => {
+    const { vm, update } = service();
+    const summary = session({ lastCursor: 100 });
+    update([summary], events(100));
+    await vm.select(summary);
+    await vm.replay();
+    vm.setPace("recorded");
+    vm.play();
+    vm.tick(10000);
+    expect(vm.getSnapshot().index).toBe(10);
+    vm.setPace("steps");
+    vm.tick(100);
+    expect(vm.getSnapshot().index).toBe(10);
+    vm.tick(299);
+    expect(vm.getSnapshot().index).toBe(10);
+    vm.tick(1);
+    expect(vm.getSnapshot().index).toBe(11);
+    vm.setPace("recorded");
+    vm.tick(1000);
+    expect(vm.getSnapshot().index).toBe(12);
+  });
   it("replays across bounded segments and can return to a previous segment", async () => {
     const { vm, update } = service();
     const big = session({ lastCursor: 502, eventCount: 502 });
