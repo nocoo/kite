@@ -15,20 +15,33 @@
     ]
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && vite build",
     "typecheck": "tsc --noEmit",
     "lint": "biome check --error-on-warnings .",
     "test": "vitest run --coverage",
     "check": "npm run lint && npm run typecheck && npm test",
     "prepare": "husky",
-    "start": "node dist/cli.js serve"
+    "start": "node dist/cli.js serve",
+    "dev": "vite",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
+    "@playwright/test": "1.63.0",
     "@types/node": "26.6.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
     "@vitest/coverage-v8": "5.0.1",
     "husky": "9.1.7",
     "typescript": "7.0.2",
+    "vite": "8.3.0",
     "vitest": "5.0.1"
+  },
+  "dependencies": {
+    "@nocoo/basalt": "2.1.8",
+    "lucide-react": "1.47.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   }
 }

@@ -20,7 +20,7 @@ Producer identity is independent of a durable Pi session ID. Reloads and separat
 
 Pi's `session_start` payload wraps the original event with CWD, session file, leaf ID, tested integration version and hook inventory. Synthetic `kite.delivery_loss` records report observed exporter loss when a subsequent hook can enqueue the notice. Neither the notice nor the shutdown tail is guaranteed to survive an outage. A producer continues its sequence across session switches; a newly loaded adapter gets a new producer ID.
 
-Capturing a hook records what this extension observed at its position in Pi's handler chain. It does not prove that later handlers left the value unchanged. Tool execution-start means an attempt has begun, including validation and policy checks; agent-end does not mean automatic recovery has finished. Preserve those event names and interpret them only in a future consumer.
+Capturing a hook records what this extension observed at its position in Pi's handler chain. It does not prove that later handlers left the value unchanged. Tool execution-start means an attempt has begun, including validation and policy checks; agent-end does not mean automatic recovery has finished. Preserve those event names and interpret them only in the application model.
 
 ## Capture boundaries
 
@@ -53,17 +53,36 @@ The HTTP server listens only on `collector.sock` inside the private storage dire
 | `GET /health` | `{ "ok": true, "schemaVersion": 1 }` |
 | `POST /v1/events` | JSON event array; `{ "accepted": N, "inserted": M }` after commit; duplicates count as accepted |
 | `GET /v1/events?after=0&limit=100` | `{ "events": [...] }` in ascending cursor order |
+| `GET /v1/sessions?limit=100` | `{ "sessions": [...], "nextBefore": N or null, "retentionDays": 7 }` |
 
-Queries accept `sessionId` and `source` filters. `limit` is 1–1,000; a page is also capped at approximately 4 MiB. Continue from the last returned cursor until an empty page, even if a page contains fewer rows than requested. Reading stops at the byte boundary without loading the rest of the selected rows. No cursor represents cross-producer causality.
+Event queries accept `sessionId`, `source` and `producerId` filters. `before` is an
+inclusive cursor ceiling. `tail=1` selects the newest matching bounded page and
+returns it in chronological order; it never subtracts from the global cursor. `limit` is 1–1,000; a page is also capped at approximately 4 MiB. Continue from the last returned cursor until an empty page, even if a page contains fewer rows than requested. Reading stops at the byte boundary without loading the rest of the selected rows. No cursor represents cross-producer causality.
 
 POST requires `Content-Type: application/json`. Individual envelopes are limited to 256 KiB and batches to 1 MiB/128 events. Invalid input returns 400, conflicting identities 409, oversized requests 413 and unsupported media types 415. Unexpected storage failures return a generic 500 without paths or payloads. Data is stored in a WAL-mode SQLite database with `synchronous=FULL`.
 
 ## Verification scope
 
-Unit tests exercise event validation, immutable and bounded capture, producer/session correlation, batching, retries, overflow, shutdown, transaction rollback, duplicate/conflicting identities, cursor queries and local HTTP boundaries. All production TypeScript belongs to the four-metric coverage scope. The research-only Python probe and generated build output are separate from that scope.
+Unit tests exercise event validation, immutable and bounded capture, producer/session correlation, batching, retries, overflow, shutdown, transaction rollback, duplicate/conflicting identities, cursor queries and local HTTP boundaries. All collector, model and ViewModel TypeScript belongs to the four-metric
+coverage scope. Pure TSX Views are exercised by the browser acceptance script. The research-only Python probe and generated build output are separate from that scope.
 
 The commit gate exports the Git index into an owned temporary directory. It checks the staged source, tests and configuration, reuses installed dependencies and keeps generated coverage/cache output in that temporary tree. It does not re-stage, stash, fix or modify the development checkout. `npm run prepare` reproducibly activates Husky; the gate has a 120-second ceiling.
 
 An isolated Pi acceptance probe complements UT: it runs a local fake provider with a transient failure, parallel tools, a blocked tool and an invalid tool. This checks the extension against the installed Pi runtime without paid model calls or personal provider configuration.
 
 See [the research](research/pi-execution-visualization.md) for the version-specific event inventory and source evidence.
+
+## Retention and recording summaries
+
+Events older than seven days by receipt time are hidden from queries immediately.
+Startup and hourly pruning remove expired rows and rebuild affected summaries in
+a transaction. Materialized recording summaries are updated with each committed
+event, so overview polling does not reparse large raw payloads. Counts and identity
+metadata for a partially expired recording are reconciled at the next prune.
+
+Each summary is keyed by source, session ID and producer. It stores observed event
+names and scalar metadata, never animation state. Summary pages are newest-first
+with an exclusive `before` cursor and limits of 1–200. The browser's read-only
+`/api/health`, `/api/events` and `/api/sessions` bridge uses the private Unix socket;
+its write paths are disabled. Exact host/origin checks and a required client header
+prevent cross-origin pages from reading traces.

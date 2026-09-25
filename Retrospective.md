@@ -13,3 +13,25 @@ The first query implementation limited row count but could exceed the client's r
 A redaction test initially searched for `private` anywhere in serialized output; adding the retained field name `private_key` produced a false failure. Assertions now distinguish secret values from field names. Use distinct canary values and verify the redaction structure.
 
 Broad delegated implementation twice consumed time planning without writing files. The coordinator took over the product and reduced the worker's assignment to the independent index-check script, which was delivered and verified. Future delegation should have a small executable first deliverable and a concrete checkpoint before expanding scope.
+
+## 2026-09-25 — Overlapping dependency installs
+
+Two npm installs were accidentally started against the same manifest before the
+first process completed. The second manifest write dropped the runtime dependency
+entries while artifacts existed on disk. A sequential runtime install restored
+the manifest and lockfile; npm dependency validation and a clean build verify the
+result. Independent reads may run concurrently; package mutations must finish and
+be inspected before another installation starts.
+
+## 2026-09-25 — Recording cursors and replay cancellation
+
+Independent review found that subtracting a fixed window from the global SQLite
+cursor omitted a quiet recording's earlier events when other producers occupied
+the intervening positions. The live loader now requests the last bounded page
+inside the recording's own filters. A sparse 1, 2, 1000 regression fixture prevents
+confusing storage order with a per-recording sequence again.
+
+A second review finding showed an in-flight live response could overwrite a step
+selected for replay. Seeking now aborts the pending detail request before changing
+mode and clears its loading state. The regression resolves the obsolete request
+after selection and verifies that the chosen event and replay mode remain intact.

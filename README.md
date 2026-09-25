@@ -1,8 +1,9 @@
 # Kite
 
-A local execution-trace collector for Pi. A passive extension observes Pi's public
-hooks and sends bounded batches to a separate Unix-socket collector. SQLite stores
-the original events for later inspection and visualization. No UI is included.
+A local execution observatory for Pi. A passive extension captures public hooks;
+a private SQLite collector retains seven days. The Basalt web app shows every
+recording, its working directory, module flow, parallel tool attempts and original
+event evidence. Replay each step or follow its recorded timing.
 
 ## Run locally
 
@@ -17,14 +18,32 @@ node dist/cli.js serve
 In another terminal, from this checkout:
 
 ```sh
-pi --extension "$PWD/src/pi-extension.ts"
+pi install "$PWD"
+npm run dev
 ```
 
 The default directory is `~/.local/state/kite`; its database is `events.sqlite` and
 its socket is `collector.sock`. For a different directory, start the collector
 with `--dir /absolute/private/directory` and set
 `KITE_SOCKET=/absolute/private/directory/collector.sock` when launching Pi.
-The extension is not installed globally.
+Open **https://kite.dev.hexly.ai** (Caddy → 127.0.0.1:7055), then start `pi`
+from any directory. Installation adds this checkout as a global Pi package; existing
+packages are preserved. Existing Pi processes need `/reload` or a restart to load
+the new extension. Remove it with `pi remove /absolute/path/to/kite`.
+
+The overview separates recordings by source, Pi session ID and producer. Resuming
+a Pi session creates another recording with the same session ID. Select a card
+for its module map, timeline, payload inspector and tools. **From start** opens
+history; **Live** follows new observations. The slider and previous/next controls
+seek individual steps. Playback supports step pacing, recorded timing and
+0.5–8× speed. Wall view hides navigation for a larger overview.
+
+Raw replay pages contain at most 500 events / 4 MiB. Playback crosses segments;
+previous/next segment controls retain access to every retained event. Segment
+counts and projections describe that segment only, so earlier context can be
+absent. Live memory is bounded by 500 events / approximately 8 MiB of serialized
+UTF-16. Missing sequence positions, dropped-event notices and capture markers stay
+visible. Quiet means no recent observation, not a dead process.
 
 ```sh
 node dist/cli.js events --limit 100
@@ -72,10 +91,15 @@ npm run check
 npm run build
 python3 scripts/probe-collector.py
 node scripts/benchmark-capture.mjs
+python3 scripts/observe-local.py
+node scripts/browser-check.mjs
 ```
 
 `check` runs strict Biome, strict TypeScript and Vitest/V8 coverage. Statements,
-branches, functions and lines each have a 95% floor across all `src/**/*.ts`.
+branches, functions and lines each have a 95% floor across `src/**/*.ts` and `web/**/*.ts`.
+React TSX files contain rendering/provider composition; the browser check verifies
+those Views, including keyboard replay, mobile layout, themes, reduced motion,
+loading/empty/error states and reconnects.
 Husky runs these checks against a temporary Git-index snapshot before commits.
 
 The integration probe owns a temporary collector and isolated Pi configuration,
@@ -83,3 +107,13 @@ using a local fake provider. It verifies retries, parallel/blocked/invalid tools
 durable restart, producer identity and successful Pi completion with the collector
 offline. It makes no paid model calls. The benchmark measures callback capture and
 enqueue cost with synthetic acknowledgements; it is not a disk/network benchmark.
+
+The global observation script starts two real Pi processes from Kite and the
+adjacent Archy checkout. It uses global extension discovery, an explicitly loaded
+inert local provider, parallel tools and a blocked confirmation. The live collector
+receives real hook events; no paid provider is called. Browser acceptance uses the
+configured HTTPS domain and writes screenshots under ignored `.local/evidence/`.
+
+The Vite bridge permits read-only requests from a local same-origin client. Caddy
+restricts the Kite route to loopback addresses. No remote service receives traces.
+See [interface architecture](docs/interface.md) for design and MVVM boundaries.

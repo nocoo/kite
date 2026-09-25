@@ -1,0 +1,1221 @@
+:root {
+  --kite-space-1: 4px;
+  --kite-space-2: 8px;
+  --kite-space-3: 12px;
+  --kite-space-4: 16px;
+  --kite-space-5: 20px;
+  --kite-space-6: 24px;
+  --kite-space-8: 32px;
+  --kite-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --kite-blue: hsl(var(--basalt-chart-blue));
+  --kite-pink: hsl(var(--basalt-chart-pink));
+  --kite-green: hsl(var(--basalt-chart-green));
+  --kite-yellow: hsl(var(--basalt-chart-yellow));
+  --kite-fg: hsl(var(--basalt-foreground));
+  --kite-muted: hsl(var(--basalt-muted-foreground));
+  --kite-line: hsl(var(--basalt-border));
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  color: var(--kite-fg);
+  font-family: var(--basalt-font-sans);
+  font-size: 13px;
+  background: hsl(var(--basalt-background));
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+}
+svg {
+  flex-shrink: 0;
+}
+.kite-shell :where(.lucide) {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.5;
+}
+::selection {
+  background: hsl(var(--basalt-primary) / 0.2);
+}
+.kite-shell :where(.mono),
+.kite-shell :where(code),
+.kite-shell :where(pre) {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+.kite-shell :where(.muted) {
+  color: var(--kite-muted);
+}
+.kite-shell :where(.small) {
+  font-size: 11px;
+}
+.kite-shell :where(.row) {
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-2);
+  min-width: 0;
+}
+.kite-shell {
+  height: 100dvh;
+  overflow: hidden;
+}
+.kite-shell :where(.kite-header) {
+  min-height: 58px;
+  padding-right: var(--kite-space-6);
+}
+.kite-shell :where(.kite-island) {
+  overflow-y: auto;
+  padding: var(--kite-space-6) var(--kite-space-8);
+  scrollbar-gutter: stable;
+}
+.kite-shell :where(.kite-island > div) {
+  max-width: 1860px;
+  margin: 0 auto;
+}
+.kite-shell :where(.kite-sidebar) {
+  padding-top: 10px;
+}
+.kite-shell :where(.brand) {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-3);
+}
+.kite-shell :where(.brand strong) {
+  font-family: var(--basalt-font-display);
+  font-size: 24px;
+  letter-spacing: -1px;
+}
+.kite-shell :where(.brand-mark) {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 36px;
+  color: var(--kite-fg);
+}
+.kite-shell :where(.brand-mark .lucide) {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.3;
+}
+.kite-shell :where(.version) {
+  margin-left: auto;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--kite-muted);
+}
+.kite-shell :where(.nav-count) {
+  margin-left: auto;
+  color: var(--kite-muted);
+  font-size: 11px;
+}
+.kite-shell :where(.session-nav) {
+  display: grid;
+  gap: var(--kite-space-1);
+}
+.kite-shell :where(.nav-session) {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  overflow: hidden;
+}
+.kite-shell :where(.nav-session > span) {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.kite-shell :where(.nav-session small) {
+  color: var(--kite-muted);
+  font-family: "SFMono-Regular", monospace;
+  font-size: 11px;
+}
+.kite-shell :where(.side-footer) {
+  display: flex;
+  gap: var(--kite-space-3);
+  padding: var(--kite-space-4);
+  color: var(--kite-muted);
+}
+.kite-shell :where(.side-footer small) {
+  display: block;
+  font-size: 11px;
+  margin-top: var(--kite-space-1);
+}
+.kite-shell :where(.connection) {
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-2);
+  font-size: 11px;
+  color: var(--kite-muted);
+  margin-right: var(--kite-space-3);
+}
+.kite-shell :where(.status-dot) {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: hsl(var(--basalt-chart-pearl));
+}
+.kite-shell :where(.connected .status-dot),
+.kite-shell :where(.status-dot.running) {
+  background: var(--kite-green);
+}
+.kite-shell :where(.status-dot.running) {
+  animation: beacon 2.4s ease-in-out infinite;
+}
+.kite-shell :where(.disconnected .status-dot),
+.kite-shell :where(.status-dot.awaiting-input) {
+  background: var(--kite-yellow);
+}
+.kite-shell :where(.page-title) {
+  font-family: var(--basalt-font-display);
+  font-weight: 500;
+  font-size: clamp(26px, 2.5vw, 38px);
+  letter-spacing: -1.5px;
+}
+.kite-shell :where(.title-dot) {
+  color: var(--kite-blue);
+}
+.kite-shell :where(.kite-island h1) {
+  margin-bottom: 2px;
+}
+.kite-shell :where(:where(.kite-island h1) + p) {
+  font-size: 13px;
+}
+.kite-shell :where(.metrics) {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--kite-space-3);
+  margin: var(--kite-space-6) 0 var(--kite-space-8);
+}
+.kite-shell :where(.metric) {
+  padding: var(--kite-space-4) var(--kite-space-5);
+}
+.kite-shell :where(.metric-label) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--kite-space-2);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--kite-muted);
+}
+.kite-shell :where(.metric-label .lucide) {
+  color: hsl(var(--basalt-chart-pearl));
+}
+.kite-shell :where(.metric > strong) {
+  display: block;
+  font-weight: 450;
+  font-size: 36px;
+  letter-spacing: -1.2px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+.kite-shell :where(.metric > small) {
+  color: var(--kite-muted);
+  font-size: 11px;
+}
+.kite-shell :where(.search-field),
+.kite-shell :where(.timeline-search) {
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-2);
+}
+.kite-shell :where(.search-field) {
+  width: 280px;
+}
+.kite-shell :where(.search-field > svg),
+.kite-shell :where(.timeline-search > svg) {
+  color: var(--kite-muted);
+}
+.kite-shell :where(.search-field input) {
+  height: 30px;
+  font-size: 12px;
+}
+.kite-shell :where(.flight-deck) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: var(--kite-space-4);
+  margin-top: var(--kite-space-4);
+}
+.kite-shell :where(.session-card) {
+  overflow: hidden;
+  transition: background 300ms var(--kite-ease);
+}
+.kite-shell :where(.session-card-heading) {
+  display: flex;
+  gap: var(--kite-space-3);
+  align-items: center;
+  padding: var(--kite-space-5) var(--kite-space-5) var(--kite-space-2);
+}
+.kite-shell :where(.project-icon) {
+  background: hsl(var(--basalt-bright));
+  border-radius: var(--basalt-radius-widget);
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  color: var(--kite-muted);
+}
+.kite-shell :where(.session-title) {
+  flex: 1;
+  min-width: 0;
+}
+.kite-shell :where(.title-button) {
+  height: 26px;
+  padding: 0;
+  font-size: 16px;
+  font-weight: 600;
+  max-width: 100%;
+  display: flex;
+  gap: var(--kite-space-2);
+}
+.kite-shell :where(:where(.title-button) .lucide) {
+  opacity: 0;
+  transform: translateX(-3px);
+  transition:
+    opacity 180ms,
+    transform 180ms;
+}
+.kite-shell :where(:where(.title-button:hover) .lucide),
+.kite-shell :where(:where(.title-button:focus-visible) .lucide) {
+  opacity: 1;
+  transform: none;
+}
+.kite-shell :where(.session-title > span) {
+  font-size: 11px;
+}
+.kite-shell :where(.recording-id) {
+  opacity: 0.65;
+}
+.kite-shell :where(.session-directory) {
+  margin: 0;
+  padding: 0 var(--kite-space-5);
+  color: var(--kite-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: "SFMono-Regular", monospace;
+  font-size: 11px;
+}
+.kite-shell :where(.mini-track) {
+  display: flex;
+  margin: var(--kite-space-6) var(--kite-space-5) var(--kite-space-4);
+  position: relative;
+}
+.kite-shell :where(.mini-track::before) {
+  position: absolute;
+  content: "";
+  left: 7%;
+  right: 7%;
+  top: 14px;
+  height: 1px;
+  background: var(--kite-line);
+}
+.kite-shell :where(.mini-phase) {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  flex-direction: column;
+  gap: var(--kite-space-2);
+  position: relative;
+  min-width: 0;
+}
+.kite-shell :where(:where(.mini-phase) > span) {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  background: hsl(var(--basalt-secondary));
+  color: hsl(var(--basalt-chart-pearl));
+  border-radius: var(--basalt-radius-widget);
+}
+.kite-shell :where(.mini-phase .lucide) {
+  width: 14px;
+  height: 14px;
+}
+.kite-shell :where(:where(.mini-phase) small) {
+  font-size: 11px;
+  text-transform: capitalize;
+  color: var(--kite-muted);
+}
+.kite-shell :where(:where(.mini-phase.current) > span) {
+  background: hsl(var(--basalt-info-tint));
+  color: hsl(var(--basalt-info));
+}
+.kite-shell :where(:where(.mini-phase.current.animate) > span) {
+  animation: beacon 2.5s ease-in-out infinite;
+}
+.kite-shell :where(:where(.mini-phase.current) small) {
+  color: var(--kite-fg);
+}
+.kite-shell :where(.session-current) {
+  margin: 0 var(--kite-space-5) var(--kite-space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-2);
+  font-size: 12px;
+}
+.kite-shell :where(.session-current > span:nth-child(2)) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kite-shell :where(.session-current time) {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--kite-muted);
+}
+.kite-shell :where(.session-card-footer) {
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-3);
+  padding: var(--kite-space-2) var(--kite-space-3) var(--kite-space-2) var(--kite-space-5);
+  background: hsl(var(--basalt-bright));
+  color: var(--kite-muted);
+  font-size: 11px;
+}
+.kite-shell :where(.session-card-footer > span:first-child) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.kite-shell :where(.session-card-footer > span:nth-child(2)) {
+  flex-shrink: 0;
+}
+.kite-shell :where(.card-warning) {
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-2);
+  padding: var(--kite-space-2) var(--kite-space-5);
+  background: hsl(var(--basalt-warning-tint));
+  color: hsl(var(--basalt-warning));
+  font-size: 11px;
+}
+.kite-shell :where(.overview-foot) {
+  margin: var(--kite-space-6) 0;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--kite-space-4);
+  color: var(--kite-muted);
+  font-size: 11px;
+}
+.kite-shell :where(.overview-foot > span:first-child) {
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-2);
+}
+.kite-shell :where(.empty-card) {
+  text-align: center;
+  padding: 56px var(--kite-space-6);
+  margin-top: var(--kite-space-4);
+}
+.kite-shell :where(.empty-card h2) {
+  font-size: 24px;
+  font-weight: 450;
+  letter-spacing: -0.6px;
+  margin: var(--kite-space-6) 0 var(--kite-space-2);
+}
+.kite-shell :where(.empty-card p) {
+  max-width: 410px;
+  margin: auto;
+  color: var(--kite-muted);
+  line-height: 1.8;
+}
+.kite-shell :where(.empty-orbit) {
+  width: 120px;
+  height: 100px;
+  margin: auto;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.kite-shell :where(.empty-orbit > svg) {
+  width: 38px;
+  height: 38px;
+  color: var(--kite-blue);
+}
+.kite-shell :where(.empty-orbit > span) {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 1px dashed var(--kite-line);
+  transform: rotate(-30deg) scaleY(0.65);
+}
+.kite-shell :where(.empty-orbit > span:last-child) {
+  transform: rotate(45deg) scaleY(0.65);
+}
+.kite-shell :where(.empty-hint) {
+  margin: var(--kite-space-6) auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--kite-space-3);
+  color: var(--kite-muted);
+  font-size: 11px;
+}
+.kite-shell :where(.empty-hint code) {
+  color: var(--kite-fg);
+  padding: var(--kite-space-2) var(--kite-space-3);
+  border-radius: var(--basalt-radius-widget);
+  background: hsl(var(--basalt-bright));
+}
+.kite-shell :where(.skeleton-grid) {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--kite-space-4);
+}
+.kite-shell :where(.notice) {
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-3);
+  padding: var(--kite-space-3) var(--kite-space-4);
+  border-radius: var(--basalt-radius-widget);
+  margin: 0 0 var(--kite-space-4);
+  font-size: 12px;
+}
+.kite-shell :where(.notice > span) {
+  flex: 1;
+}
+.kite-shell :where(.notice.error) {
+  background: hsl(var(--basalt-danger-tint));
+  color: hsl(var(--basalt-danger));
+}
+.kite-shell :where(.notice.warning) {
+  background: hsl(var(--basalt-warning-tint));
+  color: hsl(var(--basalt-warning));
+}
+.kite-shell :where(.detail-back) {
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-4);
+  margin-bottom: var(--kite-space-4);
+}
+.kite-shell :where(.detail-back > span) {
+  font-size: 11px;
+  color: var(--kite-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kite-shell :where(.detail-back button) {
+  padding-left: 0;
+}
+.kite-shell :where(.detail-title) {
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-3);
+  font-size: 28px;
+  letter-spacing: -0.8px;
+  font-weight: 500;
+}
+.kite-shell :where(.detail-title .lucide) {
+  width: 24px;
+  height: 24px;
+  color: var(--kite-muted);
+}
+.kite-shell :where(.directory-path) {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.kite-shell :where(.recording-meta) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kite-space-5);
+  margin: var(--kite-space-4) 0 var(--kite-space-5);
+  color: var(--kite-muted);
+  font-size: 11px;
+}
+.kite-shell :where(.recording-meta > span) {
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-2);
+}
+.kite-shell :where(.recording-meta .lucide) {
+  width: 13px;
+  height: 13px;
+}
+.kite-shell :where(.replay-bar) {
+  margin-bottom: var(--kite-space-6);
+  overflow: hidden;
+}
+.kite-shell :where(.replay-actions) {
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-4);
+  padding: var(--kite-space-3) var(--kite-space-4);
+}
+.kite-shell :where(.replay-actions > .row:first-child) {
+  gap: 2px;
+}
+.kite-shell :where(.play-button) {
+  border-radius: 50%;
+}
+.kite-shell :where(.replay-readout) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kite-space-1);
+  min-width: 140px;
+}
+.kite-shell :where(.replay-readout strong) {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+}
+.kite-shell :where(.replay-readout > span) {
+  font-size: 11px;
+}
+.kite-shell :where(.replay-options) {
+  margin-left: auto;
+}
+.kite-shell :where(.replay-options > button[role="combobox"]) {
+  width: auto;
+  min-width: 55px;
+}
+.kite-shell :where(.replay-options > button:first-child) {
+  min-width: 134px;
+}
+.kite-shell :where(.replay-tape) {
+  position: relative;
+  margin: 0 var(--kite-space-5) var(--kite-space-4);
+  padding-top: 29px;
+}
+.kite-shell :where(.event-marks) {
+  display: flex;
+  gap: 1px;
+  align-items: end;
+  height: 24px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  overflow: hidden;
+}
+.kite-shell :where(.mark) {
+  flex: 1;
+  min-width: 1px;
+  height: 10px;
+  background: var(--phase-color);
+  opacity: 0.18;
+  border-radius: 1px 1px 0 0;
+  transition:
+    opacity 180ms,
+    height 280ms var(--kite-ease);
+}
+.kite-shell :where(.mark.played) {
+  opacity: 0.8;
+  height: 20px;
+}
+.kite-shell :where(.mark.phase-tools) {
+  height: 24px;
+}
+.kite-shell :where(.mark.phase-response) {
+  height: 14px;
+}
+.kite-shell :where(.phase-session) {
+  --phase-color: hsl(var(--basalt-chart-pearl));
+}
+.kite-shell :where(.phase-input),
+.kite-shell :where(.phase-context) {
+  --phase-color: var(--kite-blue);
+}
+.kite-shell :where(.phase-provider),
+.kite-shell :where(.phase-response) {
+  --phase-color: var(--kite-pink);
+}
+.kite-shell :where(.phase-tools),
+.kite-shell :where(.phase-compaction) {
+  --phase-color: var(--kite-yellow);
+}
+.kite-shell :where(.phase-settle) {
+  --phase-color: var(--kite-green);
+}
+.kite-shell :where(.runtime-card) {
+  margin-top: var(--kite-space-3);
+  overflow: hidden;
+}
+.kite-shell :where(.runtime-heading) {
+  min-height: 48px;
+}
+.kite-shell :where(.runtime-heading > span) {
+  font-size: 11px;
+}
+.kite-shell :where(.map-scroll) {
+  overflow-x: auto;
+  background-image: radial-gradient(hsl(var(--basalt-border) / 0.65) 0.7px, transparent 0.7px);
+  background-size: 16px 16px;
+}
+.kite-shell :where(.runtime-map) {
+  width: 1020px;
+  height: 292px;
+  margin: auto;
+  position: relative;
+}
+.kite-shell :where(.map-connectors) {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  color: hsl(var(--basalt-chart-pearl) / 0.5);
+}
+.kite-shell :where(.edge-base),
+.kite-shell :where(.edge-signal) {
+  fill: none;
+  stroke-width: 1.2;
+}
+.kite-shell :where(.edge-base) {
+  stroke: currentColor;
+}
+.kite-shell :where(.edge-signal) {
+  stroke: var(--kite-blue);
+  opacity: 0;
+  stroke-dasharray: 4 80;
+  stroke-width: 2;
+}
+.kite-shell :where(.edge-active .edge-base) {
+  color: hsl(var(--basalt-primary) / 0.6);
+}
+.kite-shell :where(.is-animating .edge-active .edge-signal) {
+  opacity: 0.8;
+  animation: flow 2.5s linear infinite;
+}
+.kite-shell :where(.map-label) {
+  font-size: 9px;
+  font-family: "SFMono-Regular", monospace;
+  fill: var(--kite-muted);
+  letter-spacing: 1.4px;
+}
+.kite-shell :where(.module-node) {
+  position: absolute;
+  width: 168px;
+  height: 92px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: var(--kite-space-3) var(--kite-space-4);
+  gap: 2px;
+  border-radius: var(--basalt-radius-card);
+  background: hsl(var(--basalt-bright));
+  color: var(--kite-fg);
+  text-align: left;
+  white-space: normal;
+  isolation: isolate;
+  transition:
+    background 320ms var(--kite-ease),
+    transform 320ms var(--kite-ease);
+  overflow: hidden;
+}
+.kite-shell :where(.module-top) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+.kite-shell :where(.module-icon) {
+  color: var(--phase-color);
+  display: flex;
+  align-items: center;
+}
+.kite-shell :where(.module-count) {
+  font-family: "SFMono-Regular", monospace;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--kite-muted);
+}
+.kite-shell :where(.module-node > strong) {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.kite-shell :where(.module-caption) {
+  font-size: 11px;
+  color: var(--kite-muted);
+  line-height: 1.35;
+  font-weight: 400;
+}
+.kite-shell :where(.module-node.unseen) {
+  opacity: 1;
+}
+.kite-shell :where(.module-node.node-active) {
+  background: color-mix(in srgb, var(--phase-color) 15%, hsl(var(--basalt-bright)));
+  opacity: 1;
+}
+.kite-shell :where(.module-node.node-active::before) {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 16px;
+  bottom: 16px;
+  width: 3px;
+  background: var(--phase-color);
+  border-radius: 0 2px 2px 0;
+}
+.kite-shell :where(.module-node.node-selected) {
+  outline: 1px solid var(--phase-color);
+  outline-offset: 3px;
+}
+.kite-shell :where(.module-node:hover) {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--phase-color) 12%, hsl(var(--basalt-bright)));
+}
+.kite-shell :where(.node-pulse) {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--phase-color);
+  opacity: 0;
+  animation: arrival 650ms ease-out;
+}
+.kite-shell :where(.map-note) {
+  position: absolute;
+  top: 46px;
+  right: 32px;
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-3);
+  color: var(--kite-muted);
+  font-size: 12px;
+}
+.kite-shell :where(.map-note small) {
+  display: block;
+  font-size: 11px;
+  margin-top: 3px;
+}
+.kite-shell :where(.map-note-icon) {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: hsl(var(--basalt-bright));
+}
+.kite-shell :where(.runtime-legend) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--kite-space-5);
+  padding: var(--kite-space-3) var(--kite-space-5);
+  font-size: 11px;
+  color: var(--kite-muted);
+}
+.kite-shell :where(.runtime-legend > span) {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.kite-shell :where(.runtime-legend i) {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: hsl(var(--basalt-chart-pearl) / 0.3);
+}
+.kite-shell :where(.runtime-legend .legend-active) {
+  background: var(--kite-blue);
+}
+.kite-shell :where(.runtime-legend .legend-visited) {
+  background: hsl(var(--basalt-chart-pearl));
+}
+.kite-shell :where(.legend-hint) {
+  margin-left: auto;
+}
+.kite-shell :where(.evidence-grid) {
+  display: grid;
+  grid-template-columns: minmax(290px, 0.9fr) minmax(400px, 1.1fr);
+  gap: var(--kite-space-4);
+  margin-top: var(--kite-space-4);
+  align-items: start;
+}
+.kite-shell :where(.timeline-card) {
+  min-width: 0;
+  overflow: hidden;
+}
+.kite-shell :where(.timeline-search) {
+  padding: var(--kite-space-3) var(--kite-space-4);
+}
+.kite-shell :where(.timeline-search input) {
+  font-size: 12px;
+  height: 30px;
+}
+.kite-shell :where(.event-list) {
+  max-height: 720px;
+  overflow-y: auto;
+  padding: 0 var(--kite-space-2) var(--kite-space-2);
+  scrollbar-gutter: stable;
+}
+.kite-shell :where(.event-row) {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 53px;
+  height: auto;
+  padding: var(--kite-space-2) var(--kite-space-3);
+  border-radius: var(--basalt-radius-widget);
+  gap: var(--kite-space-3);
+  text-align: left;
+}
+.kite-shell :where(.event-row.selected) {
+  background: hsl(var(--basalt-bright));
+}
+.kite-shell :where(.event-symbol) {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--basalt-radius-widget);
+  color: var(--phase-color);
+  background: color-mix(in srgb, var(--phase-color) 8%, transparent);
+}
+.kite-shell :where(.event-symbol svg) {
+  width: 14px;
+  height: 14px;
+}
+.kite-shell :where(.event-label) {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+}
+.kite-shell :where(.event-label strong) {
+  font-size: 12px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kite-shell :where(.event-label small) {
+  font-size: 11px;
+  color: var(--kite-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kite-shell :where(.event-time) {
+  font-size: 11px;
+  margin-left: auto;
+  color: var(--kite-muted);
+}
+.kite-shell :where(.inspector-stack) {
+  display: grid;
+  gap: var(--kite-space-4);
+  min-width: 0;
+}
+.kite-shell :where(.event-inspector) {
+  overflow: hidden;
+  min-width: 0;
+}
+.kite-shell :where(.inspector-title) {
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-2);
+}
+.kite-shell :where(.event-explanation) {
+  color: var(--kite-muted);
+  font-size: 12px;
+  line-height: 1.7;
+  margin: var(--kite-space-3) 0;
+}
+.kite-shell :where(.fact-grid) {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: var(--kite-space-3);
+  padding: var(--kite-space-4);
+  background: hsl(var(--basalt-bright));
+  border-radius: var(--basalt-radius-widget);
+}
+.kite-shell :where(.fact-grid > span) {
+  font-size: 11px;
+  color: var(--kite-muted);
+  min-width: 0;
+}
+.kite-shell :where(.fact-grid strong) {
+  display: block;
+  color: var(--kite-fg);
+  font-size: 11px;
+  font-weight: 450;
+  margin-top: var(--kite-space-1);
+  overflow-wrap: anywhere;
+}
+.kite-shell :where(.payload) {
+  margin-top: var(--kite-space-4);
+}
+summary {
+  font-size: 12px;
+  cursor: pointer;
+  padding: var(--kite-space-1) 0;
+}
+.kite-shell :where(.payload summary) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--kite-muted);
+}
+pre {
+  font-size: 11px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 2;
+}
+.kite-shell :where(.payload pre) {
+  max-height: 280px;
+  overflow-y: auto;
+  background: hsl(var(--basalt-bright));
+  border-radius: var(--basalt-radius-widget);
+  padding: var(--kite-space-3);
+  margin-bottom: 0;
+}
+.kite-shell :where(.tool-list) {
+  padding: var(--kite-space-2);
+  max-height: 340px;
+  overflow-y: auto;
+}
+.kite-shell :where(.tool-row) {
+  width: 100%;
+  height: auto;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  gap: var(--kite-space-3);
+  text-align: left;
+}
+.kite-shell :where(.tool-row > span:first-of-type) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+.kite-shell :where(.tool-row strong) {
+  font-size: 12px;
+}
+.kite-shell :where(.tool-row small) {
+  color: var(--kite-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.kite-shell :where(.tool-row > svg) {
+  color: var(--kite-yellow);
+}
+.kite-shell :where(.tool-row.error > svg) {
+  color: hsl(var(--basalt-danger));
+}
+.kite-shell :where(.tool-row.running > svg) {
+  animation: beacon 1.5s ease-in-out infinite;
+}
+.kite-shell :where(.tool-caveat) {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--kite-muted);
+  padding: var(--kite-space-3) var(--kite-space-4);
+}
+.kite-shell :where(.tool-empty) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--kite-space-3);
+  color: var(--kite-muted);
+  font-size: 12px;
+  padding: var(--kite-space-6);
+}
+.kite-shell :where(.response-card pre) {
+  max-height: 250px;
+  overflow-y: auto;
+}
+.kite-shell :where(.response-card details) {
+  margin-top: var(--kite-space-3);
+  color: var(--kite-muted);
+}
+.kite-shell :where(.response-card .row) {
+  flex-wrap: wrap;
+}
+.kite-shell :where(.list-empty) {
+  padding: var(--kite-space-6);
+  text-align: center;
+  color: var(--kite-muted);
+  font-size: 12px;
+}
+.kite-shell :where(.detail-foot) {
+  color: var(--kite-muted);
+  font-size: 11px;
+  line-height: 1.6;
+  margin-top: var(--kite-space-5);
+}
+.kite-shell :where(.wall-mode .kite-sidebar) {
+  display: none;
+}
+.kite-shell :where(.wall-mode .flight-deck) {
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+}
+.kite-shell :where(.page-enter) {
+  animation: enter 450ms var(--kite-ease);
+}
+@keyframes flow {
+  to {
+    stroke-dashoffset: -168;
+  }
+}
+@keyframes beacon {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+@keyframes arrival {
+  from {
+    opacity: 0.15;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (min-width: 1700px) {
+  .kite-shell :where(.runtime-map) {
+    transform-origin: top center;
+  }
+  .kite-shell :where(.flight-deck) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 1150px) {
+  .kite-shell :where(.kite-island) {
+    padding: var(--kite-space-5);
+  }
+  .kite-shell :where(.replay-actions) {
+    flex-wrap: wrap;
+  }
+  .kite-shell :where(.replay-options) {
+    margin-left: 0;
+    flex: 1;
+    justify-content: flex-end;
+  }
+  .kite-shell :where(.evidence-grid) {
+    grid-template-columns: minmax(260px, 0.85fr) minmax(320px, 1.15fr);
+  }
+  .kite-shell :where(.legend-hint) {
+    display: none;
+  }
+}
+@media (max-width: 900px) {
+  .kite-shell :where(.metrics) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .kite-shell :where(.evidence-grid) {
+    grid-template-columns: 1fr;
+  }
+  .kite-shell :where(.event-list) {
+    max-height: 360px;
+  }
+  .kite-shell :where(.runtime-heading > span) {
+    display: none;
+  }
+}
+@media (max-width: 767px) {
+  .kite-shell :where(.kite-island) {
+    padding: var(--kite-space-4);
+  }
+  .kite-shell :where(.kite-header) {
+    padding-right: var(--kite-space-3);
+  }
+  .kite-shell :where(.connection) {
+    font-size: 0;
+    margin-right: 0;
+  }
+  .kite-shell :where(.connection .status-dot) {
+    width: 7px;
+    height: 7px;
+  }
+  .kite-shell :where(.metrics) {
+    gap: var(--kite-space-2);
+    margin: var(--kite-space-5) 0;
+  }
+  .kite-shell :where(.metric) {
+    padding: var(--kite-space-3);
+  }
+  .kite-shell :where(.metric > strong) {
+    font-size: 28px;
+  }
+  .kite-shell :where(.metric-label) {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+  .kite-shell :where(.flight-deck) {
+    grid-template-columns: 1fr;
+  }
+  .kite-shell :where(.search-field) {
+    width: 170px;
+  }
+  .kite-shell :where(.search-field > svg) {
+    display: none;
+  }
+  .kite-shell :where(.overview-foot) {
+    flex-direction: column;
+    gap: var(--kite-space-2);
+  }
+  .kite-shell :where(.replay-actions) {
+    gap: var(--kite-space-2);
+  }
+  .kite-shell :where(.replay-options) {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  .kite-shell :where(.replay-readout) {
+    margin-left: auto;
+    min-width: 112px;
+  }
+  .kite-shell :where(.replay-actions .lucide) {
+    width: 14px;
+    height: 14px;
+  }
+  .kite-shell :where(.replay-actions button) {
+    font-size: 11px;
+  }
+  .kite-shell :where(.replay-options > button:first-child) {
+    min-width: 110px;
+  }
+  .kite-shell :where(.recording-meta) {
+    gap: var(--kite-space-2);
+  }
+  .kite-shell :where(.detail-back > span) {
+    max-width: 180px;
+  }
+  .kite-shell :where(.skeleton-grid) {
+    grid-template-columns: 1fr;
+  }
+  .kite-shell :where(.notice) {
+    flex-wrap: wrap;
+  }
+  .kite-shell :where(.runtime-legend) {
+    gap: var(--kite-space-3);
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kite-shell :where(html body .kite-shell *),
+  .kite-shell :where(html body .kite-shell *::before),
+  .kite-shell :where(html body .kite-shell *::after) {
+    animation: none;
+    transition: none;
+    scroll-behavior: auto;
+  }
+}
