@@ -78,3 +78,12 @@ The expanded brand initially exposed both the image's "Kite" alternative and
 the adjacent wordmark. Independent accessibility inspection caught the duplicate
 name. Use empty alternative text beside the wordmark and retain the image name
 in the collapsed rail; browser assertions now verify both accessible trees.
+
+## Bounded execution map typography
+
+The first fixed-viewport graph kept every node inside the canvas, but percentage
+heights allowed flex children to shrink and clip labels at 1366×768. Bounding-box
+assertions alone passed while the screenshot exposed unreadable text. Preserve
+text height, reduce optional captions on short screens and size session pages
+from measured available height. Verify actual node content in screenshots as
+well as the page's scroll and geometry metrics.

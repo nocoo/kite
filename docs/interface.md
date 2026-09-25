@@ -15,13 +15,38 @@ Pi hooks to documented modules; unknown events remain visible. The ViewModel
 owns polling, cancellation, selection, filters and replay. React views render
 that state and send commands without owning network or lifecycle inference.
 
-The overview shows all recordings, directory, latest activity and last-seen age.
-Execution details combine a module map, parallel tool attempts, a step timeline
-and original event evidence. Replay uses recorded timing within each recording;
-step controls make adjacent observations independently inspectable. No missing
-event is treated as successful completion. Silence means observation is stale,
-not that a process is dead. An execution start is an attempt, not proof of a tool
-body executing; `agent_end` is distinct from `agent_settled`.
+The execution bridge keeps the fleet, runtime modules, correlated tool attempts
+and replay ribbon in one bounded desktop viewport. Session slots retain their
+order across refreshes; new recordings append and retention removes expired
+ones. The fleet rail pages according to available height and can filter directory,
+identity, model, provider or the latest observed module. Global module counts
+represent the last observed activity of each recording, not simultaneous work.
+Selecting a recording loads its bounded event window into the same execution map.
+
+The map fixes eight module positions and draws conceptual Pi routes with SVG.
+Its nodes are Basalt Buttons; Basalt Flow is a linear step list and does not
+represent branching, return paths or correlated tool attempts. This specialist
+visualization is the only custom diagram surface. It uses Basalt chart colors,
+stationary geometry, recent-signal highlights and dashed-path motion. Live
+highlights expire 2.5 seconds after actual observations; replay uses the recorded
+monotonic clock. Polling does not remount the map or restart an entrance animation.
+Reduced-motion mode removes animation while retaining state and color.
+
+Three tool slots show a bounded group of attempts. Follow displays the newest
+group, manual paging pins a group, and All tools opens every observed attempt in
+the segment. Stage markers illuminate only hooks actually received. A start is
+an attempt, not proof that a tool body ran. Missing starts or ends leave duration
+unknown. The right-side Basalt Sheet contains timeline filters, original payloads,
+all tools, assistant text and provider-exposed thinking. Larger screens also show
+a compact signal inspector beside the map. The main desktop canvas does not scroll;
+evidence panels own their detail scroll. Narrow screens use a horizontal session
+array; short screens retain document accessibility with island scrolling.
+
+Replay preserves step seeking, recorded timing, speed selection and retained
+segment traversal. No missing event is treated as successful completion. Silence
+means observation is stale, not that a process is dead. `agent_end` remains
+distinct from `agent_settled`. Sequence gaps, producer loss notices and payload
+capture limits stay visible.
 
 ## Design provenance
 
@@ -40,16 +65,17 @@ and the installed Basalt sources supplied the reference.
 `web/app-frame.tsx` owns responsive presentation, sidebar collapse and mobile
 Sheet state. It composes public Basalt components and routes the overview
 breadcrumb into the existing selection command. The mobile Sheet owns its focus
-trap and scroll lock. Views use StatCard, Banner, LayerCard.Empty and Accordion
-for metrics, notices, empty states and captured-payload disclosures. Business
-visualizations retain their observed-event semantics and animation.
+trap and scroll lock. Views use Banner, LayerCard, Tabs, Sheet and Accordion for notices, evidence,
+empty states and captured-payload disclosures. The compact fleet telemetry is
+rendered as text beside the visualization.
 
 The approved transparent logo is used at 24px in both sidebar states, with a
 48px high-density source and 16/32px PNG favicons. Artwork provenance and the
 reproduction command are recorded in the [brand assets](../assets/brand/README.md).
-`node scripts/browser-check.mjs` checks shell dimensions, fixed logo anchors,
-breadcrumbs, header links, keyboard disclosure, drawer focus and scroll lock,
-responsive transitions, both themes and the existing live/replay interactions.
+`node scripts/browser-check.mjs` checks real local recordings, stable session and
+node geometry, desktop viewport containment (1366–2560px), individual tool stages,
+filters, replay, payload disclosure, drawer focus, both themes, offline recovery
+and reduced motion. Screenshots and measurements are stored in `.local/evidence/`.
 
 ## Bounded live and replay clocks
 

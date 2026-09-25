@@ -339,7 +339,7 @@ export function AppFrame({
               }
             />
             <div className="island-wrap">
-              <ContentIsland id="observatory-content">
+              <ContentIsland id="observatory-content" className="bridge-island">
                 {state.error && (
                   <Banner
                     className="collector-notice"

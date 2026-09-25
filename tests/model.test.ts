@@ -8,9 +8,11 @@ import {
   eventCatalog,
   eventInfo,
   filteredEvents,
+  filteredSessions,
   fleetSummary,
   type ModuleId,
   modules,
+  observedSignals,
   project,
   record,
   replayIndex,
@@ -543,6 +545,10 @@ describe("execution bridge projections", () => {
     expect(result).toMatchObject({ running: 1, observations: 30, tools: 6, errors: 3 });
     expect(result.phases).toMatchObject({ tools: 1, session: 1, context: 1, provider: 0 });
     expect(fleetSummary([], 0).observations).toBe(0);
+    expect(fleetSummary([session({ lastSeen: 50_000, lastEvent: "tool_result" })], 50_000).signals).toEqual([
+      "tools",
+    ]);
+    expect(fleetSummary([session({ lastSeen: 50_000, lastEvent: "tool_result" })], 1).signals).toEqual([]);
   });
 
   it("exposes latest module evidence and only the tool stages actually observed", () => {
@@ -562,11 +568,33 @@ describe("execution bridge projections", () => {
       ...(projection.tools[0] as ToolAttempt),
       id: String(i),
     }));
-    expect(toolWindow(tools, null)).toEqual({ tools: tools.slice(6), page: 2, pages: 3 });
+    expect(toolWindow(tools, null)).toEqual({ tools: tools.slice(4), page: 2, pages: 3 });
     expect(toolWindow(tools, 0).tools).toEqual(tools.slice(0, 3));
     expect(toolWindow(tools, 1).tools).toEqual(tools.slice(3, 6));
     expect(toolWindow(tools, 99).page).toBe(2);
     expect(toolWindow(tools, -2).page).toBe(0);
     expect(toolWindow([], null)).toEqual({ tools: [], page: 0, pages: 1 });
   });
+});
+
+it("lights only recently observed modules in the chosen clock", () => {
+  const view = project([
+    stored("input", { timestamp: 5000, monotonicMs: 10 }),
+    stored("tool_call", { timestamp: 6000, monotonicMs: 1000 }),
+    stored("context", { timestamp: 9000, monotonicMs: 4000 }),
+  ]);
+  expect(observedSignals(view, 7500, "timestamp")).toEqual(["input", "tools"]);
+  expect(observedSignals(view, 10_000, "timestamp")).toEqual(["context"]);
+  expect(observedSignals(view, 14_000, "timestamp")).toEqual([]);
+  expect(observedSignals(view, 4000, "monotonicMs")).toEqual(["context"]);
+  expect(observedSignals(emptyProjection(), 0, "monotonicMs")).toEqual([]);
+});
+
+it("filters fleet identity and phase without changing its order", () => {
+  const a = session({ producerId: "a", lastActivity: "tool_call" });
+  const b = session({ producerId: "b", lastActivity: null, lastEvent: "context" });
+  expect(filteredSessions([a, b], " KITE ", "all")).toEqual([a, b]);
+  expect(filteredSessions([a, b], "", "tools")).toEqual([a]);
+  expect(filteredSessions([a, b], "", "context")).toEqual([b]);
+  expect(filteredSessions([a, b], "missing", "all")).toEqual([]);
 });

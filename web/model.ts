@@ -2,14 +2,14 @@ import { isRecord } from "../src/schema.ts";
 import type { SessionSummary, StoredEvent } from "../src/store.ts";
 
 export const modules = [
-  { id: "session", label: "Session", detail: "Identity, resources & configuration", x: 30, y: 24 },
-  { id: "input", label: "Input", detail: "User input & prompt preparation", x: 30, y: 154 },
-  { id: "context", label: "Context", detail: "Messages & system instructions", x: 228, y: 154 },
-  { id: "provider", label: "Provider", detail: "Request, headers & response", x: 426, y: 154 },
-  { id: "response", label: "Response", detail: "Exposed thinking & text chunks", x: 624, y: 154 },
-  { id: "tools", label: "Tools", detail: "Attempts, checks & execution", x: 624, y: 24 },
-  { id: "settle", label: "Settle", detail: "Run end & automatic completion", x: 822, y: 154 },
-  { id: "compaction", label: "Compaction", detail: "Context reduction lifecycle", x: 228, y: 24 },
+  { id: "session", label: "Session", detail: "Identity, resources & configuration" },
+  { id: "input", label: "Input", detail: "User input & prompt preparation" },
+  { id: "context", label: "Context", detail: "Messages & system instructions" },
+  { id: "provider", label: "Provider", detail: "Request, headers & response" },
+  { id: "response", label: "Response", detail: "Exposed thinking & text chunks" },
+  { id: "tools", label: "Tools", detail: "Attempts, checks & execution" },
+  { id: "settle", label: "Settle", detail: "Run end & automatic completion" },
+  { id: "compaction", label: "Compaction", detail: "Context reduction lifecycle" },
 ] as const;
 export type ModuleId = (typeof modules)[number]["id"];
 type EventInfo = { module: ModuleId; label: string; description: string };
@@ -311,8 +311,25 @@ export function stableSessions(
   return [...retained, ...[...remaining.values()].sort((a, b) => b.lastCursor - a.lastCursor)];
 }
 
+export function filteredSessions(
+  sessions: readonly SessionSummary[],
+  query: string,
+  module: ModuleId | "all",
+) {
+  const needle = query.trim().toLowerCase();
+  return sessions.filter(
+    (session) =>
+      `${session.cwd} ${session.sessionId} ${session.producerId} ${session.model} ${session.provider}`
+        .toLowerCase()
+        .includes(needle) &&
+      (module === "all" ||
+        eventInfo({ name: session.lastActivity || session.lastEvent, payload: null }).module === module),
+  );
+}
+
 export function fleetSummary(sessions: readonly SessionSummary[], now: number) {
   const phases = emptyProjection().hits;
+  const signals = new Set<ModuleId>();
   let running = 0,
     observations = 0,
     tools = 0,
@@ -323,12 +340,28 @@ export function fleetSummary(sessions: readonly SessionSummary[], now: number) {
     observations += session.eventCount;
     tools += session.toolCount;
     errors += session.errorCount;
+    if (now >= session.lastSeen && now - session.lastSeen <= 2500)
+      signals.add(eventInfo({ name: session.lastEvent, payload: null }).module);
   }
-  return { phases, running, observations, tools, errors };
+  return { phases, running, observations, tools, errors, signals: [...signals] };
+}
+
+export function observedSignals(
+  projection: Projection,
+  clock: number,
+  field: "timestamp" | "monotonicMs",
+): ModuleId[] {
+  return modules
+    .filter((module) => {
+      const event = projection.latest[module.id];
+      return event !== undefined && clock >= event[field] && clock - event[field] <= 2500;
+    })
+    .map((module) => module.id);
 }
 
 export function toolWindow(tools: readonly ToolAttempt[], page: number | null) {
   const pages = Math.max(1, Math.ceil(tools.length / 3));
   const index = page === null ? pages - 1 : Math.max(0, Math.min(page, pages - 1));
-  return { tools: tools.slice(index * 3, index * 3 + 3), page: index, pages };
+  const offset = Math.min(index * 3, Math.max(0, tools.length - 3));
+  return { tools: tools.slice(offset, offset + 3), page: index, pages };
 }
