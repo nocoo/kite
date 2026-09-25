@@ -122,10 +122,17 @@ function Bridge({
         }
       />
       <section className="bridge-telemetry" aria-label="Fleet telemetry">
-        <span>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="running-filter"
+          aria-label="Show running sessions"
+          aria-pressed={state.runningOnly}
+          onClick={() => vm.setRunningOnly(!state.runningOnly)}
+        >
           <Radio />
           <strong>{state.connected ? fleet.running : "—"}</strong>running
-        </span>
+        </Button>
         <span>
           <Network />
           <strong>{state.sessions.length}</strong>recordings
@@ -342,6 +349,7 @@ function FleetRail({
     state.sessions,
     state.sessionSearch,
     state.selected ? "all" : state.filter,
+    state.runningOnly ? state.now : null,
   );
   const pages = Math.max(1, Math.ceil(sessions.length / capacity));
   const currentPage = Math.min(page, pages - 1);
@@ -349,7 +357,7 @@ function FleetRail({
     <div className="fleet-rail" ref={rail}>
       <div className="fleet-heading">
         <span className="eyebrow">SESSION ARRAY</span>
-        {(state.sessionSearch || (!state.selected && state.filter !== "all")) && (
+        {(state.runningOnly || state.sessionSearch || (!state.selected && state.filter !== "all")) && (
           <Button
             variant="ghost"
             size="sm"
@@ -357,6 +365,8 @@ function FleetRail({
             onClick={() => {
               vm.setSessionSearch("");
               vm.setFilter("all");
+              vm.setRunningOnly(false);
+              setPage(0);
             }}
           >
             Clear
@@ -379,7 +389,9 @@ function FleetRail({
       <div className="fleet-slots" style={{ gridTemplateRows: `repeat(${capacity}, minmax(0, 1fr))` }}>
         {sessions.length === 0 && !state.loading && (
           <p className="fleet-empty">
-            {state.sessionSearch || state.filter !== "all" ? "No matching sessions" : "Waiting for Pi"}
+            {state.runningOnly || state.sessionSearch || state.filter !== "all"
+              ? "No matching sessions"
+              : "Waiting for Pi"}
           </p>
         )}
         {[0, 1, 2, 3, 4, 5].slice(0, capacity).map((slot) => {
@@ -391,7 +403,7 @@ function FleetRail({
               </div>
             );
           const status = sessionStatus(session, state.now);
-          const phase = eventInfo({ name: session.lastActivity || session.lastEvent, payload: null }).module;
+          const phase = eventInfo({ name: session.lastEvent, payload: null }).module;
           return (
             <Button
               key={sessionKey(session)}

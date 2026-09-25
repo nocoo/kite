@@ -87,3 +87,11 @@ assertions alone passed while the screenshot exposed unreadable text. Preserve
 text height, reduce optional captions on short screens and size session pages
 from measured available height. Verify actual node content in screenshots as
 well as the page's scroll and geometry metrics.
+
+## Latest fleet phase and remembered work
+
+The first global map reused `lastActivity` from the prior card layout. That field
+intentionally remembers selected work hooks, so a closed recording could still
+be counted under Response or Tools. The global map promises the latest observed
+module and must use `lastEvent` for counts, filters and session markers. Keep
+lifecycle status separate, and test an old work hook followed by shutdown.

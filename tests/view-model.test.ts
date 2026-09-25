@@ -84,6 +84,7 @@ describe("observation ViewModel", () => {
     vm.setFilter("tools");
     vm.setSearch("read");
     vm.setSessionSearch("kite");
+    vm.setRunningOnly(true);
     vm.setSpeed(4);
     vm.setSpeed(3);
     vm.setPace("recorded");
@@ -91,6 +92,7 @@ describe("observation ViewModel", () => {
       filter: "tools",
       search: "read",
       sessionSearch: "kite",
+      runningOnly: true,
       speed: 4,
       pace: "recorded",
     });

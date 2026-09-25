@@ -18,9 +18,11 @@ that state and send commands without owning network or lifecycle inference.
 The execution bridge keeps the fleet, runtime modules, correlated tool attempts
 and replay ribbon in one bounded desktop viewport. Session slots retain their
 order across refreshes; new recordings append and retention removes expired
-ones. The fleet rail pages according to available height and can filter directory,
+ones. The running counter filters active recordings without disturbing their
+positions. The fleet rail pages according to available height and can filter directory,
 identity, model, provider or the latest observed module. Global module counts
-represent the last observed activity of each recording, not simultaneous work.
+represent the latest hook of each recording, not simultaneous work. A shutdown
+therefore occupies Session, and a settled notification occupies Settle.
 Selecting a recording loads its bounded event window into the same execution map.
 
 The map fixes eight module positions and draws conceptual Pi routes with SVG.

@@ -20,6 +20,7 @@ export interface ObservatoryState {
   filter: ModuleId | "all";
   search: string;
   sessionSearch: string;
+  runningOnly: boolean;
   page: number;
   hasNext: boolean;
 }
@@ -52,6 +53,7 @@ export class Observatory {
     filter: "all",
     search: "",
     sessionSearch: "",
+    runningOnly: false,
     page: 0,
     hasNext: false,
   };
@@ -326,6 +328,9 @@ export class Observatory {
   }
   setSessionSearch(sessionSearch: string): void {
     this.patch({ sessionSearch });
+  }
+  setRunningOnly(runningOnly: boolean): void {
+    this.patch({ runningOnly });
   }
   tick(elapsed: number): void {
     if (!this.state.playing || this.state.detailLoading || elapsed <= 0 || !Number.isFinite(elapsed)) return;

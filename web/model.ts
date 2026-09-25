@@ -315,6 +315,7 @@ export function filteredSessions(
   sessions: readonly SessionSummary[],
   query: string,
   module: ModuleId | "all",
+  runningAt: number | null = null,
 ) {
   const needle = query.trim().toLowerCase();
   return sessions.filter(
@@ -322,8 +323,8 @@ export function filteredSessions(
       `${session.cwd} ${session.sessionId} ${session.producerId} ${session.model} ${session.provider}`
         .toLowerCase()
         .includes(needle) &&
-      (module === "all" ||
-        eventInfo({ name: session.lastActivity || session.lastEvent, payload: null }).module === module),
+      (module === "all" || eventInfo({ name: session.lastEvent, payload: null }).module === module) &&
+      (runningAt === null || sessionStatus(session, runningAt) === "Running"),
   );
 }
 
@@ -335,7 +336,7 @@ export function fleetSummary(sessions: readonly SessionSummary[], now: number) {
     tools = 0,
     errors = 0;
   for (const session of sessions) {
-    phases[eventInfo({ name: session.lastActivity || session.lastEvent, payload: null }).module]++;
+    phases[eventInfo({ name: session.lastEvent, payload: null }).module]++;
     if (sessionStatus(session, now) === "Running") running++;
     observations += session.eventCount;
     tools += session.toolCount;

@@ -1481,3 +1481,20 @@ svg {
     width: 46px;
   }
 }
+
+.kite-shell :where(.running-filter) {
+  height: 24px;
+  padding: 0 5px;
+  margin-left: -5px;
+  gap: 6px;
+  color: var(--kite-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+.kite-shell :where(.running-filter svg) {
+  color: var(--kite-green);
+}
+.kite-shell :where(.running-filter[aria-pressed="true"]) {
+  background: hsl(var(--basalt-accent));
+  color: var(--kite-fg);
+}

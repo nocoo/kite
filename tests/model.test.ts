@@ -88,6 +88,7 @@ const session = (patch: Record<string, unknown> = {}) =>
     producerId: "producer-a",
     lastLifecycle: "session_start",
     lastActivity: "session_start",
+    lastEvent: "session_start",
     lastSeen: 10_000,
     cwd: "/work/kite",
     ...patch,
@@ -536,9 +537,21 @@ describe("execution bridge projections", () => {
     const base = { eventCount: 10, toolCount: 2, errorCount: 1 };
     const result = fleetSummary(
       [
-        session({ ...base, lastLifecycle: "agent_start", lastActivity: "tool_call", lastSeen: 50_000 }),
+        session({
+          ...base,
+          lastLifecycle: "agent_start",
+          lastActivity: "tool_call",
+          lastEvent: "tool_call",
+          lastSeen: 50_000,
+        }),
         session({ ...base, lastActivity: null, lastEvent: "session_shutdown", lastSeen: 0 }),
-        session({ ...base, lastLifecycle: "agent_start", lastActivity: "context", lastSeen: 0 }),
+        session({
+          ...base,
+          lastLifecycle: "agent_start",
+          lastActivity: "context",
+          lastEvent: "context",
+          lastSeen: 0,
+        }),
       ],
       50_000,
     );
@@ -591,10 +604,32 @@ it("lights only recently observed modules in the chosen clock", () => {
 });
 
 it("filters fleet identity and phase without changing its order", () => {
-  const a = session({ producerId: "a", lastActivity: "tool_call" });
+  const a = session({ producerId: "a", lastActivity: "tool_call", lastEvent: "tool_call" });
   const b = session({ producerId: "b", lastActivity: null, lastEvent: "context" });
   expect(filteredSessions([a, b], " KITE ", "all")).toEqual([a, b]);
   expect(filteredSessions([a, b], "", "tools")).toEqual([a]);
   expect(filteredSessions([a, b], "", "context")).toEqual([b]);
   expect(filteredSessions([a, b], "missing", "all")).toEqual([]);
+});
+
+it("can isolate currently running recordings without reordering the fleet", () => {
+  const running = session({ lastLifecycle: "agent_start", lastSeen: 50_000 });
+  const quiet = session({ lastLifecycle: "agent_start", lastSeen: 10_000 });
+  const closed = session({ lastLifecycle: "session_shutdown", lastSeen: 50_000 });
+  expect(filteredSessions([quiet, running, closed], "", "all", 50_000)).toEqual([running]);
+  expect(filteredSessions([running], "", "all", 90_001)).toEqual([]);
+});
+
+it("uses the latest hook for fleet phase even when earlier work is remembered", () => {
+  const closed = session({
+    lastEvent: "session_shutdown",
+    lastActivity: "tool_call",
+    eventCount: 4,
+    toolCount: 1,
+    errorCount: 0,
+  });
+  expect(fleetSummary([closed], 20_000).phases.session).toBe(1);
+  expect(fleetSummary([closed], 20_000).phases.tools).toBe(0);
+  expect(filteredSessions([closed], "", "session")).toEqual([closed]);
+  expect(filteredSessions([closed], "", "tools")).toEqual([]);
 });

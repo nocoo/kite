@@ -73,6 +73,12 @@ try {
       ),
     before,
   );
+  await page.getByRole("button", { name: "Show running sessions" }).click();
+  await expect(page.getByRole("button", { name: "Show running sessions" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.getByRole("button", { name: "Clear session filters" }).click();
   await page.getByRole("textbox", { name: "Search sessions" }).fill("no-such-recording");
   await expect(page.getByText("No matching sessions", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Clear session filters" }).click();
