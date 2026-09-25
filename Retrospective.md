@@ -139,6 +139,9 @@ focus fell to the document body. Preserve the focused recording identity during
 navigation updates and restore it only if focus was lost to the body. Clear that
 identity on an intentional blur so polling cannot steal focus from another control.
 Browser acceptance covers promotion, demotion and deliberate focus departure.
+Restoring with `preventScroll` preserved focus but could leave a promoted or
+demoted row outside the sidebar viewport. Allow focus restoration to scroll
+the navigation and verify row bounds as well as active-element identity.
 
 Independent review also found that expanding the rail through Find sessions
 removed its trigger without moving focus to the revealed search field. Remember

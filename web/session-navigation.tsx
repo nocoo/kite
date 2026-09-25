@@ -103,7 +103,7 @@ export function SessionNavigation({
       (element) => element.dataset.sessionKey === previous.key,
     );
     focused.current = null;
-    item?.focus({ preventScroll: true });
+    item?.focus();
   });
   const phase = state.selected ? "all" : state.filter;
   const sessions = filteredSessions(

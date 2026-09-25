@@ -124,6 +124,26 @@ try {
   await expect(page.locator(".session-item")).toHaveAttribute("aria-current", "page");
   await expect(page.locator(".stage-identity")).toContainText("older-recording");
   await page.getByRole("button", { name: "Clear session filters" }).click();
+  await page.setViewportSize({ width: 1512, height: 768 });
+  const older = page.getByRole("button", { name: /^Inspect older-recording / });
+  await older.focus();
+  const focusedRowVisible = () =>
+    older.evaluate((element) => {
+      const row = element.getBoundingClientRect();
+      const navigation = element.closest("nav").getBoundingClientRect();
+      return row.top >= navigation.top - 1 && row.bottom <= navigation.bottom + 1;
+    });
+  for (const lifecycle of ["agent_start", "session_shutdown"]) {
+    sessions = sessions.map((session, index) =>
+      index === 19 ? { ...session, lastLifecycle: lifecycle } : session,
+    );
+    revision++;
+    await expect.poll(() => served).toBe(revision);
+    await expect(older).toHaveAccessibleName(lifecycle === "agent_start" ? /Running/ : /Closed/);
+    await expect(older).toBeFocused();
+    await expect.poll(focusedRowVisible).toBe(true);
+  }
+  await page.setViewportSize({ width: 1512, height: 982 });
   await page.getByRole("button", { name: "Collapse sidebar" }).click();
   await expect.poll(async () => (await page.locator(".kite-sidebar").boundingBox()).width).toBe(68);
   await expect(page.locator(".session-icon")).toHaveCount(20);
@@ -166,6 +186,7 @@ try {
       "live priority and stable refresh order",
       "status promotion and demotion",
       "keyboard focus across priority changes",
+      "focused recordings remain visible after moving between groups",
       "live filter and identity search",
       "collapsed shortcuts and tooltips",
       "offline halo removal",
