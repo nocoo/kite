@@ -15,12 +15,14 @@ Pi hooks to documented modules; unknown events remain visible. The ViewModel
 owns polling, cancellation, selection, filters and replay. React views render
 that state and send commands without owning network or lifecycle inference.
 
-The execution bridge keeps the fleet, runtime modules, correlated tool attempts
-and replay ribbon in one bounded desktop viewport. Session slots retain their
-order across refreshes; new recordings append and retention removes expired
-ones. The running counter filters active recordings without disturbing their
-positions. The fleet rail pages according to available height and can filter directory,
-identity, model, provider or the latest observed module. Global module counts
+The execution bridge keeps runtime modules, correlated tool attempts and the
+replay ribbon in one bounded desktop viewport. The Basalt sidebar is the single
+session navigator: running recordings rise into Live, with stable order inside
+each group. New recordings append and retention removes expired ones. Search
+and live/module filters share the ViewModel with the main telemetry and diagram.
+The sidebar can filter directory, identity, model, provider or the latest observed
+module. Every retained recording is reachable through its own scroll region.
+Global module counts
 represent the latest hook of each recording, not simultaneous work. A shutdown
 therefore occupies Session, and a settled notification occupies Settle.
 Selecting a recording loads its bounded event window into the same execution map.
@@ -34,7 +36,7 @@ highlights expire 2.5 seconds after actual observations; replay uses the recorde
 monotonic clock. Polling does not remount the map or restart an entrance animation.
 Reduced-motion mode removes animation while retaining state and color.
 Light mode derives diagram colors from the same Basalt chart hues at a lower
-OKLCH lightness, with stronger routes, state tracks and selected-session tint.
+OKLCH lightness, with stronger routes and state tracks.
 The diagram aliases leave Basalt surfaces, control accents and dark colors intact.
 
 Three tool slots show a bounded group of attempts. Follow keeps the most recently
@@ -46,8 +48,11 @@ an attempt, not proof that a tool body ran. Missing starts or ends leave duratio
 unknown. The right-side Basalt Sheet contains timeline filters, original payloads,
 all tools, assistant text and provider-exposed thinking. Larger screens also show
 a compact signal inspector beside the map. The main desktop canvas does not scroll;
-evidence panels own their detail scroll. Narrow screens use a horizontal session
-array; short screens retain document accessibility with island scrolling.
+evidence panels own their detail scroll. Mobile and wall view open the same
+session navigation in a left Sheet; the collapsed desktop rail retains session
+shortcuts with identity tooltips. Live beacons animate only while the collector
+is connected, and reduced motion replaces the halo animation with a static ring.
+Short screens retain document accessibility with island scrolling.
 
 Replay preserves step seeking, recorded timing, speed selection and retained
 segment traversal. No missing event is treated as successful completion. Silence
@@ -69,6 +74,8 @@ outer gutters. Basalt owns the header, island and PageHeader geometry. Giraffe's
 local endpoint was unavailable during comparison; its checked-out components
 and the installed Basalt sources supplied the reference.
 
+`web/session-navigation.tsx` composes Basalt navigation, search and filter controls;
+the model's session grouping keeps running priority separate from refresh order.
 `web/app-frame.tsx` owns responsive presentation, sidebar collapse and mobile
 Sheet state. It composes public Basalt components and routes the overview
 breadcrumb into the existing selection command. The mobile Sheet owns its focus
@@ -83,6 +90,10 @@ reproduction command are recorded in the [brand assets](../assets/brand/README.m
 node geometry, desktop viewport containment (1366–2560px), individual tool stages,
 filters, replay, payload disclosure, drawer focus, both themes, offline recovery
 and reduced motion. Screenshots and measurements are stored in `.local/evidence/`.
+`node scripts/sidebar-check.mjs` uses browser-only fixtures to verify running
+priority, focus across group changes, filtering, all-recording reachability,
+collapsed shortcuts, offline beacons and wall-view navigation without writing
+collector data.
 
 ## Bounded live and replay clocks
 

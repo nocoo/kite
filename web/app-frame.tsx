@@ -9,22 +9,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@nocoo/basalt/components/sheet";
-import {
-  ContentIsland,
-  Sidebar,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarIconItem,
-  SidebarItem,
-  SidebarNav,
-  SidebarPartition,
-} from "@nocoo/basalt/components/sidebar";
+import { ContentIsland, Sidebar, SidebarFooter, SidebarHeader } from "@nocoo/basalt/components/sidebar";
 import { type LinkComponent, LinkProvider } from "@nocoo/basalt/providers/link";
 import {
   Maximize2,
   Menu,
   Minimize2,
-  Network,
   PanelLeft,
   RefreshCw,
   ShieldCheck,
@@ -35,8 +25,9 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from "react"
 import packageInfo from "../package.json" with { type: "json" };
 import type { SessionSummary } from "../src/store.ts";
 import { IconButton } from "./controls.tsx";
-import { directoryName, sessionKey, sessionStatus } from "./model.ts";
-import type { ObservatoryState } from "./view-model.ts";
+import { directoryName } from "./model.ts";
+import { SessionNavigation } from "./session-navigation.tsx";
+import type { Observatory, ObservatoryState } from "./view-model.ts";
 import "./frame.css";
 
 function BrandMark({ alt = "" }: { alt?: string }) {
@@ -53,12 +44,14 @@ function BrandMark({ alt = "" }: { alt?: string }) {
 }
 
 function AppSidebar({
+  vm,
   state,
   collapsed,
   mobile,
   onToggle,
   onSelect,
 }: {
+  vm: Observatory;
   state: ObservatoryState;
   collapsed: boolean;
   mobile: boolean;
@@ -100,54 +93,13 @@ function AppSidebar({
           <PanelLeft />
         </Button>
       )}
-      <SidebarNav aria-label="Observatory navigation" className="sidebar-navigation">
-        {collapsed ? (
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <SidebarIconItem
-                className="sidebar-overview-icon"
-                aria-label="All sessions"
-                active={!state.selected}
-                onClick={() => onSelect(null)}
-              >
-                <Network />
-              </SidebarIconItem>
-            </TooltipTrigger>
-            <TooltipContent side="right">Observatory</TooltipContent>
-          </Tooltip>
-        ) : (
-          <>
-            <div className="sidebar-items">
-              <SidebarItem active={!state.selected} onClick={() => onSelect(null)}>
-                <Network />
-                <span>Observatory</span>
-                <span className="nav-count">{state.sessions.length}</span>
-              </SidebarItem>
-            </div>
-            <SidebarPartition>Recent recordings</SidebarPartition>
-            <div className="sidebar-items session-nav">
-              {state.sessions.slice(0, 14).map((session) => (
-                <SidebarItem
-                  key={sessionKey(session)}
-                  active={state.selected !== null && sessionKey(session) === sessionKey(state.selected)}
-                  onClick={() => onSelect(session)}
-                  title={session.cwd || "Directory not observed"}
-                >
-                  <span
-                    className={`status-dot ${sessionStatus(session, state.now).toLowerCase().replaceAll(" ", "-")}`}
-                  />
-                  <span className="nav-session">
-                    <span>{directoryName(session.cwd)}</span>
-                    <small>
-                      {session.sessionId.slice(-8) || "Unassigned"} · {session.producerId.slice(0, 6)}
-                    </small>
-                  </span>
-                </SidebarItem>
-              ))}
-            </div>
-          </>
-        )}
-      </SidebarNav>
+      <SessionNavigation
+        state={state}
+        vm={vm}
+        collapsed={collapsed}
+        onSelect={onSelect}
+        onExpand={onToggle}
+      />
       <SidebarFooter>
         {collapsed ? (
           <Tooltip delayDuration={0}>
@@ -165,9 +117,7 @@ function AppSidebar({
         ) : (
           <div className="side-footer">
             <ShieldCheck />
-            <div>
-              Local &amp; passive<small>Seven days of history</small>
-            </div>
+            <div>Local &amp; passive · 7-day history</div>
           </div>
         )}
       </SidebarFooter>
@@ -176,11 +126,13 @@ function AppSidebar({
 }
 
 export function AppFrame({
+  vm,
   state,
   onSelect,
   onRetry,
   children,
 }: {
+  vm: Observatory;
   state: ObservatoryState;
   onSelect: (session: SessionSummary | null) => void;
   onRetry: () => void;
@@ -230,11 +182,12 @@ export function AppFrame({
       : "Collector offline";
   return (
     <LinkProvider render={OverviewLink}>
-      <Sheet open={compact && mobileOpen} onOpenChange={setMobileOpen}>
+      <Sheet open={(compact || wall) && mobileOpen} onOpenChange={setMobileOpen}>
         <AppShell className={`kite-shell ${wall ? "wall-mode" : ""}`}>
           <AppSkipLink>Skip to observatory</AppSkipLink>
           {!compact && !wall && (
             <AppSidebar
+              vm={vm}
               state={state}
               collapsed={collapsed}
               mobile={false}
@@ -242,7 +195,7 @@ export function AppFrame({
               onSelect={choose}
             />
           )}
-          {compact && (
+          {(compact || wall) && (
             <SheetContent
               side="left"
               className="kite-shell kite-navigation-sheet"
@@ -257,6 +210,7 @@ export function AppFrame({
               <SheetTitle className="sr-only">Kite navigation</SheetTitle>
               <SheetDescription className="sr-only">Choose the overview or a Pi recording.</SheetDescription>
               <AppSidebar
+                vm={vm}
                 state={state}
                 collapsed={false}
                 mobile
@@ -268,7 +222,7 @@ export function AppFrame({
           <AppMain id="main-content" tabIndex={-1}>
             <AppHeader
               leading={
-                compact ? (
+                compact || wall ? (
                   <SheetTrigger asChild>
                     <IconButton ref={menuTrigger} className="header-action" label="Open navigation">
                       <Menu />

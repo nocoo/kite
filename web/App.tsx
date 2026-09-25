@@ -1,20 +1,7 @@
-import { Badge, Button, Input, LayerCard } from "@nocoo/basalt";
+import { Badge, Button, LayerCard } from "@nocoo/basalt";
 import { Banner } from "@nocoo/basalt/components/banner";
 import { PageHeader } from "@nocoo/basalt/components/page-header";
-import {
-  Activity,
-  ArrowUpRight,
-  ChevronLeft,
-  ChevronRight,
-  Database,
-  Folder,
-  Network,
-  Radio,
-  ScanLine,
-  Search,
-  Terminal,
-  TriangleAlert,
-} from "lucide-react";
+import { Activity, ArrowUpRight, Database, Network, Radio, ScanLine, Terminal } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -31,11 +18,8 @@ import { EventButton, EvidencePanel, type EvidenceTab } from "./evidence-panel.t
 import { ExecutionMap } from "./execution-map.tsx";
 import {
   directoryName,
-  duration,
   eventInfo,
-  filteredSessions,
   fleetSummary,
-  modules,
   observedSignals,
   project,
   sessionKey,
@@ -57,7 +41,7 @@ export function App({ vm }: { vm: Observatory }) {
     [vm],
   );
   return (
-    <AppFrame state={state} onSelect={choose} onRetry={() => void vm.refresh()}>
+    <AppFrame vm={vm} state={state} onSelect={choose} onRetry={() => void vm.refresh()}>
       <Bridge vm={vm} state={state} onChoose={choose} />
     </AppFrame>
   );
@@ -195,7 +179,6 @@ function Bridge({
           </div>
         </div>
         <div className="stage-workspace">
-          <FleetRail state={state} vm={vm} onChoose={onChoose} />
           <div className="map-column">
             <ExecutionMap
               key={selectedKey}
@@ -329,152 +312,6 @@ function Bridge({
         state={state}
         projection={projection}
       />
-    </div>
-  );
-}
-
-function FleetRail({
-  vm,
-  state,
-  onChoose,
-}: {
-  vm: Observatory;
-  state: ObservatoryState;
-  onChoose: (session: SessionSummary) => void;
-}) {
-  const [page, setPage] = useState(0);
-  const [capacity, setCapacity] = useState(6);
-  const rail = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
-    const element = rail.current;
-    if (!element) return;
-    const measure = () => {
-      const { width, height } = element.getBoundingClientRect();
-      setCapacity(width > 300 ? 6 : Math.max(2, Math.min(6, Math.floor((height - 98) / 74))));
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
-  const sessions = filteredSessions(
-    state.sessions,
-    state.sessionSearch,
-    state.selected ? "all" : state.filter,
-    state.runningOnly ? state.now : null,
-  );
-  const pages = Math.max(1, Math.ceil(sessions.length / capacity));
-  const currentPage = Math.min(page, pages - 1);
-  return (
-    <div className="fleet-rail" ref={rail}>
-      <div className="fleet-heading">
-        <span className="eyebrow">SESSION ARRAY</span>
-        {(state.runningOnly || state.sessionSearch || (!state.selected && state.filter !== "all")) && (
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label="Clear session filters"
-            onClick={() => {
-              vm.setSessionSearch("");
-              vm.setFilter("all");
-              vm.setRunningOnly(false);
-              setPage(0);
-            }}
-          >
-            Clear
-          </Button>
-        )}
-        <span className="mono">{sessions.length.toString().padStart(2, "0")}</span>
-      </div>
-      <div className="fleet-search">
-        <Search />
-        <Input
-          aria-label="Search sessions"
-          placeholder="Find a session…"
-          value={state.sessionSearch}
-          onChange={(event) => {
-            vm.setSessionSearch(event.target.value);
-            setPage(0);
-          }}
-        />
-      </div>
-      <div className="fleet-slots" style={{ gridTemplateRows: `repeat(${capacity}, minmax(0, 1fr))` }}>
-        {sessions.length === 0 && !state.loading && (
-          <p className="fleet-empty">
-            {state.runningOnly || state.sessionSearch || state.filter !== "all"
-              ? "No matching sessions"
-              : "Waiting for Pi"}
-          </p>
-        )}
-        {[0, 1, 2, 3, 4, 5].slice(0, capacity).map((slot) => {
-          const session = sessions[currentPage * capacity + slot];
-          if (!session)
-            return (
-              <div key={`vacant-${slot}`} className="fleet-vacant">
-                <span>{state.loading ? "Acquiring…" : "—"}</span>
-              </div>
-            );
-          const status = sessionStatus(session, state.now);
-          const phase = eventInfo({ name: session.lastEvent, payload: null }).module;
-          return (
-            <Button
-              key={sessionKey(session)}
-              variant="ghost"
-              className={`fleet-session phase-${phase} ${state.selected && sessionKey(state.selected) === sessionKey(session) ? "selected" : ""}`}
-              onClick={() => onChoose(session)}
-              aria-label={`Inspect ${directoryName(session.cwd)} ${session.producerId.slice(0, 6)}`}
-              title={session.cwd || "Directory not observed"}
-            >
-              <span className="fleet-name">
-                <Folder />
-                <strong>{directoryName(session.cwd)}</strong>
-                <span className={`status-dot ${state.connected && status === "Running" ? "running" : ""}`} />
-              </span>
-              <span className="fleet-id mono">
-                {session.sessionId.slice(-8) || "Unassigned"} / {session.producerId.slice(0, 6)}
-              </span>
-              <span className="fleet-state">
-                <span>{status}</span>
-                <span>{duration(state.now - session.lastSeen)} ago</span>
-              </span>
-              <span role="img" className="fleet-phase-track" aria-label={`Latest observed module: ${phase}`}>
-                {modules.map((m) => (
-                  <i key={m.id} className={`phase-${m.id} ${phase === m.id ? "lit" : ""}`} />
-                ))}
-              </span>
-              <span className="fleet-counts">
-                <span>{session.eventCount.toLocaleString()} signals</span>
-                <span>{session.toolCount} tools</span>
-                {session.errorCount > 0 && (
-                  <span className="fleet-errors">
-                    <TriangleAlert />
-                    {session.errorCount}
-                  </span>
-                )}
-              </span>
-            </Button>
-          );
-        })}
-      </div>
-      <div className="fleet-pagination">
-        <IconButton
-          label="Previous sessions"
-          disabled={currentPage === 0}
-          onClick={() => setPage(currentPage - 1)}
-        >
-          <ChevronLeft />
-        </IconButton>
-        <span className="mono">
-          {currentPage + 1} / {pages}
-        </span>
-        <IconButton
-          label="Next sessions"
-          disabled={currentPage + 1 === pages}
-          onClick={() => setPage(currentPage + 1)}
-        >
-          <ChevronRight />
-        </IconButton>
-      </div>
     </div>
   );
 }

@@ -53,7 +53,7 @@ try {
   page.setDefaultTimeout(15000);
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(origin);
-  await page.locator(".fleet-session").first().waitFor();
+  await page.locator(".session-item").first().waitFor();
   await expect(page.locator("#observatory-content h1")).toHaveText("Execution bridge");
   assert.equal((await page.locator("aside.kite-sidebar").boundingBox()).width, 260);
   assert.equal((await page.locator("main > header").boundingBox()).height, 56);
@@ -63,14 +63,14 @@ try {
   await bounded(page, "global 1512");
   await page.screenshot({ path: `${output}bridge-global-dark.png` });
   const before = await page
-    .locator(".fleet-session")
+    .locator(".session-item")
     .evaluateAll((els) =>
       els.map((el) => ({ id: el.getAttribute("aria-label"), y: el.getBoundingClientRect().y })),
     );
   await page.waitForTimeout(2200);
   assert.deepEqual(
     await page
-      .locator(".fleet-session")
+      .locator(".session-item")
       .evaluateAll((els) =>
         els.map((el) => ({ id: el.getAttribute("aria-label"), y: el.getBoundingClientRect().y })),
       ),
@@ -193,6 +193,10 @@ try {
   assert.equal(await page.locator(".kite-sidebar").isVisible(), false);
   await bounded(page, "wall 1512");
   await page.screenshot({ path: `${output}bridge-wall-light.png`, animations: "disabled" });
+  await page.getByRole("button", { name: "Open navigation" }).click();
+  await expect(page.getByRole("dialog").getByRole("textbox", { name: "Search sessions" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("button", { name: "Open navigation" })).toBeFocused();
   await page.getByRole("button", { name: "Exit wall view", exact: true }).click();
   await page.getByRole("button", { name: "Expand sidebar", exact: true }).click();
   await page.route("**/api/sessions?**", (route) =>
@@ -227,7 +231,7 @@ try {
   mobile.setDefaultTimeout(15000);
   mobile.on("pageerror", (error) => errors.push(error.message));
   await mobile.goto(origin);
-  await mobile.locator(".fleet-session").first().waitFor();
+  await mobile.getByRole("region", { name: "Fleet phase map" }).waitFor();
   await bounded(mobile, "mobile global");
   await mobile.screenshot({ path: `${output}bridge-mobile-global.png` });
   await mobile.getByRole("button", { name: "Open navigation" }).click();
@@ -238,7 +242,7 @@ try {
   await mobile.getByRole("button", { name: "Open navigation" }).click();
   await mobile
     .getByRole("dialog")
-    .getByRole("button", { name: /^kite / })
+    .getByRole("button", { name: /^Inspect kite / })
     .first()
     .click();
   await expect(mobile.getByRole("dialog")).toHaveCount(0);

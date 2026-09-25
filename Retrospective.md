@@ -130,3 +130,17 @@ The original light acceptance screenshot also captured unfinished theme
 transitions, producing gray nodes and a dark rail that were not stable theme
 surfaces. Finish transitions when capturing theme screenshots and compare
 settled computed styles before diagnosing or changing the surface system.
+
+## Session priority and keyboard focus
+
+Moving a recording between Live and Recordings creates a new React parent even
+when its recording key is stable. A keyboard-focused row then disappeared and
+focus fell to the document body. Preserve the focused recording identity during
+navigation updates and restore it only if focus was lost to the body. Clear that
+identity on an intentional blur so polling cannot steal focus from another control.
+Browser acceptance covers promotion, demotion and deliberate focus departure.
+
+Independent review also found that expanding the rail through Find sessions
+removed its trigger without moving focus to the revealed search field. Remember
+that explicit search action and focus the mounted Input after expansion; an
+ordinary sidebar expansion must not unexpectedly focus search.

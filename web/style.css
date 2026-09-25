@@ -195,167 +195,12 @@ svg {
   display: flex;
   min-height: 0;
 }
-.kite-shell :where(.fleet-rail) {
-  width: 198px;
-  flex-shrink: 0;
-  padding: var(--kite-space-3);
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  gap: var(--kite-space-2);
-  position: relative;
-}
-.kite-shell :where(.fleet-rail::after) {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 24px;
-  bottom: 24px;
-  width: 1px;
-  background: linear-gradient(transparent, var(--kite-line), transparent);
-}
-.kite-shell :where(.fleet-heading) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 11px;
-  color: var(--kite-muted);
-}
 .kite-shell :where(.eyebrow) {
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.08em;
   color: var(--kite-muted);
 }
-.kite-shell :where(.fleet-search) {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.kite-shell :where(.fleet-search > svg) {
-  width: 12px;
-  color: var(--kite-muted);
-}
-.kite-shell :where(.fleet-search input) {
-  height: 28px;
-  min-width: 0;
-  font-size: 11px;
-}
-.kite-shell :where(.fleet-slots) {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-rows: repeat(6, minmax(0, 1fr));
-  gap: var(--kite-space-1);
-}
-.kite-shell :where(.fleet-session) {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  text-align: left;
-  gap: 4px;
-  padding: 8px;
-  font-weight: 400;
-  white-space: normal;
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--basalt-radius-widget);
-}
-.kite-shell :where(.fleet-session.selected) {
-  background: hsl(var(--basalt-bright));
-}
-.kite-shell :where(.fleet-session.selected::after) {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 20%;
-  height: 60%;
-  width: 2px;
-  background: var(--phase);
-}
-.kite-shell :where(.fleet-name) {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-}
-.kite-shell :where(.fleet-name svg) {
-  color: var(--phase);
-  width: 13px;
-  height: 13px;
-}
-.kite-shell :where(.fleet-name strong) {
-  font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-  font-weight: 550;
-}
-.kite-shell :where(.fleet-id) {
-  display: block;
-  font-size: 11px;
-  color: var(--kite-muted);
-  white-space: nowrap;
-}
-.kite-shell :where(.fleet-state),
-.kite-shell :where(.fleet-counts) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px;
-  font-size: 11px;
-  color: var(--kite-muted);
-}
-.kite-shell :where(.fleet-state) {
-  margin-top: 1px;
-}
-.kite-shell :where(.fleet-state > :last-child) {
-  opacity: 0.8;
-}
-.kite-shell :where(.fleet-phase-track) {
-  display: flex;
-  gap: 3px;
-  margin: 3px 0;
-}
-.kite-shell :where(.fleet-phase-track i) {
-  height: 2px;
-  flex: 1;
-  border-radius: 1px;
-  background: var(--kite-line);
-}
-.kite-shell :where(.fleet-phase-track i.lit) {
-  background: var(--phase);
-}
-.kite-shell :where(.fleet-errors) {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  color: var(--kite-error);
-}
-.kite-shell :where(.fleet-errors svg) {
-  width: 11px;
-  height: 11px;
-}
-.kite-shell :where(.fleet-vacant) {
-  display: grid;
-  place-items: center;
-  color: var(--kite-muted);
-  font-size: 11px;
-  opacity: 0.4;
-}
-.kite-shell :where(.fleet-pagination) {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-  color: var(--kite-muted);
-}
-.kite-shell :where(.fleet-pagination button),
 .kite-shell :where(.tool-pagination button) {
   width: 26px;
   height: 26px;
@@ -1092,10 +937,6 @@ svg {
   }
 }
 @container bridge (max-width: 1090px) {
-  .kite-shell :where(.fleet-rail) {
-    width: 172px;
-  }
-  .kite-shell :where(.fleet-counts),
   .kite-shell :where(.module-count small),
   .kite-shell :where(.telemetry-scope),
   .kite-shell :where(.conceptual-note) {
@@ -1133,18 +974,6 @@ svg {
   }
 }
 @container bridge (max-width: 850px) {
-  .kite-shell :where(.fleet-rail) {
-    width: 155px;
-    padding: 8px;
-  }
-  .kite-shell :where(.fleet-id) {
-    font-size: 11px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .kite-shell :where(.fleet-state > :last-child) {
-    display: none;
-  }
   .kite-shell :where(.module-number) {
     display: none;
   }
@@ -1200,41 +1029,6 @@ svg {
   }
   .kite-shell :where(.stage-workspace) {
     flex-direction: column;
-  }
-  .kite-shell :where(.fleet-rail) {
-    width: 100%;
-    height: 98px;
-    flex-shrink: 0;
-    padding: 4px 8px;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px;
-  }
-  .kite-shell :where(.fleet-heading),
-  .kite-shell :where(.fleet-search) {
-    display: none;
-  }
-  .kite-shell :where(.fleet-slots) {
-    display: flex;
-    gap: 4px;
-    grid-column: 1;
-    overflow-x: auto;
-  }
-  .kite-shell :where(.fleet-session) {
-    min-width: 132px;
-    width: 132px;
-    padding: 4px;
-  }
-  .kite-shell :where(.fleet-vacant) {
-    display: none;
-  }
-  .kite-shell :where(.fleet-pagination) {
-    flex-direction: column;
-    justify-content: center;
-    gap: 2px;
-  }
-  .kite-shell :where(.fleet-phase-track) {
-    margin: 0;
   }
   .kite-shell :where(.map-column) {
     flex: 1;
@@ -1349,15 +1143,6 @@ svg {
   .kite-shell :where(.execution-bridge) {
     gap: 8px;
   }
-  .kite-shell :where(.fleet-counts) {
-    display: none;
-  }
-  .kite-shell :where(.fleet-phase-track) {
-    margin: 0;
-  }
-  .kite-shell :where(.fleet-session) {
-    gap: 3px;
-  }
   .kite-shell :where(.stage-heading) {
     min-height: 36px;
   }
@@ -1406,9 +1191,6 @@ svg {
     stroke-dashoffset: -90;
   }
 }
-:root[data-mode="light"] .kite-shell :where(.fleet-session.selected) {
-  background: color-mix(in srgb, var(--phase) 7%, hsl(var(--basalt-bright)));
-}
 :root[data-mode="light"]
   .kite-shell
   :where(
@@ -1433,7 +1215,6 @@ svg {
     .module-trace .lit,
     .core-segment.seen,
     .map-legend .legend-seen,
-    .fleet-state > :last-child,
     .conceptual-note,
     .tool-vacant
   ) {
@@ -1457,18 +1238,6 @@ svg {
     scroll-behavior: auto;
   }
 }
-
-.kite-shell :where(.fleet-session) {
-  padding: 6px 8px;
-  gap: 3px;
-}
-.kite-shell :where(.fleet-session > span) {
-  flex-shrink: 0;
-  line-height: 14px;
-}
-.kite-shell :where(.fleet-counts) {
-  display: none;
-}
 .kite-shell :where(.tool-stages) {
   min-height: 22px;
 }
@@ -1491,22 +1260,6 @@ svg {
   .kite-shell :where(.is-animating .node-recent::before) {
     animation: none;
   }
-}
-
-.kite-shell :where(.fleet-slots) {
-  position: relative;
-}
-.kite-shell :where(.fleet-empty) {
-  position: absolute;
-  inset: 10px 0 auto;
-  font-size: 12px;
-  color: var(--kite-muted);
-  text-align: center;
-}
-.kite-shell :where(.fleet-heading button) {
-  height: 20px;
-  padding: 0 4px;
-  font-size: 11px;
 }
 
 .kite-shell :where(.module-node > span, .module-node > strong, .tool-node > span, .tool-node > strong) {

@@ -328,6 +328,15 @@ export function filteredSessions(
   );
 }
 
+export function sessionGroups(sessions: readonly SessionSummary[], now: number) {
+  const live: SessionSummary[] = [];
+  const recordings: SessionSummary[] = [];
+  for (const session of sessions) {
+    (sessionStatus(session, now) === "Running" ? live : recordings).push(session);
+  }
+  return { live, recordings };
+}
+
 export function fleetSummary(sessions: readonly SessionSummary[], now: number) {
   const phases = emptyProjection().hits;
   const signals = new Set<ModuleId>();

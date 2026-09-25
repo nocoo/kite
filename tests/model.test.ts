@@ -17,6 +17,7 @@ import {
   record,
   replayIndex,
   replayTimes,
+  sessionGroups,
   sessionKey,
   sessionStatus,
   stableSessions,
@@ -176,6 +177,26 @@ describe("catalog and identity helpers", () => {
     expect(record({ ok: 1 })).toEqual({ ok: 1 });
     expect(textValue(1)).toBe("");
     expect(textValue("kept")).toBe("kept");
+  });
+
+  it("promotes running recordings while preserving order and distinct producers", () => {
+    const closed = session({ producerId: "closed", lastLifecycle: "session_shutdown" });
+    const liveA = session({ producerId: "live-a", lastLifecycle: "agent_start" });
+    const liveB = session({ producerId: "live-b", lastLifecycle: "agent_start" });
+    const waiting = session({ producerId: "waiting", lastActivity: "ui_prompt_start" });
+    const input = Object.freeze([closed, liveB, waiting, liveA]);
+    expect(sessionGroups(input, 10_000)).toEqual({ live: [liveB, liveA], recordings: [closed, waiting] });
+    expect(sessionGroups(input, 40_000).live).toEqual([liveB, liveA]);
+    expect(sessionGroups(input, 40_001)).toEqual({ live: [], recordings: input });
+    expect(input).toEqual([closed, liveB, waiting, liveA]);
+    expect(sessionGroups([], 10_000)).toEqual({ live: [], recordings: [] });
+
+    const activeWaiting = { ...waiting, lastActivity: "tool_call", lastLifecycle: "agent_start" };
+    const settledB = { ...liveB, lastLifecycle: "agent_settled" };
+    expect(sessionGroups([closed, settledB, activeWaiting, liveA], 10_000)).toEqual({
+      live: [activeWaiting, liveA],
+      recordings: [closed, settledB],
+    });
   });
 });
 
