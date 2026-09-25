@@ -129,6 +129,33 @@ export function EvidencePanel({
         <SheetDescription>
           {state.selected?.cwd || "Choose a recording to inspect captured events."}
         </SheetDescription>
+        {state.selected && (
+          <Accordion type="single" collapsible className="recording-facts">
+            <AccordionItem value="identity">
+              <AccordionTrigger>Recording identity</AccordionTrigger>
+              <AccordionContent>
+                <dl className="fact-grid">
+                  <div>
+                    <dt>Session</dt>
+                    <dd className="mono">{state.selected.sessionId || "Unassigned"}</dd>
+                  </div>
+                  <div>
+                    <dt>Recording</dt>
+                    <dd className="mono">{state.selected.producerId}</dd>
+                  </div>
+                  <div>
+                    <dt>Provider</dt>
+                    <dd>{state.selected.provider || "Not observed"}</dd>
+                  </div>
+                  <div>
+                    <dt>Model</dt>
+                    <dd>{state.selected.model || "Not observed"}</dd>
+                  </div>
+                </dl>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        )}
         <div className="evidence-scope mono">
           Segment {state.page + 1} · {state.index + 1} / {state.events.length} observations
         </div>

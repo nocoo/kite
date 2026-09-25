@@ -96,9 +96,11 @@ try {
   assert.equal(await page.locator(".tool-node").count(), 3);
   await bounded(page, "detail 1512");
   await page.screenshot({ path: `${output}bridge-recording-dark.png` });
-  await page.getByRole("button", { name: "Previous tool group" }).click();
+  if (await page.getByRole("button", { name: "Previous tool group" }).isEnabled())
+    await page.getByRole("button", { name: "Previous tool group" }).click();
   await expect(page.locator(".tool-node").first()).toContainText("probe");
-  await page.getByRole("button", { name: "Next tool group" }).click();
+  if (await page.getByRole("button", { name: "Next tool group" }).isEnabled())
+    await page.getByRole("button", { name: "Next tool group" }).click();
   await page.getByRole("button", { name: "Follow", exact: true }).click();
   const tool = page.locator(".tool-node").first();
   await tool.click();
@@ -108,6 +110,9 @@ try {
     "true",
   );
   await expect(page.locator(".payload pre")).toBeVisible();
+  await page.getByRole("button", { name: "Recording identity", exact: true }).click();
+  await expect(page.locator(".recording-facts")).toContainText("kite-probe");
+  await page.getByRole("button", { name: "Recording identity", exact: true }).click();
   await page.getByRole("button", { name: "Captured payload", exact: true }).click();
   await expect(page.locator(".payload pre")).toBeHidden();
   await page.getByRole("button", { name: "Captured payload", exact: true }).press("Enter");
@@ -188,8 +193,9 @@ try {
   await page.getByText("Collector offline", { exact: true }).waitFor();
   assert.equal(await page.locator(".module-node").count(), 8);
   await bounded(page, "offline 1512");
-  await page.unroute("**/api/sessions?**");
   await page.getByRole("button", { name: "Retry", exact: true }).click();
+  await page.getByText("Collector offline", { exact: true }).waitFor();
+  await page.unroute("**/api/sessions?**");
   await page.getByText("Collector connected", { exact: true }).waitFor();
   await page.getByRole("button", { name: "From start", exact: true }).click();
   await page.getByRole("button", { name: "Play replay", exact: true }).click();

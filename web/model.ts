@@ -362,7 +362,11 @@ export function observedSignals(
 
 export function toolWindow(tools: readonly ToolAttempt[], page: number | null) {
   const pages = Math.max(1, Math.ceil(tools.length / 3));
-  const index = page === null ? pages - 1 : Math.max(0, Math.min(page, pages - 1));
-  const offset = Math.min(index * 3, Math.max(0, tools.length - 3));
-  return { tools: tools.slice(offset, offset + 3), page: index, pages };
+  const latest = tools.reduce(
+    (last, tool, index) => (tool.cursor >= (tools[last]?.cursor ?? 0) ? index : last),
+    0,
+  );
+  const index = page === null ? Math.floor(latest / 3) : Math.max(0, Math.min(page, pages - 1));
+  const offset = page === null ? Math.min(index * 3, Math.max(0, tools.length - 3)) : index * 3;
+  return { tools: tools.slice(offset, offset + 3), offset, page: index, pages };
 }

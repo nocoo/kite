@@ -95,3 +95,12 @@ intentionally remembers selected work hooks, so a closed recording could still
 be counted under Response or Tools. The global map promises the latest observed
 module and must use `lastEvent` for counts, filters and session markers. Keep
 lifecycle status separate, and test an old work hook followed by shutdown.
+
+## Tool paging and live follow
+
+Filling the final tool group from preceding attempts made manual pages overlap.
+Keep manual pages disjoint and label the actual visible range. Follow is a
+separate view: anchor it on the latest observed tool event so updates from an
+earlier long-running attempt are not hidden by newer, already-finished calls.
+Tests now check uniqueness across manual pages, pinned groups on append and
+follow movement when an earlier attempt emits a new event.

@@ -34,9 +34,11 @@ highlights expire 2.5 seconds after actual observations; replay uses the recorde
 monotonic clock. Polling does not remount the map or restart an entrance animation.
 Reduced-motion mode removes animation while retaining state and color.
 
-Three tool slots show a bounded group of attempts. Follow displays the newest
-group, manual paging pins a group, and All tools opens every observed attempt in
-the segment. Stage markers illuminate only hooks actually received. A start is
+Three tool slots show a bounded group of attempts. Follow keeps the most recently
+observed tool in view, including updates from an earlier long-running attempt.
+The range readout identifies the visible attempts; manual pages never overlap
+and stay pinned when new attempts arrive. All tools opens every observed attempt
+in the segment. Stage markers illuminate only hooks actually received. A start is
 an attempt, not proof that a tool body ran. Missing starts or ends leave duration
 unknown. The right-side Basalt Sheet contains timeline filters, original payloads,
 all tools, assistant text and provider-exposed thinking. Larger screens also show

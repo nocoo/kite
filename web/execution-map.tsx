@@ -278,7 +278,8 @@ export function ExecutionMap({
               <ChevronLeft />
             </IconButton>
             <span className="mono">
-              {window.page + 1} / {window.pages}
+              {window.tools.length ? window.offset + 1 : 0}–{window.offset + window.tools.length} /{" "}
+              {projection.tools.length}
             </span>
             <IconButton
               label="Next tool group"

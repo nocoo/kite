@@ -581,12 +581,12 @@ describe("execution bridge projections", () => {
       ...(projection.tools[0] as ToolAttempt),
       id: String(i),
     }));
-    expect(toolWindow(tools, null)).toEqual({ tools: tools.slice(4), page: 2, pages: 3 });
+    expect(toolWindow(tools, null)).toEqual({ tools: tools.slice(4), offset: 4, page: 2, pages: 3 });
     expect(toolWindow(tools, 0).tools).toEqual(tools.slice(0, 3));
     expect(toolWindow(tools, 1).tools).toEqual(tools.slice(3, 6));
     expect(toolWindow(tools, 99).page).toBe(2);
     expect(toolWindow(tools, -2).page).toBe(0);
-    expect(toolWindow([], null)).toEqual({ tools: [], page: 0, pages: 1 });
+    expect(toolWindow([], null)).toEqual({ tools: [], offset: 0, page: 0, pages: 1 });
   });
 });
 
@@ -632,4 +632,24 @@ it("uses the latest hook for fleet phase even when earlier work is remembered", 
   expect(fleetSummary([closed], 20_000).phases.tools).toBe(0);
   expect(filteredSessions([closed], "", "session")).toEqual([closed]);
   expect(filteredSessions([closed], "", "tools")).toEqual([]);
+});
+
+it("pages tools without duplicates and follows the latest observed attempt", () => {
+  const tools: ToolAttempt[] = [1, 2, 3, 4, 5, 6, 7].map((cursor) => ({
+    id: String(cursor),
+    name: "read",
+    cursor,
+    status: "attempt" as const,
+    detail: "",
+    hooks: [],
+  }));
+  const pages = [0, 1, 2].flatMap((page) => toolWindow(tools, page).tools.map((tool) => tool.id));
+  expect(pages).toEqual(tools.map((tool) => tool.id));
+  expect(toolWindow(tools, null).offset).toBe(4);
+  tools[0] = { ...(tools[0] as ToolAttempt), cursor: 100 };
+  expect(toolWindow(tools, null).tools).toEqual(tools.slice(0, 3));
+  expect(toolWindow(tools, 1).tools).toEqual(tools.slice(3, 6));
+  expect(toolWindow([...tools, { ...(tools[0] as ToolAttempt), id: "8", cursor: 110 }], 1).tools).toEqual(
+    tools.slice(3, 6),
+  );
 });
