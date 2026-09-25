@@ -20,3 +20,11 @@ identity; support documentation follows the repository license.
 
 The identity adoption commit published these assets only. Application
 implementation was developed separately and later merged into the main branch.
+
+The application now consumes transparent derivatives in `../../public/`: the
+sidebar uses `logo-24.png` with `logo-48.png` at 2×, and the browser uses
+`logo-16.png` and `logo-32.png`. All resize the entire approved canvas uniformly,
+preserving alpha, placement and colors without a background or CSS mask.
+Regenerate these checked-in PNGs on macOS with `node scripts/resize-logo.mjs`
+(the native `sips` tool). No image-generation or runtime image dependency is
+required. README presentation assets remain separate from navigation marks.

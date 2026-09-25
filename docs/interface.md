@@ -28,11 +28,28 @@ body executing; `agent_end` is distinct from `agent_settled`.
 Basalt 2.1.8 was verified on the permitted npm registry. Authoritative checkout
 read: `5dda9f82eb3c768a6b0d8723496ffd2ad5ce6af7`. Use published declarations and
 the standalone CSS contract, React 19, public controls, a single ContentIsland,
-semantic surface/color tokens and reduced-motion support. Archy's shell and
-relationship diagrams and reference/pi-agent-observability's swimlanes informed
-the composition. The initial application uses its name and a standard icon.
-The subsequently adopted artwork and its provenance are recorded in the
-[brand assets](../assets/brand/README.md).
+semantic surface/color tokens and reduced-motion support. Archy's relationship
+diagrams and reference/pi-agent-observability's swimlanes informed the execution
+map. Giraffe at `8c92d5a50df0b822dfd8b4227768d76aa107af23` is the application-shell
+reference: a 260/68px Sidebar, 56px AppHeader, ancestor-only breadcrumbs, GitHub
+and Hexly links, ThemeToggle last, and a single ContentIsland inside responsive
+outer gutters. Basalt owns the header, island and PageHeader geometry. Giraffe's
+local endpoint was unavailable during comparison; its checked-out components
+and the installed Basalt sources supplied the reference.
+
+`web/app-frame.tsx` owns responsive presentation, sidebar collapse and mobile
+Sheet state. It composes public Basalt components and routes the overview
+breadcrumb into the existing selection command. The mobile Sheet owns its focus
+trap and scroll lock. Views use StatCard, Banner, LayerCard.Empty and Accordion
+for metrics, notices, empty states and captured-payload disclosures. Business
+visualizations retain their observed-event semantics and animation.
+
+The approved transparent logo is used at 24px in both sidebar states, with a
+48px high-density source and 16/32px PNG favicons. Artwork provenance and the
+reproduction command are recorded in the [brand assets](../assets/brand/README.md).
+`node scripts/browser-check.mjs` checks shell dimensions, fixed logo anchors,
+breadcrumbs, header links, keyboard disclosure, drawer focus and scroll lock,
+responsive transitions, both themes and the existing live/replay interactions.
 
 ## Bounded live and replay clocks
 

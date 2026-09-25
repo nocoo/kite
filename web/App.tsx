@@ -1,17 +1,12 @@
+import { Badge, Button, Input, LayerCard } from "@nocoo/basalt";
+import { StatCard, StatGrid } from "@nocoo/basalt/charts/stat-card";
 import {
-  Badge,
-  Button,
-  DialogDescription,
-  DialogTitle,
-  Input,
-  LayerCard,
-  ThemeToggle,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@nocoo/basalt";
-import { AppHeader } from "@nocoo/basalt/components/app-header";
-import { AppMain, AppShell, AppSkipLink } from "@nocoo/basalt/components/app-shell";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@nocoo/basalt/components/accordion";
+import { Banner } from "@nocoo/basalt/components/banner";
 import { PageHeader } from "@nocoo/basalt/components/page-header";
 import { SectionRule } from "@nocoo/basalt/components/section-rule";
 import {
@@ -21,22 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@nocoo/basalt/components/select";
-import {
-  ContentIsland,
-  Sidebar,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarIconItem,
-  SidebarItem,
-  SidebarNav,
-  SidebarPartition,
-  SidebarProvider,
-} from "@nocoo/basalt/components/sidebar";
 import { Slider } from "@nocoo/basalt/components/slider";
 import {
   Activity,
   ArrowDownLeft,
-  ArrowLeft,
   ArrowRight,
   AudioLines,
   Blocks,
@@ -46,22 +29,15 @@ import {
   CircleDot,
   Clock3,
   Database,
-  Feather,
-  FileText,
   Folder,
   GitBranch,
   Globe2,
   Layers3,
-  Maximize2,
-  Menu,
-  Network,
   Pause,
   Play,
   Radio,
-  RefreshCw,
   ScanLine,
   Search,
-  ShieldCheck,
   SkipBack,
   SkipForward,
   Terminal,
@@ -71,16 +47,16 @@ import {
 } from "lucide-react";
 import {
   type CSSProperties,
-  type ReactNode,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
-  useState,
   useSyncExternalStore,
 } from "react";
-import packageInfo from "../package.json" with { type: "json" };
 import type { SessionSummary, StoredEvent } from "../src/store.ts";
+import { AppFrame } from "./app-frame.tsx";
+import { IconButton } from "./controls.tsx";
 import {
   directoryName,
   duration,
@@ -106,23 +82,6 @@ const icons = {
   compaction: Database,
 };
 
-function IconButton({
-  label,
-  children,
-  ...props
-}: { label: string; children: ReactNode } & React.ComponentProps<typeof Button>) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={label} {...props}>
-          {children}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
-    </Tooltip>
-  );
-}
-
 export function App({ vm }: { vm: Observatory }) {
   const state = useSyncExternalStore(vm.subscribe, vm.getSnapshot);
   const selectedKey = state.selected ? sessionKey(state.selected) : "";
@@ -133,166 +92,24 @@ export function App({ vm }: { vm: Observatory }) {
     document.getElementById("observatory-content")?.scrollTo({ top: 0, left: 0, behavior: "instant" });
     document.getElementById("main-content")?.focus({ preventScroll: true });
   }, [selectedKey]);
-  const [compact, setCompact] = useState(() => matchMedia("(max-width: 767px)").matches);
-  const [collapsed, setCollapsed] = useState(() => matchMedia("(max-width: 767px)").matches);
-  const [wall, setWall] = useState(false);
   useEffect(() => {
     vm.start();
     return () => vm.stop();
   }, [vm]);
-  useEffect(() => {
-    const query = matchMedia("(max-width: 767px)");
-    const change = () => {
-      setCompact(query.matches);
-      setCollapsed(query.matches);
-    };
-    query.addEventListener("change", change);
-    return () => query.removeEventListener("change", change);
-  }, []);
-  const choose = (session: SessionSummary | null) => {
-    void vm.select(session);
-    if (compact) setCollapsed(true);
-  };
+  const choose = useCallback(
+    (session: SessionSummary | null) => {
+      void vm.select(session);
+    },
+    [vm],
+  );
   return (
-    <SidebarProvider
-      collapsed={wall || collapsed}
-      onCollapsedChange={setCollapsed}
-      overlay={compact}
-      defaultWidth={224}
-    >
-      <AppShell className={`kite-shell ${wall ? "wall-mode" : ""}`}>
-        <AppSkipLink href="#main-content">Skip to observatory</AppSkipLink>
-        <Sidebar className="kite-sidebar">
-          {compact && (
-            <>
-              <DialogTitle className="sr-only">Kite navigation</DialogTitle>
-              <DialogDescription className="sr-only">
-                Choose the overview or a Pi recording.
-              </DialogDescription>
-            </>
-          )}
-          <SidebarHeader>
-            <div className="brand">
-              <span className="brand-mark">
-                <Feather />
-              </span>
-              {!(collapsed || wall) && (
-                <>
-                  <strong>Kite</strong>
-                  <span className="version">{packageInfo.version}</span>
-                </>
-              )}
-            </div>
-          </SidebarHeader>
-          <SidebarNav aria-label="Observatory navigation">
-            {collapsed || wall ? (
-              <SidebarIconItem
-                aria-label="All sessions"
-                active={!state.selected}
-                onClick={() => choose(null)}
-              >
-                <Network />
-              </SidebarIconItem>
-            ) : (
-              <SidebarItem active={!state.selected} onClick={() => choose(null)}>
-                <Network />
-                <span>Observatory</span>
-                <span className="nav-count">{state.sessions.length}</span>
-              </SidebarItem>
-            )}
-            {!(collapsed || wall) && (
-              <>
-                <SidebarPartition>RECENT RECORDINGS</SidebarPartition>
-                <div className="session-nav">
-                  {state.sessions.slice(0, 14).map((session) => (
-                    <SidebarItem
-                      key={sessionKey(session)}
-                      active={state.selected !== null && sessionKey(session) === sessionKey(state.selected)}
-                      onClick={() => choose(session)}
-                    >
-                      <span
-                        className={`status-dot ${sessionStatus(session, state.now).toLowerCase().replaceAll(" ", "-")}`}
-                      />
-                      <span className="nav-session">
-                        <span>{directoryName(session.cwd)}</span>
-                        <small>{session.sessionId.slice(-8) || "Unassigned"}</small>
-                      </span>
-                    </SidebarItem>
-                  ))}
-                </div>
-              </>
-            )}
-          </SidebarNav>
-          <SidebarFooter>
-            {!(collapsed || wall) && (
-              <div className="side-footer">
-                <ShieldCheck />
-                <div>
-                  Local & passive<small>Seven days of history</small>
-                </div>
-              </div>
-            )}
-          </SidebarFooter>
-        </Sidebar>
-        <AppMain id="main-content" tabIndex={-1}>
-          <AppHeader
-            className="kite-header"
-            leading={
-              <IconButton
-                label="Toggle navigation"
-                onClick={() => {
-                  setWall(false);
-                  setCollapsed(!collapsed);
-                }}
-              >
-                <Menu />
-              </IconButton>
-            }
-            breadcrumbs={[{ label: "Kite", href: "/" }]}
-            title={state.selected ? directoryName(state.selected.cwd) : "Observatory"}
-            actions={
-              <>
-                <span
-                  className={`connection ${state.connected ? "connected" : "disconnected"}`}
-                  role="status"
-                >
-                  <span className="status-dot" />
-                  {state.connected
-                    ? "Collector connected"
-                    : state.loading
-                      ? "Connecting"
-                      : "Collector offline"}
-                </span>
-                <IconButton label={wall ? "Exit wall view" : "Wall view"} onClick={() => setWall(!wall)}>
-                  <Maximize2 />
-                </IconButton>
-                <ThemeToggle aria-label="Change theme" />
-              </>
-            }
-          />
-          <ContentIsland id="observatory-content" className="kite-island">
-            {state.error && (
-              <div className="notice error" role="alert">
-                <TriangleAlert />
-                <span>
-                  {state.error}. Start <code>npm start</code> to resume observation. Existing history stays on
-                  this machine.
-                </span>
-                <Button variant="outline" size="sm" onClick={() => void vm.refresh()}>
-                  <RefreshCw />
-                  Retry
-                </Button>
-              </div>
-            )}
-            {state.selected ? (
-              <Detail vm={vm} state={state} session={state.selected} />
-            ) : (
-              <Overview vm={vm} state={state} />
-            )}
-          </ContentIsland>
-        </AppMain>
-      </AppShell>
-    </SidebarProvider>
+    <AppFrame state={state} onSelect={choose} onRetry={() => void vm.refresh()}>
+      {state.selected ? (
+        <Detail vm={vm} state={state} session={state.selected} />
+      ) : (
+        <Overview vm={vm} state={state} />
+      )}
+    </AppFrame>
   );
 }
 
@@ -305,20 +122,20 @@ function Overview({ vm, state }: { vm: Observatory; state: ObservatoryState }) {
   const active = state.sessions.filter((session) => sessionStatus(session, state.now) === "Running");
   const metrics = [
     {
-      label: "RECENT RUN ACTIVITY",
+      label: "Recent run activity",
       value: active.length,
       caption: "Observed within 30 seconds",
       icon: Radio,
     },
-    { label: "RECORDINGS", value: state.sessions.length, caption: "Across Pi sessions", icon: Layers3 },
+    { label: "Recordings", value: state.sessions.length, caption: "Across Pi sessions", icon: Layers3 },
     {
-      label: "OBSERVATIONS",
+      label: "Observations",
       value: state.sessions.reduce((n, s) => n + s.eventCount, 0),
       caption: "Hooks captured locally",
       icon: Activity,
     },
     {
-      label: "TOOL ATTEMPTS",
+      label: "Tool attempts",
       value: state.sessions.reduce((n, s) => n + s.toolCount, 0),
       caption: "Including rejected calls",
       icon: Terminal,
@@ -327,12 +144,8 @@ function Overview({ vm, state }: { vm: Observatory; state: ObservatoryState }) {
   return (
     <div className="page-enter">
       <PageHeader
-        title={
-          <span className="page-title">
-            Pi, in motion<span className="title-dot">.</span>
-          </span>
-        }
-        description="A window into every session. Follow the work, one observation at a time."
+        title="Observatory"
+        description="Observe Pi sessions across directories. Follow live activity or replay captured steps."
         actions={
           <Badge variant="outline">
             <Database />
@@ -340,18 +153,17 @@ function Overview({ vm, state }: { vm: Observatory; state: ObservatoryState }) {
           </Badge>
         }
       />
-      <div className="metrics">
-        {metrics.map(({ label, value, caption, icon: Icon }) => (
-          <LayerCard key={label} className="metric" padding="none">
-            <div className="metric-label">
-              <span>{label}</span>
-              <Icon />
-            </div>
-            <strong>{state.loading || !state.connected ? "—" : value.toLocaleString()}</strong>
-            <small>{caption}</small>
-          </LayerCard>
+      <StatGrid columns={4} className="overview-metrics">
+        {metrics.map(({ label, value, caption, icon }) => (
+          <StatCard
+            key={label}
+            label={label}
+            value={state.loading || !state.connected ? "—" : value}
+            subtitle={caption}
+            icon={icon}
+          />
         ))}
-      </div>
+      </StatGrid>
       <SectionRule
         title="Session flight deck"
         actions={
@@ -374,28 +186,21 @@ function Overview({ vm, state }: { vm: Observatory; state: ObservatoryState }) {
         </div>
       ) : sessions.length === 0 ? (
         <LayerCard className="empty-card">
-          <div className="empty-orbit">
-            <Feather />
-            <span />
-            <span />
-          </div>
-          <h2>{state.sessionSearch ? "No matching sessions" : "Ready when Pi is."}</h2>
-          <p>
-            {state.sessionSearch
-              ? "Try a directory, session ID or model name."
-              : "Start a Pi session with the Kite extension. Its working directory and every observed step will appear here."}
-          </p>
-          {state.sessionSearch ? (
-            <Button variant="outline" onClick={() => vm.setSessionSearch("")}>
-              Clear search
-            </Button>
-          ) : (
-            <div className="empty-hint">
-              <Terminal />
-              <code>pi</code>
-              <span>Global extension · local observation</span>
-            </div>
-          )}
+          <LayerCard.Empty
+            title={state.sessionSearch ? "No matching sessions" : "Ready when Pi is."}
+            description={
+              state.sessionSearch
+                ? "Try a directory, session ID or model name."
+                : "Start a Pi session with the Kite extension. Its working directory and every observed step will appear here."
+            }
+            action={
+              state.sessionSearch ? (
+                <Button variant="outline" onClick={() => vm.setSessionSearch("")}>
+                  Clear search
+                </Button>
+              ) : undefined
+            }
+          />
         </LayerCard>
       ) : (
         <div className="flight-deck">
@@ -513,20 +318,8 @@ function Detail({
   );
   return (
     <div className="detail-page page-enter">
-      <div className="detail-back">
-        <Button variant="ghost" size="sm" onClick={() => void vm.select(null)}>
-          <ArrowLeft />
-          All sessions
-        </Button>
-        <span className="mono">{session.sessionId || "Unassigned session"}</span>
-      </div>
       <PageHeader
-        title={
-          <span className="detail-title">
-            <Folder />
-            {directoryName(session.cwd)}
-          </span>
-        }
+        title={directoryName(session.cwd)}
         description={<span className="mono directory-path">{session.cwd || "Directory not observed"}</span>}
         actions={
           <>
@@ -540,6 +333,10 @@ function Detail({
         }
       />
       <div className="recording-meta">
+        <span className="mono">
+          <Layers3 />
+          {session.sessionId || "Unassigned session"}
+        </span>
         <span>
           <Globe2 />
           {session.provider || "Unknown provider"} / {session.model || "Unknown model"}
@@ -555,22 +352,24 @@ function Detail({
       </div>
       <ReplayBar state={state} vm={vm} />
       {state.detailError && (
-        <div className="notice error" role="alert">
-          <TriangleAlert />
-          <span>{state.detailError}</span>
-          <Button variant="outline" size="sm" onClick={() => void vm.retryDetail()}>
-            Retry
-          </Button>
-        </div>
+        <Banner
+          variant="error"
+          size="sm"
+          role="alert"
+          className="detail-notice"
+          icon={<TriangleAlert />}
+          description={state.detailError}
+          action={<Banner.Action onClick={() => void vm.retryDetail()}>Retry</Banner.Action>}
+        />
       )}
       {(projection.gaps > 0 || projection.loss > 0) && (
-        <div className="notice warning">
-          <TriangleAlert />
-          <span>
-            Incomplete observation: {projection.gaps} missing sequence positions, {projection.loss} reported
-            dropped events. These counts may overlap.
-          </span>
-        </div>
+        <Banner
+          variant="alert"
+          size="sm"
+          className="detail-notice"
+          icon={<TriangleAlert />}
+          description={`Incomplete observation: ${projection.gaps} missing sequence positions, ${projection.loss} reported dropped events. These counts may overlap.`}
+        />
       )}
       <SectionRule
         title="Runtime anatomy"
@@ -696,12 +495,14 @@ function Detail({
                     Turn<strong>{current.correlation?.turnIndex ?? "—"}</strong>
                   </span>
                 </div>
-                <details className="payload" open>
-                  <summary>
-                    Captured payload <FileText />
-                  </summary>
-                  <pre>{JSON.stringify(current.payload, null, 2)}</pre>
-                </details>
+                <Accordion type="single" collapsible defaultValue="payload" className="payload">
+                  <AccordionItem value="payload">
+                    <AccordionTrigger>Captured payload</AccordionTrigger>
+                    <AccordionContent>
+                      <pre>{JSON.stringify(current.payload, null, 2)}</pre>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </LayerCard.Body>
             ) : (
               <LayerCard.Empty
@@ -722,10 +523,14 @@ function Detail({
                 <span className="small muted">{projection.tokens.toLocaleString()} tokens in segment</span>
               </div>
               {projection.thinking && (
-                <details>
-                  <summary>Provider-exposed thinking</summary>
-                  <pre>{projection.thinking}</pre>
-                </details>
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="thinking">
+                    <AccordionTrigger>Provider-exposed thinking</AccordionTrigger>
+                    <AccordionContent>
+                      <pre>{projection.thinking}</pre>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               )}
               {projection.text && <pre>{projection.text}</pre>}
             </LayerCard>

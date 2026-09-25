@@ -58,3 +58,12 @@ Recorded playback accumulated elapsed time in the step counter. Switching to ste
 pacing then consumed the entire elapsed interval and skipped observations. Reset
 the step accumulator when changing pacing and test the transition after sustained
 playback, including the full first step interval and switching back.
+
+## Mobile navigation Escape handling
+
+The first Sheet composition put a Tooltip around the initially focused close
+button. The tooltip consumed Escape before the drawer could close. Use the
+standard Button directly for the visible close control. Browser verification
+now sends one Escape, waits for the dialog to unmount, and checks focus returns
+to the menu trigger and the body scroll lock is released. A screenshot or an
+unasserted keypress does not establish working dismissal.

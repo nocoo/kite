@@ -22,18 +22,7 @@ body {
   margin: 0;
   color: var(--kite-fg);
   font-family: var(--basalt-font-sans);
-  font-size: 13px;
   background: hsl(var(--basalt-background));
-}
-button,
-input {
-  font: inherit;
-}
-button {
-  cursor: pointer;
-}
-button:disabled {
-  cursor: default;
 }
 svg {
   flex-shrink: 0;
@@ -63,98 +52,6 @@ svg {
   gap: var(--kite-space-2);
   min-width: 0;
 }
-.kite-shell {
-  height: 100dvh;
-  overflow: hidden;
-}
-.kite-shell :where(.kite-header) {
-  min-height: 58px;
-  padding-right: var(--kite-space-6);
-}
-.kite-shell :where(.kite-island) {
-  overflow-y: auto;
-  padding: var(--kite-space-6) var(--kite-space-8);
-  scrollbar-gutter: stable;
-}
-.kite-shell :where(.kite-island > div) {
-  max-width: 1860px;
-  margin: 0 auto;
-}
-.kite-shell :where(.kite-sidebar) {
-  padding-top: 10px;
-}
-.kite-shell :where(.brand) {
-  height: 42px;
-  display: flex;
-  align-items: center;
-  gap: var(--kite-space-3);
-}
-.kite-shell :where(.brand strong) {
-  font-family: var(--basalt-font-display);
-  font-size: 24px;
-  letter-spacing: -1px;
-}
-.kite-shell :where(.brand-mark) {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 36px;
-  color: var(--kite-fg);
-}
-.kite-shell :where(.brand-mark .lucide) {
-  width: 24px;
-  height: 24px;
-  stroke-width: 1.3;
-}
-.kite-shell :where(.version) {
-  margin-left: auto;
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-  color: var(--kite-muted);
-}
-.kite-shell :where(.nav-count) {
-  margin-left: auto;
-  color: var(--kite-muted);
-  font-size: 11px;
-}
-.kite-shell :where(.session-nav) {
-  display: grid;
-  gap: var(--kite-space-1);
-}
-.kite-shell :where(.nav-session) {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  overflow: hidden;
-}
-.kite-shell :where(.nav-session > span) {
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-.kite-shell :where(.nav-session small) {
-  color: var(--kite-muted);
-  font-family: "SFMono-Regular", monospace;
-  font-size: 11px;
-}
-.kite-shell :where(.side-footer) {
-  display: flex;
-  gap: var(--kite-space-3);
-  padding: var(--kite-space-4);
-  color: var(--kite-muted);
-}
-.kite-shell :where(.side-footer small) {
-  display: block;
-  font-size: 11px;
-  margin-top: var(--kite-space-1);
-}
-.kite-shell :where(.connection) {
-  display: flex;
-  align-items: center;
-  gap: var(--kite-space-2);
-  font-size: 11px;
-  color: var(--kite-muted);
-  margin-right: var(--kite-space-3);
-}
 .kite-shell :where(.status-dot) {
   display: inline-block;
   flex-shrink: 0;
@@ -174,54 +71,6 @@ svg {
 .kite-shell :where(.status-dot.awaiting-input) {
   background: var(--kite-yellow);
 }
-.kite-shell :where(.page-title) {
-  font-family: var(--basalt-font-display);
-  font-weight: 500;
-  font-size: clamp(26px, 2.5vw, 38px);
-  letter-spacing: -1.5px;
-}
-.kite-shell :where(.title-dot) {
-  color: var(--kite-blue);
-}
-.kite-shell :where(.kite-island h1) {
-  margin-bottom: 2px;
-}
-.kite-shell :where(:where(.kite-island h1) + p) {
-  font-size: 13px;
-}
-.kite-shell :where(.metrics) {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--kite-space-3);
-  margin: var(--kite-space-6) 0 var(--kite-space-8);
-}
-.kite-shell :where(.metric) {
-  padding: var(--kite-space-4) var(--kite-space-5);
-}
-.kite-shell :where(.metric-label) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--kite-space-2);
-  font-size: 11px;
-  letter-spacing: 1px;
-  color: var(--kite-muted);
-}
-.kite-shell :where(.metric-label .lucide) {
-  color: hsl(var(--basalt-chart-pearl));
-}
-.kite-shell :where(.metric > strong) {
-  display: block;
-  font-weight: 450;
-  font-size: 36px;
-  letter-spacing: -1.2px;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.4;
-}
-.kite-shell :where(.metric > small) {
-  color: var(--kite-muted);
-  font-size: 11px;
-}
 .kite-shell :where(.search-field),
 .kite-shell :where(.timeline-search) {
   display: flex;
@@ -230,15 +79,13 @@ svg {
 }
 .kite-shell :where(.search-field) {
   width: 280px;
+  max-width: 100%;
 }
 .kite-shell :where(.search-field > svg),
 .kite-shell :where(.timeline-search > svg) {
   color: var(--kite-muted);
 }
-.kite-shell :where(.search-field input) {
-  height: 30px;
-  font-size: 12px;
-}
+
 .kite-shell :where(.flight-deck) {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
@@ -414,117 +261,12 @@ svg {
   align-items: center;
   gap: var(--kite-space-2);
 }
-.kite-shell :where(.empty-card) {
-  text-align: center;
-  padding: 56px var(--kite-space-6);
-  margin-top: var(--kite-space-4);
-}
-.kite-shell :where(.empty-card h2) {
-  font-size: 24px;
-  font-weight: 450;
-  letter-spacing: -0.6px;
-  margin: var(--kite-space-6) 0 var(--kite-space-2);
-}
-.kite-shell :where(.empty-card p) {
-  max-width: 410px;
-  margin: auto;
-  color: var(--kite-muted);
-  line-height: 1.8;
-}
-.kite-shell :where(.empty-orbit) {
-  width: 120px;
-  height: 100px;
-  margin: auto;
-  position: relative;
-  display: grid;
-  place-items: center;
-}
-.kite-shell :where(.empty-orbit > svg) {
-  width: 38px;
-  height: 38px;
-  color: var(--kite-blue);
-}
-.kite-shell :where(.empty-orbit > span) {
-  position: absolute;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  border: 1px dashed var(--kite-line);
-  transform: rotate(-30deg) scaleY(0.65);
-}
-.kite-shell :where(.empty-orbit > span:last-child) {
-  transform: rotate(45deg) scaleY(0.65);
-}
-.kite-shell :where(.empty-hint) {
-  margin: var(--kite-space-6) auto 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--kite-space-3);
-  color: var(--kite-muted);
-  font-size: 11px;
-}
-.kite-shell :where(.empty-hint code) {
-  color: var(--kite-fg);
-  padding: var(--kite-space-2) var(--kite-space-3);
-  border-radius: var(--basalt-radius-widget);
-  background: hsl(var(--basalt-bright));
-}
 .kite-shell :where(.skeleton-grid) {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--kite-space-4);
 }
-.kite-shell :where(.notice) {
-  display: flex;
-  align-items: center;
-  gap: var(--kite-space-3);
-  padding: var(--kite-space-3) var(--kite-space-4);
-  border-radius: var(--basalt-radius-widget);
-  margin: 0 0 var(--kite-space-4);
-  font-size: 12px;
-}
-.kite-shell :where(.notice > span) {
-  flex: 1;
-}
-.kite-shell :where(.notice.error) {
-  background: hsl(var(--basalt-danger-tint));
-  color: hsl(var(--basalt-danger));
-}
-.kite-shell :where(.notice.warning) {
-  background: hsl(var(--basalt-warning-tint));
-  color: hsl(var(--basalt-warning));
-}
-.kite-shell :where(.detail-back) {
-  display: flex;
-  align-items: center;
-  gap: var(--kite-space-4);
-  margin-bottom: var(--kite-space-4);
-}
-.kite-shell :where(.detail-back > span) {
-  font-size: 11px;
-  color: var(--kite-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.kite-shell :where(.detail-back button) {
-  padding-left: 0;
-}
-.kite-shell :where(.detail-title) {
-  display: flex;
-  align-items: center;
-  gap: var(--kite-space-3);
-  font-size: 28px;
-  letter-spacing: -0.8px;
-  font-weight: 500;
-}
-.kite-shell :where(.detail-title .lucide) {
-  width: 24px;
-  height: 24px;
-  color: var(--kite-muted);
-}
 .kite-shell :where(.directory-path) {
-  font-size: 12px;
   overflow-wrap: anywhere;
 }
 .kite-shell :where(.recording-meta) {
@@ -536,6 +278,8 @@ svg {
   font-size: 11px;
 }
 .kite-shell :where(.recording-meta > span) {
+  min-width: 0;
+  overflow-wrap: anywhere;
   display: flex;
   align-items: center;
   gap: var(--kite-space-2);
@@ -946,17 +690,7 @@ svg {
 .kite-shell :where(.payload) {
   margin-top: var(--kite-space-4);
 }
-summary {
-  font-size: 12px;
-  cursor: pointer;
-  padding: var(--kite-space-1) 0;
-}
-.kite-shell :where(.payload summary) {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: var(--kite-muted);
-}
+
 pre {
   font-size: 11px;
   line-height: 1.8;
@@ -1048,10 +782,7 @@ pre {
   line-height: 1.6;
   margin-top: var(--kite-space-5);
 }
-.kite-shell :where(.wall-mode .kite-sidebar) {
-  display: none;
-}
-.kite-shell :where(.wall-mode .flight-deck) {
+.kite-shell.wall-mode :where(.flight-deck) {
   grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
 }
 .kite-shell :where(.page-enter) {
@@ -1098,9 +829,6 @@ pre {
   }
 }
 @media (max-width: 1150px) {
-  .kite-shell :where(.kite-island) {
-    padding: var(--kite-space-5);
-  }
   .kite-shell :where(.replay-actions) {
     flex-wrap: wrap;
   }
@@ -1117,9 +845,6 @@ pre {
   }
 }
 @media (max-width: 900px) {
-  .kite-shell :where(.metrics) {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .kite-shell :where(.evidence-grid) {
     grid-template-columns: 1fr;
   }
@@ -1131,34 +856,6 @@ pre {
   }
 }
 @media (max-width: 767px) {
-  .kite-shell :where(.kite-island) {
-    padding: var(--kite-space-4);
-  }
-  .kite-shell :where(.kite-header) {
-    padding-right: var(--kite-space-3);
-  }
-  .kite-shell :where(.connection) {
-    font-size: 0;
-    margin-right: 0;
-  }
-  .kite-shell :where(.connection .status-dot) {
-    width: 7px;
-    height: 7px;
-  }
-  .kite-shell :where(.metrics) {
-    gap: var(--kite-space-2);
-    margin: var(--kite-space-5) 0;
-  }
-  .kite-shell :where(.metric) {
-    padding: var(--kite-space-3);
-  }
-  .kite-shell :where(.metric > strong) {
-    font-size: 28px;
-  }
-  .kite-shell :where(.metric-label) {
-    font-size: 11px;
-    letter-spacing: 0.5px;
-  }
   .kite-shell :where(.flight-deck) {
     grid-template-columns: 1fr;
   }
@@ -1197,14 +894,8 @@ pre {
   .kite-shell :where(.recording-meta) {
     gap: var(--kite-space-2);
   }
-  .kite-shell :where(.detail-back > span) {
-    max-width: 180px;
-  }
   .kite-shell :where(.skeleton-grid) {
     grid-template-columns: 1fr;
-  }
-  .kite-shell :where(.notice) {
-    flex-wrap: wrap;
   }
   .kite-shell :where(.runtime-legend) {
     gap: var(--kite-space-3);
@@ -1219,4 +910,19 @@ pre {
     transition: none;
     scroll-behavior: auto;
   }
+}
+
+.kite-shell :where(.overview-metrics) {
+  margin: var(--kite-space-6) 0;
+}
+@media (max-width: 639px) {
+  .kite-shell :where(.overview-metrics) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.kite-shell :where(.empty-card) {
+  margin-top: var(--kite-space-4);
+}
+.kite-shell :where(.detail-notice) {
+  margin-bottom: var(--kite-space-4);
 }
