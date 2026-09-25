@@ -1513,3 +1513,15 @@ svg {
   background: hsl(var(--basalt-accent));
   color: var(--kite-fg);
 }
+
+@container bridge (max-width: 340px) {
+  .kite-shell :where(.bridge-telemetry) {
+    gap: 4px;
+  }
+  .kite-shell :where(.bridge-telemetry svg) {
+    display: none;
+  }
+  .kite-shell :where(.bridge-telemetry > span) {
+    gap: 3px;
+  }
+}

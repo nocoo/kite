@@ -113,3 +113,7 @@ flag. Playing a closed recording therefore produced a green running beacon next
 to a fleet with zero running sessions. Keep live lifecycle state separate from
 playback: use a labeled replay badge and a distinct replay indicator, while the
 map continues animating captured events. Browser checks assert both indicators.
+
+The 320px telemetry row also overflowed inside the non-scrolling island even
+though document width stayed bounded. Remove decorative metric icons at that
+width and assert the island's horizontal scroll extent, not just the document's.

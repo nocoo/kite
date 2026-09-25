@@ -26,6 +26,8 @@ async function bounded(page, label) {
       width: innerWidth,
       height: innerHeight,
       documentWidth: document.documentElement.scrollWidth,
+      islandWidth: island.clientWidth,
+      islandScrollWidth: island.scrollWidth,
       islandHeight: island.clientHeight,
       islandScroll: island.scrollHeight,
       map: { x: map.x, y: map.y, width: map.width, height: map.height },
@@ -33,6 +35,7 @@ async function bounded(page, label) {
     };
   });
   assert.ok(measurement.documentWidth <= measurement.width, `${label}: document width`);
+  assert.ok(measurement.islandScrollWidth <= measurement.islandWidth + 1, `${label}: island width`);
   if (measurement.width >= 1280) {
     assert.ok(measurement.islandScroll <= measurement.islandHeight + 1, `${label}: island must not scroll`);
     for (const node of measurement.nodes) {
