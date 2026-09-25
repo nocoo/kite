@@ -185,14 +185,14 @@ try {
   await page.setViewportSize({ width: 1512, height: 982 });
   await page.getByRole("button", { name: "Change theme" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-mode", "light");
-  await page.screenshot({ path: `${output}bridge-recording-light.png` });
+  await page.screenshot({ path: `${output}bridge-recording-light.png`, animations: "disabled" });
   await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
   await expect.poll(async () => (await page.locator("aside.kite-sidebar").boundingBox()).width).toBe(68);
   assert.deepEqual(await page.locator(".brand-mark").boundingBox(), logo);
   await page.getByRole("button", { name: "Wall view", exact: true }).click();
   assert.equal(await page.locator(".kite-sidebar").isVisible(), false);
   await bounded(page, "wall 1512");
-  await page.screenshot({ path: `${output}bridge-wall-light.png` });
+  await page.screenshot({ path: `${output}bridge-wall-light.png`, animations: "disabled" });
   await page.getByRole("button", { name: "Exit wall view", exact: true }).click();
   await page.getByRole("button", { name: "Expand sidebar", exact: true }).click();
   await page.route("**/api/sessions?**", (route) =>

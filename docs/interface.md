@@ -33,6 +33,9 @@ stationary geometry, recent-signal highlights and dashed-path motion. Live
 highlights expire 2.5 seconds after actual observations; replay uses the recorded
 monotonic clock. Polling does not remount the map or restart an entrance animation.
 Reduced-motion mode removes animation while retaining state and color.
+Light mode derives diagram colors from the same Basalt chart hues at a lower
+OKLCH lightness, with stronger routes, state tracks and selected-session tint.
+The diagram aliases leave Basalt surfaces, control accents and dark colors intact.
 
 Three tool slots show a bounded group of attempts. Follow keeps the most recently
 observed tool in view, including updates from an earlier long-running attempt.

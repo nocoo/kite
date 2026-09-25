@@ -117,3 +117,16 @@ map continues animating captured events. Browser checks assert both indicators.
 The 320px telemetry row also overflowed inside the non-scrolling island even
 though document width stayed bounded. Remove decorative metric icons at that
 width and assert the island's horizontal scroll extent, not just the document's.
+
+## Light diagram contrast and settled screenshots
+
+The diagram reused pastel chart swatches for small text on white. Combined with
+low-opacity paths, this made labels and connections difficult to read in light
+mode despite acceptable dark screenshots. Derive darker diagram colors from
+the existing Basalt hues and measure text and graphic contrast against their
+actual backgrounds, including active and hover tints.
+
+The original light acceptance screenshot also captured unfinished theme
+transitions, producing gray nodes and a dark rail that were not stable theme
+surfaces. Finish transitions when capturing theme screenshots and compare
+settled computed styles before diagnosing or changing the surface system.

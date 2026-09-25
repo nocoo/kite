@@ -11,9 +11,18 @@
   --kite-pink: hsl(var(--basalt-chart-pink));
   --kite-green: hsl(var(--basalt-chart-green));
   --kite-yellow: hsl(var(--basalt-chart-yellow));
+  --kite-error: hsl(var(--basalt-destructive));
   --kite-fg: hsl(var(--basalt-foreground));
   --kite-muted: hsl(var(--basalt-muted-foreground));
   --kite-line: hsl(var(--basalt-border));
+}
+:root[data-mode="light"] {
+  --kite-blue: oklch(from hsl(var(--basalt-chart-blue)) 47% c h);
+  --kite-pink: oklch(from hsl(var(--basalt-chart-pink)) 47% c h);
+  --kite-green: oklch(from hsl(var(--basalt-chart-green)) 47% c h);
+  --kite-yellow: oklch(from hsl(var(--basalt-chart-yellow)) 47% c h);
+  --kite-error: hsl(var(--basalt-danger));
+  --kite-line: color-mix(in srgb, var(--kite-muted) 80%, hsl(var(--basalt-bright)));
 }
 * {
   box-sizing: border-box;
@@ -326,7 +335,7 @@ svg {
   display: flex;
   align-items: center;
   gap: 2px;
-  color: hsl(var(--basalt-destructive));
+  color: var(--kite-error);
 }
 .kite-shell :where(.fleet-errors svg) {
   width: 11px;
@@ -662,7 +671,7 @@ svg {
   white-space: nowrap;
 }
 .kite-shell :where(.tool-error) {
-  --phase: hsl(var(--basalt-destructive));
+  --phase: var(--kite-error);
 }
 .kite-shell :where(.tool-completed) {
   --phase: var(--kite-green);
@@ -1396,6 +1405,39 @@ svg {
   to {
     stroke-dashoffset: -90;
   }
+}
+:root[data-mode="light"] .kite-shell :where(.fleet-session.selected) {
+  background: color-mix(in srgb, var(--phase) 7%, hsl(var(--basalt-bright)));
+}
+:root[data-mode="light"]
+  .kite-shell
+  :where(
+    .module-node:not(:hover, .node-active, .node-selected, .node-recent),
+    .tool-node:not(:hover, .node-active, .node-selected, .node-recent)
+  ) {
+  border-color: color-mix(in srgb, var(--phase) 70%, hsl(var(--basalt-bright)));
+}
+:root[data-mode="light"] .kite-shell :where(.wire) {
+  opacity: 0.7;
+}
+:root[data-mode="light"] .kite-shell :where(.energized .wire) {
+  opacity: 0.95;
+}
+:root[data-mode="light"] .kite-shell :where(.energized .signal) {
+  opacity: 1;
+}
+:root[data-mode="light"]
+  .kite-shell
+  :where(
+    .module-number,
+    .module-trace .lit,
+    .core-segment.seen,
+    .map-legend .legend-seen,
+    .fleet-state > :last-child,
+    .conceptual-note,
+    .tool-vacant
+  ) {
+  opacity: 1;
 }
 @keyframes beacon {
   0%,
