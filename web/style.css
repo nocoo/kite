@@ -763,10 +763,6 @@ pre {
   max-height: 250px;
   overflow-y: auto;
 }
-.kite-shell :where(.response-card details) {
-  margin-top: var(--kite-space-3);
-  color: var(--kite-muted);
-}
 .kite-shell :where(.response-card .row) {
   flex-wrap: wrap;
 }
