@@ -279,7 +279,7 @@ export function ExecutionMap({
             return (
               <div
                 key={slot}
-                className={`fleet-instrument phase-${["provider", "tools", "session"][slot]}`}
+                className={`fleet-instrument phase-${["provider", "tools", "error"][slot]}`}
                 style={{ left: `${20 + slot * 30}%`, top: "83%" }}
               >
                 <span className="eyebrow">{["CAPTURED", "TOOL ATTEMPTS", "TOOL ERRORS"][slot]}</span>

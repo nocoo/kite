@@ -172,3 +172,7 @@ The intended icon-hiding selector used `:last-child`, which ignores text nodes;
 an icon followed only by button text still matched the last element child.
 Target non-combobox action icons explicitly, preserving Select chevrons. Check
 each replay control against its row bounds in both live and replay modes.
+
+The first redesign assigned the fleet's Tool Errors counter the session color.
+Use the same danger ink for summary errors and individual failed attempts;
+contrast alone does not establish consistent color meaning.

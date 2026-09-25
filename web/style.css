@@ -227,6 +227,7 @@ svg {
 }
 .kite-shell :where(.map-coordinate) {
   position: absolute;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: var(--kite-space-2);
@@ -565,7 +566,7 @@ svg {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.kite-shell :where(.tool-error) {
+.kite-shell :where(.tool-error, .phase-error) {
   --phase: var(--kite-error);
 }
 .kite-shell :where(.tool-completed) {
