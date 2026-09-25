@@ -63,10 +63,10 @@ describe("local API", () => {
     const signal = new AbortController().signal;
     const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true }) });
     vi.stubGlobal("fetch", fetcher);
-    expect(await api("health", signal)).toEqual({ ok: true });
-    expect(fetcher).toHaveBeenCalledWith("/api/health", { signal, headers: { "x-kite-client": "1" } });
+    expect(await api("live", signal)).toEqual({ ok: true });
+    expect(fetcher).toHaveBeenCalledWith("/api/live", { signal, headers: { "x-kite-client": "1" } });
     fetcher.mockResolvedValue({ ok: false, status: 503 });
-    await expect(api("health", signal)).rejects.toThrow("Collector is offline");
+    await expect(api("live", signal)).rejects.toThrow("Collector is offline");
     fetcher.mockResolvedValue({ ok: false, status: 400 });
     await expect(api("events", signal)).rejects.toThrow("Request failed (400)");
   });

@@ -1,5 +1,6 @@
 import { createServer, type IncomingMessage, request, type ServerResponse } from "node:http";
 import { afterEach, expect, it, vi } from "vitest";
+import packageInfo from "../package.json" with { type: "json" };
 import * as transport from "../src/transport.ts";
 import { webApi } from "../src/web-api.ts";
 
@@ -39,7 +40,6 @@ it("forwards only local read-only routes with no-store responses", async () => {
   const get = await start();
   expect((await get("/")).status).toBe(204);
   for (const [route, target] of [
-    ["health", "/health"],
     ["events?after=8", "/v1/events?after=8"],
     ["sessions", "/v1/sessions"],
   ]) {
@@ -52,6 +52,23 @@ it("forwards only local read-only routes with no-store responses", async () => {
   }
   expect((await get("/api/nope")).status).toBe(404);
   expect((await get("/api/events", { "x-kite-client": "1" }, "POST")).status).toBe(405);
+});
+it("reports the collector version through the protected live endpoint", async () => {
+  const body = { ok: true, version: packageInfo.version, schemaVersion: 1 };
+  const forward = vi.spyOn(transport, "localRequest").mockResolvedValue({ status: 200, body });
+  const get = await start();
+  expect((await get("/api/live", {})).status).toBe(403);
+  expect((await get("/api/live", { "x-kite-client": "1", "sec-fetch-site": "cross-site" })).status).toBe(403);
+  expect((await get("/api/live", { "x-kite-client": "1" }, "POST")).status).toBe(405);
+  expect(forward).not.toHaveBeenCalled();
+  const result = await get("/api/live");
+  expect(result.status).toBe(200);
+  expect(JSON.parse(result.body)).toEqual(body);
+  expect(result.headers["cache-control"]).toBe("no-store");
+  expect(forward).toHaveBeenLastCalledWith(transport.socketPath(), "/health");
+  expect((await get("/api/health")).status).toBe(404);
+  forward.mockRejectedValue(new Error("ENOENT"));
+  expect((await get("/api/live")).status).toBe(503);
 });
 it("rejects cross-origin, spoofed hosts and missing client headers", async () => {
   const forward = vi

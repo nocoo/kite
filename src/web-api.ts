@@ -29,7 +29,7 @@ export async function webApi(req: IncomingMessage, res: ServerResponse, next: ()
       return;
     }
     const routes: Record<string, string> = {
-      "/api/health": "/health",
+      "/api/live": "/health",
       "/api/events": "/v1/events",
       "/api/sessions": "/v1/sessions",
     };

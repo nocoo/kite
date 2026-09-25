@@ -68,7 +68,7 @@ function AppSidebar({
             <div className="brand-identity">
               <BrandMark />
               <span className="brand-name">Kite</span>
-              <span className="brand-version">v{packageInfo.version}</span>
+              <span className="brand-version mono">v{packageInfo.version}</span>
             </div>
             <Button
               variant="ghost"

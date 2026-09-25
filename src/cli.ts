@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import packageInfo from "../package.json" with { type: "json" };
 import { isRecord } from "./schema.ts";
 import { serve } from "./server.ts";
 import { defaultDirectory, localRequest } from "./transport.ts";
@@ -10,8 +11,14 @@ export async function main(
   output: (text: string) => void = console.log,
 ): Promise<(() => Promise<void>) | undefined> {
   const [command = "help", ...options] = args;
+  if (command === "--version") {
+    output(`v${packageInfo.version}`);
+    return;
+  }
   if (command === "help" || command === "--help") {
-    output("kite serve|events|export [--dir PATH] [--after N] [--limit N] [--session ID] [--source NAME]");
+    output(
+      `kite v${packageInfo.version}\nkite serve|events|export [--dir PATH] [--after N] [--limit N] [--session ID] [--source NAME]\nkite --version`,
+    );
     return;
   }
   if (!["serve", "events", "export"].includes(command)) throw new Error("Unknown command");

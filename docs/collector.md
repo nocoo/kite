@@ -85,6 +85,11 @@ names and scalar metadata, never animation state. Summary pages use an immutable
 with an exclusive `before` cursor and limits of 1–200. The identity cursor remains
 stable across partial pruning; `firstSeen` describes the retained events. The
 application sorts completed overview scans by latest activity. The browser's read-only
-`/api/health`, `/api/events` and `/api/sessions` bridge uses the private Unix socket;
+`/api/live`, `/api/events` and `/api/sessions` bridge uses the private Unix socket;
 its write paths are disabled. Exact host/origin checks and a required client header
 prevent cross-origin pages from reading traces.
+
+`/api/live` returns the running collector's `version` from the root package
+manifest, alongside `ok` and the independent event `schemaVersion`. It requires
+`x-kite-client: 1`, like every browser API route, and returns HTTP 503 when the
+collector is unavailable.

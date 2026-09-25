@@ -1,6 +1,7 @@
 import { chmodSync, closeSync, existsSync, lstatSync, mkdirSync, openSync } from "node:fs";
 import { createServer, type ServerResponse } from "node:http";
 import { join } from "node:path";
+import packageInfo from "../package.json" with { type: "json" };
 import { ConflictError, InputError, MAX_BATCH_BYTES } from "./schema.ts";
 import { EventStore } from "./store.ts";
 
@@ -28,7 +29,7 @@ export async function serve(directory: string) {
     try {
       const url = new URL(req.url ?? "/", "http://localhost");
       if (req.method === "GET" && url.pathname === "/health") {
-        send(res, 200, { ok: true, schemaVersion: 1 });
+        send(res, 200, { ok: true, version: packageInfo.version, schemaVersion: 1 });
         return;
       }
       if (req.method === "GET" && url.pathname === "/v1/events") {

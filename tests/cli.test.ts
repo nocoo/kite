@@ -1,6 +1,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import packageInfo from "../package.json" with { type: "json" };
 import { main, run } from "../src/cli.ts";
 import { localRequest } from "../src/transport.ts";
 import { event } from "./fixtures.ts";
@@ -16,6 +17,7 @@ describe("local collector CLI", () => {
     await main([], output);
     await main(["--help"], output);
     expect(output).toHaveBeenCalledTimes(2);
+    expect(output).toHaveBeenLastCalledWith(expect.stringContaining(`kite v${packageInfo.version}`));
     for (const args of [
       ["unknown"],
       ["events", "--bad", "x"],
@@ -25,6 +27,11 @@ describe("local collector CLI", () => {
     ]) {
       await expect(main(args, output)).rejects.toThrow();
     }
+  });
+  it("reports the manifest version without a running collector", async () => {
+    const output = vi.fn();
+    expect(await main(["--version"], output)).toBeUndefined();
+    expect(output).toHaveBeenCalledExactlyOnceWith(`v${packageInfo.version}`);
   });
   it("serves, filters pages, exports JSONL and reports query errors", async () => {
     const root = mkdtempSync("/tmp/kite-cli-");

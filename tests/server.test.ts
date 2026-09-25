@@ -2,6 +2,7 @@ import { chmodSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } fr
 import { createServer, IncomingMessage, request } from "node:http";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import packageInfo from "../package.json" with { type: "json" };
 import { MAX_BATCH_BYTES } from "../src/schema.ts";
 import { serve } from "../src/server.ts";
 import { EventStore } from "../src/store.ts";
@@ -27,7 +28,10 @@ describe("private Unix collector", () => {
     const dir = directory();
     let server = await serve(dir);
     closing.push(server.close);
-    expect((await localRequest(server.socket, "/health")).body).toEqual({ ok: true, schemaVersion: 1 });
+    expect(await localRequest(server.socket, "/health")).toEqual({
+      status: 200,
+      body: { ok: true, version: packageInfo.version, schemaVersion: 1 },
+    });
     expect(await localRequest(server.socket, "/v1/events", JSON.stringify([event()]))).toEqual({
       status: 200,
       body: { accepted: 1, inserted: 1 },
