@@ -24,7 +24,7 @@ web app displays multiple recordings and replays observed steps using MVVM.
   https://kite.dev.hexly.ai for local manual acceptance; 17055/27055 are test ports.
 - Keep application logic in web/model.ts and web/view-model.ts, measured by UT.
   TSX files are rendering/provider composition, verified with browser checks.
-  Basalt 2.1.8 standalone CSS is the sole design/CSS contract.
+  Basalt 2.2.0 standalone CSS is the sole design/CSS contract.
 
 ## Evidence
 
