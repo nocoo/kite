@@ -48,7 +48,7 @@ try {
   await page.route("**/api/events?**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: '{"events":[]}' }),
   );
-  await page.goto("https://kite.dev.hexly.ai");
+  await page.goto(process.env.KITE_BROWSER_ORIGIN ?? "http://127.0.0.1:7055");
   await expect(page.locator(".session-item")).toHaveCount(20);
   await expect(page.getByRole("textbox", { name: "Search sessions" })).toHaveCount(1);
   await expect(page.locator(".fleet-rail")).toHaveCount(0);

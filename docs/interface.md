@@ -99,7 +99,7 @@ rendered as text beside the visualization.
 The approved transparent logo is used at 24px in both sidebar states, with a
 48px high-density source and 16/32px PNG favicons. Artwork provenance and the
 reproduction command are recorded in the [brand assets](../assets/brand/README.md).
-`node scripts/browser-check.mjs` checks real local recordings, stable session and
+`node scripts/browser-check.mjs` checks isolated local recordings, stable session and
 node geometry, desktop viewport containment (1366–2560px), individual tool stages,
 filters, replay, payload disclosure, drawer focus, both themes, offline recovery
 and reduced motion. Screenshots and measurements are stored in `.local/evidence/`.

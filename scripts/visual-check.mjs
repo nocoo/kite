@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { chromium } from "@playwright/test";
+import { installIsolatedRoutes } from "./browser-fixture.mjs";
 
 const output = new URL("../.local/evidence/", import.meta.url).pathname;
 await mkdir(output, { recursive: true });
@@ -135,7 +136,8 @@ async function inspect(page, label) {
 try {
   const page = await browser.newPage({ viewport: { width: 1512, height: 982 } });
   page.setDefaultTimeout(15000);
-  await page.goto("https://kite.dev.hexly.ai");
+  await installIsolatedRoutes(page);
+  await page.goto(process.env.KITE_BROWSER_ORIGIN ?? "http://127.0.0.1:7055");
   await page.locator(".session-item").first().waitFor();
   for (const theme of ["dark", "light"]) {
     if ((await page.locator("html").getAttribute("data-mode")) !== theme)

@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { mkdir } from "node:fs/promises";
 import { chromium, expect } from "@playwright/test";
+import { installIsolatedRoutes } from "./browser-fixture.mjs";
 
-const origin = "https://kite.dev.hexly.ai";
+const origin = process.env.KITE_BROWSER_ORIGIN ?? "http://127.0.0.1:7055";
 const output = new URL("../.local/evidence/", import.meta.url).pathname;
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch({ channel: "chrome", headless: true });
@@ -52,6 +53,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1512, height: 982 } });
   page.setDefaultTimeout(15000);
   page.on("pageerror", (error) => errors.push(error.message));
+  await installIsolatedRoutes(page);
   await page.goto(origin);
   await page.locator(".session-item").first().waitFor();
   await expect(page.locator("#observatory-content h1")).toHaveText("Execution bridge");
@@ -137,6 +139,19 @@ try {
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "From start", exact: true }).click();
   await expect(page.locator(".ribbon-events .event-row.selected small")).toHaveText("session_start");
+  await page.getByRole("button", { name: "Play replay", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Pause replay", exact: true })).toBeVisible();
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.waitForTimeout(600);
+  assert.ok(
+    (
+      await page
+        .locator(".execution-map *")
+        .evaluateAll((els) => els.map((el) => getComputedStyle(el).animationName))
+    ).every((name) => name === "none"),
+  );
+  await page.getByRole("button", { name: "Pause replay", exact: true }).click();
+  await page.emulateMedia({ reducedMotion: "no-preference" });
   const mapBefore = await page
     .locator(".module-node")
     .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()));
@@ -208,19 +223,9 @@ try {
   await page.getByRole("button", { name: "Retry", exact: true }).click();
   await page.getByText("Collector offline", { exact: true }).waitFor();
   await page.unroute("**/api/sessions?**");
+  await installIsolatedRoutes(page);
+  await page.getByRole("button", { name: "Retry", exact: true }).click();
   await page.getByText("Collector connected", { exact: true }).waitFor();
-  await page.getByRole("button", { name: "From start", exact: true }).click();
-  await page.getByRole("button", { name: "Play replay", exact: true }).click();
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.waitForTimeout(600);
-  assert.ok(
-    (
-      await page
-        .locator(".execution-map *")
-        .evaluateAll((els) => els.map((el) => getComputedStyle(el).animationName))
-    ).every((name) => name === "none"),
-  );
-  await page.getByRole("button", { name: "Pause replay", exact: true }).click();
   await page.getByRole("link", { name: "Observatory", exact: true }).click();
   await expect(page.getByRole("region", { name: "Fleet phase map" })).toBeVisible();
   const mobile = await browser.newPage({
@@ -230,6 +235,7 @@ try {
   });
   mobile.setDefaultTimeout(15000);
   mobile.on("pageerror", (error) => errors.push(error.message));
+  await installIsolatedRoutes(mobile);
   await mobile.goto(origin);
   await mobile.getByRole("region", { name: "Fleet phase map" }).waitFor();
   await bounded(mobile, "mobile global");
@@ -287,7 +293,7 @@ try {
         geometry,
         pageErrors: errors,
         checks: [
-          "real local recordings",
+          "isolated local recordings",
           "stable fleet ordering and map geometry",
           "desktop viewport containment",
           "individual tool stages",
