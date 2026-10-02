@@ -5,10 +5,10 @@ export const isolatedSession = {
   sessionId: "isolated-session",
   producerId: "kite-probe",
   firstCursor: 1,
-  lastCursor: 18,
+  lastCursor: 19,
   firstSeen: now - 60_000,
   lastSeen: now,
-  eventCount: 18,
+  eventCount: 19,
   cwd: "/workspace/kite",
   model: "offline",
   provider: "kite-probe",
@@ -93,6 +93,7 @@ export const isolatedEvents = [
       }),
     ];
   }),
+  event(19, "session_shutdown"),
 ];
 
 export async function installIsolatedRoutes(page) {

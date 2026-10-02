@@ -186,9 +186,17 @@ describe("private Unix collector", () => {
     };
     expect(oldest.events.map((item) => item.seq)).toEqual([1]);
   });
-  it("cleans up when the Unix socket path is too long", async () => {
-    const dir = join(directory(), "x".repeat(100));
-    await expect(serve(dir)).rejects.toThrow();
+  it.each(["x", "汉"])("enforces the portable byte boundary with %s paths", async (character) => {
+    const base = directory();
+    const available = 103 - Buffer.byteLength(join(base, "collector.sock")) - 1;
+    const width = Buffer.byteLength(character);
+    const name = character.repeat(Math.floor(available / width)) + "x".repeat(available % width);
+    const dir = join(base, name);
+    expect(Buffer.byteLength(join(dir, "collector.sock"))).toBe(103);
+    const server = await serve(dir);
+    closing.push(server.close);
+    expect((await localRequest(server.socket, "/health")).status).toBe(200);
+    await expect(serve(`${dir}x`)).rejects.toThrow("Unix socket path is too long");
   });
 });
 

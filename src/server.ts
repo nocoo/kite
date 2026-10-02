@@ -5,8 +5,8 @@ import packageInfo from "../package.json" with { type: "json" };
 import { ConflictError, InputError, MAX_BATCH_BYTES } from "./schema.ts";
 import { EventStore } from "./store.ts";
 
-// Linux sun_path is 108 bytes including the trailing NUL. macOS Node may bind longer paths.
-const maxUnixSocketPathBytes = 107;
+// macOS sun_path has 104 bytes including NUL; this bound also fits Linux.
+const maxUnixSocketPathBytes = 103;
 
 function privateFile(path: string): void {
   if (!existsSync(path)) closeSync(openSync(path, "wx", 0o600));
