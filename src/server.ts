@@ -5,6 +5,9 @@ import packageInfo from "../package.json" with { type: "json" };
 import { ConflictError, InputError, MAX_BATCH_BYTES } from "./schema.ts";
 import { EventStore } from "./store.ts";
 
+// Linux sun_path is 108 bytes including the trailing NUL. macOS Node may bind longer paths.
+const maxUnixSocketPathBytes = 107;
+
 function privateFile(path: string): void {
   if (!existsSync(path)) closeSync(openSync(path, "wx", 0o600));
   const stat = lstatSync(path);
@@ -16,6 +19,7 @@ export async function serve(directory: string) {
   const stat = lstatSync(directory);
   if (!stat.isDirectory() || (stat.mode & 0o077) !== 0) throw new Error("Storage directory must be private");
   const socket = join(directory, "collector.sock");
+  if (Buffer.byteLength(socket) > maxUnixSocketPathBytes) throw new Error("Unix socket path is too long");
   if (existsSync(socket)) throw new Error("Collector socket already exists");
   const path = join(directory, "events.sqlite");
   privateFile(path);
