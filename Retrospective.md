@@ -176,3 +176,7 @@ each replay control against its row bounds in both live and replay modes.
 The first redesign assigned the fleet's Tool Errors counter the session color.
 Use the same danger ink for summary errors and individual failed attempts;
 contrast alone does not establish consistent color meaning.
+
+## 2026-10-03 — Verify registry availability without weakening installation gates
+
+The dependency duty encountered two registry failures: npm12 rejected corporate-feed tarball URLs as remote fetches, and PR7 CI could not retrieve Vitest5.0.3 from the corporate registry (404 on both Node24 and26). The lock source normalization preserved every affected version, dependency field and integrity value. CI now selects the permitted Tencent mirror per installation command, matching the successful local frozen installation. Node matrices, lint/types/coverage/build checks and hooks remain intact; no remote-fetch exception, integrity removal, retry or skip was added. Keep the failed run37092501907 as evidence and verify the replacement current-head CI before merging.

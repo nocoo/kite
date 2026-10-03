@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: npm
-      - run: npm ci --registry https://packagefeedproxy.microsoft.io/npm/
+      - run: npm ci --registry https://mirrors.tencent.com/npm/
       - run: npm run check
       - run: npm run build
       - run: node dist/cli.js --version
