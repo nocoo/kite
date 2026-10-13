@@ -74,6 +74,43 @@ describe("transactional event store", () => {
     expect([...first, ...next].map((item) => item.seq)).toEqual(Array.from({ length: 80 }, (_, i) => i + 1));
     store.close();
   });
+  it("bounds producer-filtered pages by bytes without losing events across cursors", () => {
+    const store = new EventStore(":memory:");
+    store.append(
+      Array.from({ length: 80 }, (_, i) => ({
+        ...event(i + 1),
+        producerId: "target",
+        payload: "x".repeat(64000),
+      })),
+    );
+    for (let offset = 0; offset < 200; offset += 128) {
+      store.append(
+        Array.from({ length: Math.min(128, 200 - offset) }, (_, i) => ({
+          ...event(offset + i + 1),
+          producerId: "noise",
+          source: "gap",
+        })),
+      );
+    }
+    const first = store.query({ producerId: "target", limit: 1000 });
+    expect(first.length).toBeLessThan(80);
+    expect(first.every((item) => item.producerId === "target")).toBe(true);
+    const next = store.query({ producerId: "target", after: first.at(-1)?.cursor, limit: 1000 });
+    expect([...first, ...next].map((item) => item.seq)).toEqual(Array.from({ length: 80 }, (_, i) => i + 1));
+    store.close();
+  });
+  it("stops parsing at the byte cap while paginating batched reads", () => {
+    const store = new EventStore(":memory:");
+    store.append(Array.from({ length: 80 }, (_, i) => ({ ...event(i + 1), payload: "x".repeat(64000) })));
+    const parseSpy = vi.spyOn(JSON, "parse");
+    const first = store.query({ limit: 1000 });
+    expect(first.length).toBeLessThan(80);
+    expect(parseSpy.mock.calls.length).toBe(first.length);
+    parseSpy.mockRestore();
+    const next = store.query({ after: first.at(-1)?.cursor, limit: 1000 });
+    expect([...first, ...next].map((item) => item.seq)).toEqual(Array.from({ length: 80 }, (_, i) => i + 1));
+    store.close();
+  });
   it("commits, deduplicates, paginates and survives restart", () => {
     const dir = mkdtempSync(join(tmpdir(), "kite-store-"));
     directories.push(dir);
