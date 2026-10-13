@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.1 — 2026-10-13
+
+Patch dependency refresh and a collector query compatibility fix for Node.js 24
+experimental `node:sqlite` (used when running tests on Node 24/26 in CI).
+
+- Bump dev and runtime dependencies: `@types/node`, `@playwright/test`,
+  `@vitejs/plugin-react`, `vite`, `lucide-react`, `vitest`, `@vitest/coverage-v8`.
+- Pin transitive `source-map-js` to `1.2.2` (GHSA-68fv-2mgg-jv7q).
+- Keep byte-bounded event pages on batched SQLite reads instead of per-row
+  queries or full `LIMIT 1000` materialization after iterator lifetime issues
+  surfaced under staged-index checks.
+
 ## v0.1.0 — 2026-09-25
 
 First public source release of Kite, a local execution observatory for Pi.
