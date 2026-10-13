@@ -12,6 +12,7 @@ import {
 
 export const RETENTION_DAYS = 7;
 const RETENTION_MS = RETENTION_DAYS * 24 * 60 * 60 * 1000;
+const QUERY_BATCH_ROWS = 32;
 
 export interface StoredEvent extends TraceEvent {
   cursor: number;
@@ -166,40 +167,78 @@ export class EventStore {
     ) {
       throw new InputError("Invalid cursor or limit");
     }
-    const conditions = ["cursor > ?", "received >= ?"];
-    const params: (string | number)[] = [after, Date.now() - RETENTION_MS];
+    const retentionCutoff = Date.now() - RETENTION_MS;
+    const order = tail ? "DESC" : "ASC";
+    const filterConditions: string[] = [];
+    const filterParams: (string | number)[] = [];
     if (before !== undefined) {
-      conditions.push("cursor <= ?");
-      params.push(before);
+      filterConditions.push("cursor <= ?");
+      filterParams.push(before);
     }
     if (sessionId !== undefined) {
-      conditions.push("session = ?");
-      params.push(sessionId);
+      filterConditions.push("session = ?");
+      filterParams.push(sessionId);
     }
     if (source !== undefined) {
-      conditions.push("source = ?");
-      params.push(source);
+      filterConditions.push("source = ?");
+      filterParams.push(source);
     }
     if (producerId !== undefined) {
-      conditions.push("producer = ?");
-      params.push(producerId);
+      filterConditions.push("producer = ?");
+      filterParams.push(producerId);
     }
-    params.push(limit);
-    const rows = this.db
-      .prepare(
-        `SELECT cursor,received,body FROM events WHERE ${conditions.join(" AND ")} ORDER BY cursor ${tail ? "DESC" : "ASC"} LIMIT ?`,
-      )
-      .iterate(...params);
+    const filterSql = filterConditions.length > 0 ? ` AND ${filterConditions.join(" AND ")}` : "";
+    const selectBatch = this.db.prepare(
+      `SELECT cursor,received,body FROM events WHERE cursor > ? AND received >= ?${
+        order === "DESC" ? " AND cursor < ?" : ""
+      }${filterSql} ORDER BY cursor ${order} LIMIT ?`,
+    );
     const result: StoredEvent[] = [];
     let bytes = 0;
-    for (const row of rows) {
-      bytes += Buffer.byteLength(String(row.body)) + 128;
-      if (bytes > 4 * 1024 * 1024) break;
-      result.push({
-        ...JSON.parse(String(row.body)),
-        cursor: Number(row.cursor),
-        receivedAt: Number(row.received),
-      });
+    let byteCapReached = false;
+    let cursorAfter = after;
+    let cursorBefore = before !== undefined ? before + 1 : Number.MAX_SAFE_INTEGER;
+    while (result.length < limit && !byteCapReached) {
+      const batchLimit = Math.min(QUERY_BATCH_ROWS, limit - result.length);
+      const batchParams: (string | number)[] = [cursorAfter, retentionCutoff];
+      if (order === "DESC") {
+        batchParams.push(cursorBefore);
+      }
+      batchParams.push(...filterParams, batchLimit);
+      const rows = selectBatch.all(...batchParams) as Array<{
+        body: unknown;
+        cursor: number;
+        received: number;
+      }>;
+      if (rows.length === 0) {
+        break;
+      }
+      for (const row of rows) {
+        const body = String(row.body);
+        const rowBytes = Buffer.byteLength(body) + 128;
+        if (bytes + rowBytes > 4 * 1024 * 1024) {
+          byteCapReached = true;
+          break;
+        }
+        bytes += rowBytes;
+        const cursor = Number(row.cursor);
+        result.push({
+          ...JSON.parse(body),
+          cursor,
+          receivedAt: Number(row.received),
+        });
+        if (order === "DESC") {
+          cursorBefore = cursor;
+        } else {
+          cursorAfter = cursor;
+        }
+        if (result.length >= limit) {
+          break;
+        }
+      }
+      if (rows.length < batchLimit) {
+        break;
+      }
     }
     if (tail) result.reverse();
     return result;
