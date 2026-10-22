@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.2 — 2026-10-22
+
+Minor and patch dependency refresh for the web toolchain, test runner, linter,
+and React runtime.
+
+- Bump `vite` 8.3.4 → 8.3.5.
+- Bump `@biomejs/biome` 2.5.15 → 2.6.2 (migrate `biome.json` schema).
+- Bump `vitest` and `@vitest/coverage-v8` 5.0.4 → 5.0.5.
+- Bump `react` and `react-dom` 19.3.0 → 19.3.1.
+- Bump `@playwright/test` 1.64.0 → 1.64.1.
+- Bump `lucide-react` 1.55.0 → 1.61.0.
+
 ## v0.1.1 — 2026-10-13
 
 Patch dependency refresh and a collector query compatibility fix for Node.js 24
