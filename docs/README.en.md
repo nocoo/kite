@@ -26,7 +26,7 @@ The interface presents events actually observed by the extension. A tool start i
 
 ### Install and start
 
-Requires Node.js 24+ with `node:sqlite` and an installed Pi 0.87.1. Currently verified on macOS with Node.js 26.9.0; the collector uses a Unix domain socket and needs an environment that supports it.
+Requires Node.js 24+ with `node:sqlite` and an installed Pi 0.87.1. Currently verified on macOS with Node.js 26.12.1; the collector uses a Unix domain socket and needs an environment that supports it.
 
 ```sh
 git clone https://github.com/nocoo/kite.git

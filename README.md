@@ -26,7 +26,7 @@ Kite 是面向 Pi 用户的本地执行观察工具，由一个被动扩展、SQ
 
 ### 安装并启动
 
-需要 Node.js 24+（包含 `node:sqlite`）和已安装的 Pi 0.87.1。当前在 macOS、Node.js 26.9.0 上验证；采集器使用 Unix domain socket，需要支持该机制的运行环境。
+需要 Node.js 24+（包含 `node:sqlite`）和已安装的 Pi 0.87.1。当前在 macOS、Node.js 26.12.1 上验证；采集器使用 Unix domain socket，需要支持该机制的运行环境。
 
 ```sh
 git clone https://github.com/nocoo/kite.git
