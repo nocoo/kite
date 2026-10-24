@@ -60,33 +60,39 @@ function AppSidebar({
 }) {
   return (
     <Sidebar collapsed={collapsed} className="kite-sidebar">
-      <SidebarHeader className={collapsed ? "brand-collapsed" : undefined}>
-        {collapsed ? (
-          <BrandMark alt="Kite" />
-        ) : (
-          <div className="brand-row">
-            <div className="brand-identity">
-              <BrandMark />
-              <span className="brand-name">Kite</span>
-              <span className="brand-version mono">v{packageInfo.version}</span>
-            </div>
+      <SidebarHeader>
+        <div
+          className={
+            collapsed ? "flex w-full justify-center" : "flex w-full min-w-0 items-center justify-between"
+          }
+        >
+          <div className={collapsed ? "flex items-center" : "flex min-w-0 items-center gap-basalt-space-lg"}>
+            <BrandMark alt="Kite" />
+            {!collapsed ? (
+              <>
+                <span className="truncate text-lg font-semibold text-basalt-foreground md:text-xl">Kite</span>
+                <span className="brand-version mono">v{packageInfo.version}</span>
+              </>
+            ) : null}
+          </div>
+          {!collapsed ? (
             <Button
               variant="ghost"
               size="icon"
-              className="sidebar-toggle"
+              className="h-7 w-7 shrink-0"
               aria-label={mobile ? "Close navigation" : "Collapse sidebar"}
               onClick={onToggle}
             >
               {mobile ? <X /> : <PanelLeft />}
             </Button>
-          </div>
-        )}
+          ) : null}
+        </div>
       </SidebarHeader>
       {collapsed && (
         <Button
           variant="ghost"
           size="icon"
-          className="sidebar-expand"
+          className="mb-basalt-space-sm self-center"
           aria-label="Expand sidebar"
           onClick={onToggle}
         >
