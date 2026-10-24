@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.3 — 2026-10-24
+
+- Rebuild the sidebar on the Basalt template: shared header inset, 38px rows, library nav spacing and a centred collapsed rail replace the local brand inset, collapsed overrides and row padding.
+- Upgrade `@nocoo/basalt` to 3.2.1 and record it as the sole design/CSS contract.
+
 ## v0.1.2 — 2026-10-22
 
 Minor and patch dependency refresh for the web toolchain, test runner, linter,
