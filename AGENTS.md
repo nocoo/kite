@@ -45,7 +45,25 @@ measures callback/enqueue work with synthetic acknowledgements.
 
 `npm run prepare` installs the Husky launcher. `.husky/pre-commit` delegates to
 `scripts/check-index.mjs`, which checks the staged snapshot with a 120-second
-timeout. Keep the ordinary gate below 30 seconds; do not add caching or bypasses.
+timeout (override for self-tests: `KITE_CHECK_INDEX_LIMIT_MS`). The gate runs
+`biome` → `tsc --noEmit` → `vitest run --coverage` on the index snapshot and
+rejects missing `coverage/coverage-summary.json` or totals below 95%. Keep the
+ordinary gate below 30 seconds; do not add caching or bypasses.
+
+### L1 (6DQ)
+
+Measured on the release index snapshot via Husky → `scripts/check-index.mjs` →
+`npm run check` (lint + typecheck + coverage UT + `scripts/verify-coverage-summary.mjs`):
+
+- Statements 99.41%, branches 97.18%, functions 99.29%, lines 99.54%
+- Wall time ~3.0s on the isolated acceptance run
+
+Repeatable hook evidence: `npm run l1:self-test` (`scripts/l1-hook-self-test.mjs`)
+uses detached worktrees, asserts exit codes, and removes worktrees after each case.
+Scenarios: healthy index; UT failure; coverage below threshold; lint error; lint
+warning (`--error-on-warnings`); type error; focused `.only`; bad staged index with
+clean worktree; gate timeout (exit 124); SIGINT interruption; missing tooling on
+`PATH`; missing `coverage-summary.json` after vitest.
 
 `reference/` contains ignored upstream clones. Do not modify them or commit their
 contents. L1 audit reports belong in nmem, not in tracked repository reports.

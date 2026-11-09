@@ -1,9 +1,22 @@
 import { spawn } from "node:child_process";
-import { lstat, mkdir, mkdtemp, readdir, rm, symlink } from "node:fs/promises";
+import { constants as fsConstants } from "node:fs";
+import { access, lstat, mkdir, mkdtemp, readdir, rm, symlink } from "node:fs/promises";
 import { constants, tmpdir } from "node:os";
 import path from "node:path";
+import { verifyCoverageSummary } from "./verify-coverage-summary.mjs";
 
-const LIMIT_MS = 120_000;
+const LIMIT_MS = (() => {
+  const fromEnv = Number(process.env.KITE_CHECK_INDEX_LIMIT_MS);
+  if (Number.isFinite(fromEnv) && fromEnv > 0) return fromEnv;
+  return 120_000;
+})();
+
+/** @type {readonly [string, readonly string[]][]} */
+const GATE_STEPS = [
+  ["npx", ["biome", "check", "--error-on-warnings", "."]],
+  ["npx", ["tsc", "--noEmit"]],
+  ["npx", ["vitest", "run", "--coverage"]],
+];
 const CACHE_ENTRIES = new Set([".cache", ".vite"]);
 
 let snapshot;
@@ -85,6 +98,8 @@ function checkEnv(dir) {
   for (const key of Object.keys(env)) {
     if (key.startsWith("GIT_")) delete env[key];
   }
+  const childPath = process.env.KITE_CHECK_INDEX_CHILD_PATH;
+  if (childPath) env.PATH = childPath;
   env.TMPDIR = dir;
   env.TMP = dir;
   env.TEMP = dir;
@@ -92,6 +107,23 @@ function checkEnv(dir) {
   env.npm_config_cache = path.join(dir, ".npm-cache");
   env.npm_config_update_notifier = "false";
   return env;
+}
+
+async function dependenciesRoot(cwd) {
+  const common = await run("git", ["rev-parse", "--path-format=absolute", "--git-common-dir"], {
+    cwd,
+    env: process.env,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  const commonStatus = statusOf(common);
+  if (commonStatus !== 0) return null;
+  const commonDir = common.stdout.trim();
+  if (!commonDir) return null;
+  return path.dirname(commonDir);
+}
+
+async function assertTooling(repoRoot) {
+  await access(path.join(repoRoot, "node_modules"), fsConstants.R_OK);
 }
 
 async function linkNodeModules(repoRoot, dir) {
@@ -103,6 +135,11 @@ async function linkNodeModules(repoRoot, dir) {
     if (error?.code !== "ENOENT") throw error;
   }
   const source = path.join(repoRoot, "node_modules");
+  try {
+    await access(source, fsConstants.R_OK);
+  } catch {
+    throw new Error("node_modules is missing or not readable");
+  }
   const stat = await lstat(source);
   if (!stat.isDirectory() && !stat.isSymbolicLink()) {
     throw new Error("node_modules is missing");
@@ -148,8 +185,10 @@ async function main() {
       if (root.stderr) process.stderr.write(root.stderr);
       return rootStatus;
     }
-    const repoRoot = root.stdout.trim();
-    if (!repoRoot) return 1;
+    const workTreeRoot = root.stdout.trim();
+    if (!workTreeRoot) return 1;
+
+    const modulesRoot = (await dependenciesRoot(workTreeRoot)) || workTreeRoot;
 
     snapshot = await mkdtemp(path.join(tmpdir(), "kite-index-"));
     const prefix = snapshot.endsWith(path.sep) ? snapshot : `${snapshot}${path.sep}`;
@@ -157,7 +196,7 @@ async function main() {
       "git",
       ["checkout-index", "--all", "--ignore-skip-worktree-bits", `--prefix=${prefix}`],
       {
-        cwd: repoRoot,
+        cwd: workTreeRoot,
         env: process.env,
         stdio: ["ignore", "ignore", "pipe"],
       },
@@ -168,15 +207,26 @@ async function main() {
       return exportStatus;
     }
 
-    await linkNodeModules(repoRoot, snapshot);
+    await assertTooling(modulesRoot);
+    await linkNodeModules(modulesRoot, snapshot);
     if (aborted || timedOut) return statusOf({ code: 1, signal: null });
 
-    const checked = await run("npm", ["run", "check"], {
-      cwd: snapshot,
-      env: checkEnv(snapshot),
-      stdio: "inherit",
-    });
-    return statusOf(checked);
+    const env = checkEnv(snapshot);
+    for (const [command, args] of GATE_STEPS) {
+      const step = await run(command, args, {
+        cwd: snapshot,
+        env,
+        stdio: "inherit",
+      });
+      const stepStatus = statusOf(step);
+      if (stepStatus !== 0) return stepStatus;
+      if (aborted || timedOut) return statusOf({ code: 1, signal: null });
+    }
+
+    const coverageStatus = await verifyCoverageSummary(snapshot);
+    if (coverageStatus !== 0) return coverageStatus;
+    if (aborted || timedOut) return statusOf({ code: 1, signal: null });
+    return 0;
   } catch (error) {
     if (aborted) return aborted;
     if (timedOut) return 124;

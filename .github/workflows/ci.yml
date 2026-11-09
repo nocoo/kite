@@ -14,6 +14,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  l1:
+    name: L1 gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --registry https://mirrors.tencent.com/npm/
+      - run: npm run check
+      - run: npm run l1:self-test
+
   check:
     name: Node ${{ matrix.node }}
     runs-on: ubuntu-latest
