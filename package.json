@@ -20,6 +20,7 @@
     "lint": "biome check --error-on-warnings .",
     "test": "vitest run --coverage",
     "check": "npm run lint && npm run typecheck && npm test && node scripts/verify-coverage-summary.mjs",
+    "l1:self-test": "node scripts/l1-hook-self-test.mjs",
     "prepare": "husky",
     "start": "node dist/cli.js serve",
     "dev": "vite",
