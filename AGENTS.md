@@ -73,6 +73,6 @@ contents. L1 audit reports belong in nmem, not in tracked repository reports.
 Root `package.json` is the single version source; npm synchronizes
 `package-lock.json`. Keep UI/CLI versions and `/api/live` derived from it.
 Use `docs/releases.md` and the maintained `system0-github-versioning` procedure.
-GitHub `CI` must pass for the exact release commit on Node.js 24 and 26.
+GitHub `CI` must pass for the exact release commit on Node.js 26.
 This is a private npm package distributed through GitHub source releases;
 local installation does not imply npm publication or a hosted deployment.
