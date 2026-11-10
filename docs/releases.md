@@ -23,7 +23,7 @@ contracts, not copies of the Kite version.
    relevant browser checks described in the README. Preserve normal Git hooks.
 5. Commit explicit paths, push the release commit, and inspect its `CI` workflow.
    CI installs from the npm lockfile and runs strict lint, types, coverage, build
-   and built-CLI checks on Node.js 24 and 26. All four UT coverage metrics must
+   and built-CLI checks on Node.js 26. All four UT coverage metrics must
    remain at least 95%.
 
 ## Publish and verify
